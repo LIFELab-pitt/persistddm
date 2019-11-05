@@ -1,0 +1,183 @@
+﻿---------------------------------------------------------------------------------------
+					*** STROOP TASK WITH VOICE RECORDING *****(Norwegian
+---------------------------------------------------------)------------------------------			
+This script implements an example Stroop test with voice recordings.
+All responses are saved in audio files that can be analyzed after the experiment is over.
+
+
+last updated: 01-16-2015 by K.Borchert (katjab@millisecond.com) for Millisecond Software LLC
+
+Copyright © 01-16-2015 Millisecond Software
+---------------------------------------------------------------------------------------
+*** DEFAULTS *****
+---------------------------------------------------------------------------------------			
+requires Inquisit 4.0.2.0  or higher
+
+<defaults>
+/minimumversion = "4.0.2.0"
+/ fontstyle = ("Arial", 6.00%, true, false, false, false, 5, 1)
+/ inputdevice = voicerecord
+/ posttrialpause = 500
+</defaults>
+
+---------------------------------------------------------------------------------------
+*** VALUES *****
+---------------------------------------------------------------------------------------			
+/completed:					0 = script was not completed (prematurely aborted); 1 = script was completed (all conditions run)
+
+/congruence:				1 = congruent in color and word ; 2 = incongruent
+
+<values>
+/completed = 0
+/congruence = 0
+</values>
+
+
+---------------------------------------------------------------------------------------
+*** DATA *****
+---------------------------------------------------------------------------------------			
+
+---------
+raw data
+---------
+build:							Inquisit build
+date, time, subject, group:		date and time script was run with the current subject/groupnumber 
+blockcode, blocknum:			the name and number of the current block
+trialcode, trialnum: 			the name and number of the currently recorded trial
+									(Note: not all trials that are run might record data) 
+congruence:						1 = congruent in color and word ; 2 = incongruent
+stimulusitem:					the presented stimuli in order of trial presentation
+response:						the participant's response
+latency: 						the response latency (in ms)
+
+<data>
+/separatefiles = true 
+/ columns = [date time subject blockcode blocknum trialcode trialnum values.congruence 
+			stimulusitem stimulusitem latency response ] 
+</data>
+
+---------
+summary data
+---------
+
+script.startdate:				date script was run
+script.starttime:				time script was started
+script.subjectid:				subject id number
+script.groupid:					group id number
+script.elapsedtime:				time it took to run script (in ms)
+/completed:						0 = script was not completed (prematurely aborted); 1 = script was completed (all conditions run)
+
+<summarydata>
+/columns = [script.startdate, script.starttime, script.subjectid, script.groupid, script.elapsedtime, values.completed]
+</summarydata>
+
+------------------------------------------------------------------------------------
+*** TEXTS AND TARGETS *****
+------------------------------------------------------------------------------------
+<text false>
+/ items = ("false")
+/ color = red
+/ position = (50,80)
+</text>
+
+<item words>
+/1 ="GUL"
+/2 ="RØD"
+/3 ="BLÅ"
+/4 ="GRØNN"		  		
+</item>
+
+<text yellow>
+/ items = words
+/ color = yello
+</text>
+
+<text green>
+/ items = words
+/ color = green
+</text>
+
+<text blue>
+/ items = words
+/ color = blue
+</text>
+
+<text red>
+/ items = words
+/ color = red
+</text>
+
+
+<text target>
+/ items = ("*")
+/ color = white
+</text>
+
+------------------------------------------------------------------------------------
+*** INSTRUCTION PAGES *****
+------------------------------------------------------------------------------------
+
+<instruct> 
+/ wait = 500
+/ fontstyle = ("Arial", 3%, true, false, false, false, 5, 1)
+</instruct>
+
+<page welcome>
+Welcome to the Stroop Color Task.
+</page>
+
+<page page1>
+Your task is to determine whether the word that appears on the screen is yellow, green, red or blue. Say the color of the word (not the meaning of the word). You will have 20 trials. Try to respond as quickly as you can, because you will be timed.
+</page>
+
+<page end>
+This is the end. Thank you for your participation. 
+</page>
+
+------------------------------------------------------------------------------------
+*** TRIALS *****
+------------------------------------------------------------------------------------
+
+<trial wordsred> 
+/ stimulustimes = [0=target;200=red]
+/ontrialend = [if (text.red.currentitemnumber == 2) values.congruence = 1 else values.congruence = 2]
+</trial>
+
+<trial wordsgreen> 
+/ stimulustimes = [0=target;200=green]
+/ontrialend = [if (text.green.currentitemnumber == 4) values.congruence = 1 else values.congruence = 2]
+</trial>
+
+<trial wordsblue> 
+/ stimulustimes = [0=target;200=blue]
+/ontrialend = [if (text.blue.currentitemnumber == 3) values.congruence = 1 else values.congruence = 2]
+</trial>
+
+<trial wordsyellow> 
+/ stimulustimes = [0=target;200=yellow]
+/ontrialend = [if (text.yellow.currentitemnumber == 1) values.congruence = 1 else values.congruence = 2]
+</trial>
+
+------------------------------------------------------------------------------------
+*** BLOCKS *****
+------------------------------------------------------------------------------------
+
+
+<block series1>
+/preinstructions =(page1)
+/ trials = [1-20 =noreplace(wordsred,wordsgreen,wordsyellow,wordsblue)]
+</block>
+
+------------------------------------------------------------------------------------
+*** EXPERIMENT*****
+------------------------------------------------------------------------------------
+
+<expt>
+/ blocks = [1=series1]
+/ preinstructions = (welcome)
+/ postinstructions = (end)
+/onexptend = [values.completed = 1]
+</expt>
+------------------------------------------------------------------------------------
+*** End of File*****
+------------------------------------------------------------------------------------

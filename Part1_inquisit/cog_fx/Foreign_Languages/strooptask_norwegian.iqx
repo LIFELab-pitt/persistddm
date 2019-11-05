@@ -1,0 +1,620 @@
+﻿*******************************************************************************************************************
+*******************************************************************************************************************
+												STROOP TEST - Norwegian 
+*******************************************************************************************************************
+*******************************************************************************************************************
+This script implements an example Stroop test with voice input.
+It runs a color naming task and a word naming task. The order is counterbalanced by groupnumber.
+
+last updated: 01-16-2015 by K.Borchert (katjab@millisecond.com) for Millisecond Software LLC
+
+Copyright © 01-16-2015 Millisecond Software
+*******************************************************************************************************************
+*******************************************************************************************************************
+DEFAULTS
+*******************************************************************************************************************
+*******************************************************************************************************************
+requires Inquisit 4.0.6.0
+
+<defaults>
+/ minimumversion = "4.0.6.0"
+/ canvasaspectratio = (4,3)
+/ fontstyle = ("Arial", 6.00%, true, false, false, false, 5, 1)
+/ txcolor = black
+/ inputdevice=voice
+/ screencolor = white
+</defaults>
+*******************************************************************************************************************
+*******************************************************************************************************************
+INSTRUCTIONS
+*******************************************************************************************************************
+*******************************************************************************************************************
+
+<page stroop>
+^In the following trials you will see words presented in different colors.
+^^Your task is to say aloud the COLOR in which each word is printed in while ignoring what the words actually say.
+^^^Example: if you see the word RED printed in the color GREEN say GREEN regardless of the meaning of the word.
+^^Try to respond as quickly and accurately as you can, because you will be timed. If an incorrect response is made, a red X will be flashed on the screen.
+</page>
+
+<page naming>
+^In the following trials you will see words presented in different colors.
+^^Your task is to say aloud the NAME of each word while ignoring the colors the words are printed in.
+
+^^Example: if you see the word RED say RED no matter what color the word is printed in.
+^^Try to respond as quickly and accurately as you can, because you will be timed. If an incorrect response is made, a red X will be flashed on the screen.
+</page>
+
+<page end>
+You have reached the end of the task.
+^^Thank you!
+</page>
+
+<instruct>
+/ fontstyle = ("Arial", 3%, true, false, false, false, 5, 1)
+/ txcolor = black
+</instruct>
+
+*******************************************************************************************************************
+*******************************************************************************************************************
+DATA
+*******************************************************************************************************************
+*******************************************************************************************************************
+
+***********************
+raw data
+***********************
+build:							Inquisit build
+date, time, subject, group:		date and time script was run with the current subject/groupnumber 
+blockcode, blocknum:			the name and number of the current block
+trialcode, trialnum: 			the name and number of the currently recorded trial
+									(Note: not all trials that are run might record data) 
+/congruence:					1= congruent; 2 = incongruent
+/color:							contains current color of the word
+
+stimulusitem:					the presented stimuli in order of trial presentation
+response:						the participant's response
+correct:						the correctness of the response (1 = correct; 0 = incorrect)
+latency: 						the response latency (in ms)
+
+/countcorrect_congruent:		counts all congruent trials in which participant responded correctly in a block
+/count_congruent:				counts all congruent trials in a block
+/sumRT_congruent:				sums up the latencies of all congruent trials in which participant responded correctly in a block
+/errorate_congruent:			mean errorrate for congruent trials
+/countcorrect_incongruent:		counts all incongruent trials in which participant responded correctly in a block
+/count_incongruent:				counts all incongruent trials in a block
+/sumRT_incongruent: 			sums up the latencies of all incongruent trials in which participant responded correctly in a block
+/errorate_incongruent:			mean errorate for incongruent trials
+
+<data>
+/separatefiles = true
+/columns = [build, date, time, subject, blockcode, blocknum, trialcode, trialnum, values.color, values.congruence, stimulusitem, response, correct, latency,
+			values.countcorrect_congruent, values.count_congruent, values.sumrt_congruent, expressions.meanrt_congruent, expressions.errorate_congruent,
+			values.countcorrect_incongruent, values.count_incongruent, values.sumrt_incongruent, expressions.meanrt_incongruent, expressions.errorate_incongruent]
+</data>
+
+***********************
+summary data
+***********************
+script.startdate:				date script was run
+script.starttime:				time script was started
+script.subjectid:				subject id number
+script.groupid:					group id number
+script.elapsedtime:				time it took to run script (in ms)
+/completed:						0 = script was not completed (prematurely aborted); 1 = script was completed (all conditions run)
+
+/meanrt_C_Color:				mean latencies for correct congruent (c) and correct incongruent (ic) stimuli in the color block
+/meanrt_IC_Color
+/errorrate_C_Color:				mean errorate for correct congruent (c) and correct incongruent (ic) stimuli in the color block
+/errorrate_IC_Color
+/meanrt_C_word :				mean latencies for correct congruent (c) and correct incongruent (ic) stimuli in the word naming block
+/meanrt_IC_word 
+/errorrate_C_word:				mean errorate for correct congruent (c) and correct incongruent (ic) stimuli in the word naming block
+/errorrate_IC_word
+
+<summarydata>
+/columns = [script.startdate, script.starttime, script.subjectid, script.groupid, script.elapsedtime, computer.platform, values.completed,
+			values.meanrt_c_color, values.meanrt_ic_color, values.errorrate_c_color, values.errorrate_ic_color,
+			values.meanrt_c_word, values.meanrt_ic_word, values.errorrate_c_word, values.errorrate_ic_word]
+</summarydata>
+
+
+*******************************************************************************************************************
+*******************************************************************************************************************
+VALUES: automatically updated
+*******************************************************************************************************************
+*******************************************************************************************************************
+/completed:										0 = script was not completed (prematurely aborted); 1 = script was completed (all conditions run)
+
+/congruence:									1= congruent; 2 = incongruent
+/color:											contains current color of the word
+
+/count_congruent:								counts all congruent trials in a block
+/count_incongruent:								counts all incongruent trials in a block
+/countcorrect_congruent:						counts all congruent trials in which participant responded correctly in a block
+/countcorrect_incongruent:						counts all incongruent trials in which participant responded correctly in a block
+/sumRT_congruent:								sums up the latencies of all congruent trials in which participant responded correctly in a block
+/sumRT_incongruent: 							sums up the latencies of all incongruent trials in which participant responded correctly in a block
+
+/meanrt_C_Color:								mean latencies for correct congruent (c) and correct incongruent (ic) stimuli in the color block
+/meanrt_IC_Color
+/meanrt_C_word :								mean latencies for correct congruent (c) and correct incongruent (ic) stimuli in the word naming block
+/meanrt_IC_word 
+/errorrate_C_Color:								mean errorate for correct congruent (c) and correct incongruent (ic) stimuli in the color block
+/errorrate_IC_Color
+/errorrate_C_word:								mean errorate for correct congruent (c) and correct incongruent (ic) stimuli in the word naming block
+/errorrate_IC_word
+
+<values>
+/completed = 0
+/congruence = 0
+/color = 0
+
+/count_congruent = 0
+/count_incongruent = 0
+/countcorrect_congruent = 0
+/countcorrect_incongruent = 0
+/sumRT_congruent = 0
+/sumRT_incongruent = 0
+
+/meanrt_C_Color = 0
+/meanrt_IC_Color = 0
+/meanrt_C_word = 0
+/meanrt_IC_word = 0
+/errorrate_C_Color = 0
+/errorrate_IC_Color = 0
+/errorrate_C_word = 0
+/errorrate_IC_word = 0
+</values>
+
+*******************************************************************************************************************
+*******************************************************************************************************************
+EXPRESSIONS
+*******************************************************************************************************************
+*******************************************************************************************************************
+/meanrt_congruent:			mean latencies for correct congruent trials
+/meanrt_incongruent:		mean latencies for correct incongruent trials
+/errorate_congruent:		mean errorrate for congruent trials
+/errorate_incongruent:		mean errorate for incongruent trials
+
+<expressions>
+/meanrt_congruent = (values.sumrt_congruent/values.countcorrect_congruent)
+/meanrt_incongruent = (values.sumrt_incongruent/values.countcorrect_incongruent)
+/errorate_congruent = (values.count_congruent - values.countcorrect_congruent)/values.count_congruent
+/errorate_incongruent = (values.count_incongruent - values.countcorrect_incongruent)/values.count_incongruent
+</expressions>
+
+*******************************************************************************************************************
+*******************************************************************************************************************
+STIMULI
+*******************************************************************************************************************
+*******************************************************************************************************************
+<item colors>
+/1 ="         RØD         "
+/2 ="        GRØNN        "
+/3 ="        BLÅ         "
+/4 ="        SVART        "
+/5 ="         GUL        "
+</item>
+
+BLACK = SVART
+ORANGE = ORANSJE
+RED = RØD
+BLUE = BLÅ
+GREEN=GRØNN
+PURPLE = LILLA
+GREY = GRÅ
+
+
+<text red>
+/items = colors
+/color = red
+</text>
+
+<text blue>
+/items = colors
+/color = blue
+</text>
+
+<text yellow>
+/items = colors
+/color = yellow
+</text>
+
+<text green>
+/items = colors
+/color = green
+</text>
+
+<text black>
+/items=colors
+/color = black
+</text>
+
+<text nred>
+/items=colors
+/select = 1
+</text>
+
+<text nblue>
+/items=colors
+/select = 3
+</text>
+
+<text nyellow>
+/items=colors
+/select = 5
+</text>
+
+<text ngreen>
+/items=colors
+/select = 2
+</text>
+
+<text nblack>
+/items=colors
+/select = 4
+</text>
+
+<text ready>
+/items=("Press the space bar when you are ready to start")
+/color = (100,100,100)
+/txbgcolor = transparent
+/size = (400, 200)
+/ fontstyle = ("Arial", 3%, true, false, false, false, 5, 1)
+</text>
+
+<text errormessage>
+/items=("X")
+/color = red
+</text>
+
+
+*******************************************************************************************************************
+*******************************************************************************************************************
+LISTS: Colornames
+*******************************************************************************************************************
+*******************************************************************************************************************
+
+Note: lists of possible colors for each color word. Colors are sampled randomly without replacement.
+
+<list colornames_red>
+/items = (red, green, blue, black, yellow)
+/replace = false
+</list>
+
+<list colornames_green>
+/items = (red, green, blue, black, yellow)
+/replace = false
+</list>
+
+<list colornames_blue>
+/items = (red, green, blue, black, yellow)
+/replace = false
+</list>
+
+<list colornames_black>
+/items = (red, green, blue, black, yellow)
+/replace = false
+</list>
+
+<list colornames_yellow>
+/items = (red, green, blue, black, yellow)
+/replace = false
+</list>
+*******************************************************************************************************************
+*******************************************************************************************************************
+RESPONSE MODE
+*******************************************************************************************************************
+*******************************************************************************************************************
+optional response element: by default it is not included in the trials but can be implemented by adding
+/responsemode = voice to all color and word naming trial elements.
+
+<response voice>
+/mode=free
+/timeout = 2000
+</response>
+*******************************************************************************************************************
+*******************************************************************************************************************
+TRIALS
+*******************************************************************************************************************
+*******************************************************************************************************************
+
+***********************************************
+Color Naming trials
+***********************************************
+
+<trial yellow>
+/ontrialbegin = [values.color = "yellow"]
+/stimulustimes = [0=yellow]
+/posttrialpause = 250
+/validresponse = ("yellow" "green" "blue" "black" "red")
+/correctresponse = ("yellow")
+/ontrialend = [if (text.yellow.currentitemnumber == 5) {
+						values.count_congruent += 1;
+						values.congruence = 1} 
+				else {
+						values.count_incongruent += 1;
+						values.congruence = 2}]
+/ontrialend = [if (text.yellow.currentitemnumber == 5 && trial.yellow.correct) {
+						values.countcorrect_congruent += 1;
+						values.sumrt_congruent += trial.yellow.latency}]
+/ontrialend = [if (text.yellow.currentitemnumber != 5 && trial.yellow.correct) {
+						values.countcorrect_incongruent += 1;
+						values.sumrt_incongruent += trial.yellow.latency}]
+</trial>
+
+<trial red>
+/ontrialbegin = [values.color = "red"]
+/stimulustimes = [0=red]
+/posttrialpause = 250
+/validresponse = ("yellow" "green" "blue" "black" "red")
+/correctresponse = ("red")
+/ontrialend = [if (text.red.currentitemnumber == 1) {
+						values.count_congruent += 1;
+						values.congruence = 1} 
+				else {
+						values.count_incongruent += 1;
+						values.congruence = 2}]
+/ontrialend = [if (text.red.currentitemnumber == 1 && trial.red.correct) {
+						values.countcorrect_congruent += 1;
+						values.sumrt_congruent += trial.red.latency}]
+/ontrialend = [if (text.red.currentitemnumber != 1 && trial.red.correct) {
+						values.countcorrect_incongruent += 1;
+						values.sumrt_incongruent += trial.red.latency}]
+
+</trial>
+
+<trial blue>
+/ontrialbegin = [values.color = "blue"]
+/stimulustimes = [0=blue]
+/posttrialpause = 250
+/validresponse = ("yellow" "green" "blue" "black" "red")
+/correctresponse = ("blue")
+/ontrialend = [if (text.blue.currentitemnumber == 3) {
+						values.count_congruent += 1;
+						values.congruence = 1} 
+				else {
+						values.count_incongruent += 1;
+						values.congruence = 2}]
+/ontrialend = [if (text.blue.currentitemnumber == 3 && trial.blue.correct) {
+						values.countcorrect_congruent += 1;
+						values.sumrt_congruent += trial.blue.latency}]
+/ontrialend = [if (text.blue.currentitemnumber != 3 && trial.blue.correct) {
+						values.countcorrect_incongruent += 1;
+						values.sumrt_incongruent += trial.blue.latency}]
+
+</trial>
+
+<trial black>
+/ontrialbegin = [values.color = "black"]
+/stimulustimes = [0=black]
+/posttrialpause = 250
+/validresponse = ("yellow" "green" "blue" "black" "red")
+/correctresponse = ("black")
+/ontrialend = [if (text.black.currentitemnumber == 4) {
+						values.count_congruent += 1;
+						values.congruence = 1} 
+				else {
+						values.count_incongruent += 1;
+						values.congruence = 2}]
+/ontrialend = [if (text.black.currentitemnumber == 4 && trial.black.correct) {
+						values.countcorrect_congruent += 1;
+						values.sumrt_congruent += trial.black.latency}]
+/ontrialend = [if (text.black.currentitemnumber != 4 && trial.black.correct) {
+						values.countcorrect_incongruent += 1;
+						values.sumrt_incongruent += trial.black.latency}]
+
+</trial>
+
+<trial green>
+/ontrialbegin = [values.color = "green"]
+/stimulustimes = [0=green]
+/posttrialpause = 250
+/validresponse = ("yellow" "green" "blue" "black" "red")
+/correctresponse = ("green")
+/ontrialend = [if (text.green.currentitemnumber == 2) {
+						values.count_congruent += 1;
+						values.congruence = 1} 
+				else {
+						values.count_incongruent += 1;
+						values.congruence = 2}]
+/ontrialend = [if (text.green.currentitemnumber == 2 && trial.green.correct) {
+						values.countcorrect_congruent += 1;
+						values.sumrt_congruent += trial.green.latency}]
+/ontrialend = [if (text.green.currentitemnumber != 2 && trial.green.correct) {
+						values.countcorrect_incongruent += 1;
+						values.sumrt_incongruent += trial.green.latency}]
+
+</trial>
+
+***********************************************
+Word Naming trials
+***********************************************
+<trial nyellow>
+/ontrialbegin = [values.color = list.colornames_yellow.nextvalue]
+/ontrialbegin = [text.nyellow.textcolor = values.color]
+/ontrialbegin = [if (values.color == yellow) {
+								values.congruence = 1;
+								values.count_congruent += 1}
+				else {
+								values.congruence = 2;
+								values.count_incongruent += 1}]
+/stimulustimes = [0=nyellow]
+/posttrialpause = 250
+/validresponse = ("yellow" "green" "blue" "black" "red")
+/correctresponse = ("yellow")
+/ontrialend = [if (values.congruence == 1 && trial.nyellow.correct) {
+						values.countcorrect_congruent += 1;
+						values.sumrt_congruent += trial.nyellow.latency}]
+/ontrialend = [if (values.congruence == 2 && trial.nyellow.correct) {
+						values.countcorrect_incongruent += 1;
+						values.sumrt_incongruent += trial.nyellow.latency}]
+
+</trial>
+
+
+<trial nred>
+/ontrialbegin = [values.color = list.colornames_red.nextvalue]
+/ontrialbegin = [text.nred.textcolor = values.color]
+/ontrialbegin = [if (values.color == red) {
+								values.congruence = 1;
+								values.count_congruent += 1}
+				else {
+								values.congruence = 2;
+								values.count_incongruent += 1}]
+/stimulustimes = [0=nred]
+/posttrialpause = 250
+/validresponse = ("yellow" "green" "blue" "black" "red")
+/correctresponse = ("red")
+/ontrialend = [if (values.congruence == 1 && trial.nred.correct) {
+						values.countcorrect_congruent += 1;
+						values.sumrt_congruent += trial.nred.latency}]
+/ontrialend = [if (values.congruence == 2 && trial.nred.correct) {
+						values.countcorrect_incongruent += 1;
+						values.sumrt_incongruent += trial.nred.latency}]
+
+</trial>
+
+<trial nblue>
+/ontrialbegin = [values.color = list.colornames_blue.nextvalue]
+/ontrialbegin = [text.nblue.textcolor = values.color]
+/ontrialbegin = [if (values.color == blue) {
+								values.congruence = 1;
+								values.count_congruent += 1}
+				else {
+								values.congruence = 2;
+								values.count_incongruent += 1}]
+/stimulustimes = [0=nblue]
+/posttrialpause = 250
+/validresponse = ("yellow" "green" "blue" "black" "red")
+/correctresponse = ("blue")
+/ontrialend = [if (values.congruence == 1 && trial.nblue.correct) {
+						values.countcorrect_congruent += 1;
+						values.sumrt_congruent += trial.nblue.latency}]
+/ontrialend = [if (values.congruence == 2 && trial.nblue.correct) {
+						values.countcorrect_incongruent += 1;
+						values.sumrt_incongruent += trial.nblue.latency}]
+
+</trial>
+
+<trial nblack>
+/ontrialbegin = [values.color = list.colornames_black.nextvalue]
+/ontrialbegin = [text.nblack.textcolor = values.color]
+/ontrialbegin = [if (values.color == black) {
+								values.congruence = 1;
+								values.count_congruent += 1}
+				else {
+								values.congruence = 2;
+								values.count_incongruent += 1}]
+/stimulustimes = [0=nblack]
+/posttrialpause = 250
+/validresponse = ("yellow" "green" "blue" "black" "red")
+/correctresponse = ("black")
+/ontrialend = [if (values.congruence == 1 && trial.nblack.correct) {
+						values.countcorrect_congruent += 1;
+						values.sumrt_congruent += trial.nblack.latency}]
+/ontrialend = [if (values.congruence == 2 && trial.nblack.correct) {
+						values.countcorrect_incongruent += 1;
+						values.sumrt_incongruent += trial.nblack.latency}]
+</trial>
+
+<trial ngreen>
+/ontrialbegin = [values.color = list.colornames_green.nextvalue]
+/ontrialbegin = [text.ngreen.textcolor = values.color]
+/ontrialbegin = [if (values.color == green) {
+								values.congruence = 1;
+								values.count_congruent += 1}
+				else {
+								values.congruence = 2;
+								values.count_incongruent += 1}]
+/stimulustimes = [0=ngreen]
+/posttrialpause = 250
+/validresponse = ("yellow" "green" "blue" "black" "red")
+/correctresponse = ("green")
+/ontrialend = [if (values.congruence == 1 && trial.ngreen.correct) {
+						values.countcorrect_congruent += 1;
+						values.sumrt_congruent += trial.ngreen.latency}]
+/ontrialend = [if (values.congruence == 2 && trial.ngreen.correct) {
+						values.countcorrect_incongruent += 1;
+						values.sumrt_incongruent += trial.ngreen.latency}]
+
+</trial>
+
+***********************************************
+Remaining trials
+***********************************************
+
+<trial ready>
+/stimulustimes = [0=ready]
+/correctresponse = (" ")
+/inputdevice = keyboard
+/recorddata = false
+</trial>
+
+*******************************************************************************************************************
+*******************************************************************************************************************
+BLOCKS
+*******************************************************************************************************************
+*******************************************************************************************************************
+
+Note: Runs 25 color naming trials (classic Stroop test) 
+
+<block colornaming>
+/onblockbegin = [values.count_congruent = 0; values.count_incongruent = 0; 
+				values.countcorrect_congruent = 0; values.countcorrect_incongruent = 0;
+				values.sumrt_congruent = 0; values.sumrt_incongruent = 0]
+/preinstructions=(stroop)
+/trials=[1=ready; 2-26=random(yellow, green, blue, red, black)]
+/errormessage=(errormessage, 0)
+/blockfeedback=(latency, correct)
+/onblockend = [values.meanrt_c_color = expressions.meanrt_congruent; values.meanrt_ic_color = expressions.meanrt_incongruent]
+/onblockend = [values.errorrate_c_color = expressions.errorate_congruent; values.errorrate_ic_color = expressions.errorate_incongruent]
+</block>
+
+Note: Runs 25 word naming trials 
+<block wordnaming>
+/onblockbegin = [values.count_congruent = 0; values.count_incongruent = 0; 
+				values.countcorrect_congruent = 0; values.countcorrect_incongruent = 0;
+				values.sumrt_congruent = 0; values.sumrt_incongruent = 0]
+/preinstructions=(naming)
+/trials=[1=ready; 2-26=random(nyellow, ngreen, nblue, nred, nblack)]
+/errormessage=(errormessage, 0)
+/blockfeedback=(latency, correct)
+
+/ontrialend = [if (values.color == red) values.color = "red"]
+/ontrialend = [if (values.color == blue) values.color = "blue"]
+/ontrialend = [if (values.color == green) values.color = "green"]
+/ontrialend = [if (values.color == black) values.color = "black"]
+/ontrialend = [if (values.color == yellow) values.color = "yellow"]
+
+/onblockend = [values.meanrt_c_word = expressions.meanrt_congruent; values.meanrt_ic_word = expressions.meanrt_incongruent]
+/onblockend = [values.errorrate_c_word = expressions.errorate_congruent; values.errorrate_ic_word = expressions.errorate_incongruent]
+
+</block>
+
+*******************************************************************************************************************
+*******************************************************************************************************************
+EXPERIMENT
+*******************************************************************************************************************
+*******************************************************************************************************************
+block order is counterbalanced by groupnumber
+
+<expt>
+/subjects = (1 of 2)
+/groupassignment = groupnumber
+/blocks = [1=colornaming; 2=wordnaming]
+/postinstructions = (end)
+/onexptend = [values.completed = 1]
+</expt>
+
+<expt>
+/subjects = (2 of 2)
+/groupassignment = groupnumber
+/blocks = [1=wordnaming; 2=colornaming]
+/postinstructions = (end)
+/onexptend = [values.completed = 1]
+</expt>
+*******************************************************************************************************************
+													End of File
+*******************************************************************************************************************

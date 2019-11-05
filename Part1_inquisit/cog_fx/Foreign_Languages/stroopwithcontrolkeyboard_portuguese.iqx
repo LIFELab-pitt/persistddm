@@ -1,0 +1,747 @@
+﻿<usermanual>
+						
+									STROOP TASK - with keyboard input
+									Portuguese Instructions
+SCRIPT INFO
+
+last updated: 04-19-2017 by K.Borchert (katjab@millisecond.com) for Millisecond Software LLC
+Copyright © 04-19-2017 Millisecond Software
+
+Millisecond Software thanks Dr. Eduardo Penna for help with translations!
+
+
+BACKGROUND INFO
+
+											*Purpose*
+This script implements the a version of the classic Stroop Task with keyboard input.
+
+Reference:
+Stroop, J, R. (1935). Studies of interference in serial verbal reactions. Journal of Experimental Psychology, 18, 643-662.
+
+											  *Task*
+Participants are given color words written in color and are asked to indicate the color of the word (not its meaning) by key press
+as fast as they can without making too many errors.
+Congruent trials: color word and the color it is presented in are the same
+Incongruent trials: color word and the color it is presented in are not the same
+Control trials: colored rectangles
+
+
+DATA FILE INFORMATION: 
+The default data stored in the data files are:
+
+(1) Raw data file: 'StroopWithControlKeyboard_Portuguese_raw*.iqdat' (a separate file for each participant)
+
+build:							Inquisit build
+computer.platform:				the platform the script was run on
+date, time, subject, group:		date and time script was run with the current subject/groupnumber 
+blockcode, blocknum:			the name and number of the current block
+trialcode, trialnum: 			the name and number of the currently recorded trial
+									(Note: not all trials that are run might record data; by default data is collected unless /recorddata = false is set for a particular trial/block) 
+/congruencey:					1 = congruent; 2 = incongruent; 3 = control 
+stimulusitem:					the presented stimuli in order of trial presentation
+response:						the participant's response (scancode of response button)
+correct:						the correctness of the response (1 = correct; 0 = incorrect)
+latency: 						the response latency (in ms)
+
+
+(2) Summary data file: 'StroopWithControlKeyboard_Portuguese_summary*.iqdat' (a separate file for each participant)
+
+script.startdate:				date script was run
+script.starttime:				time script was started
+script.subjectid:				subject id number
+script.groupid:					group id number
+script.elapsedtime:				time it took to run script (in ms)
+computer.platform:				the platform the script was run on
+/completed:						0 = script was not completed (prematurely aborted); 1 = script was completed (all conditions run)
+/propcorrect:					overall proportion correct of all trials
+/meanRT:						overall mean latency (in ms) of all correct trials
+/meanRTcorr_congruent:			mean latency of all correct congruent trials (in ms)
+/meanRTcorr_incongruent:		mean latency of all correct incongruent trials (in ms)
+/meanRtcorr_control:			mean latency of all correct control trials (in ms)
+/propcorrect_congruent:			proportion correct of congruent trials
+/propcorrect_incongruent:		proportion correct of all incongruent trials
+/propcorrect_control:			proportion correct of all control trials
+
+
+EXPERIMENTAL SET-UP
+
+1 Testblock with:
+* 4 colors (red, green, blue, black) x 3 color-stim congruency (congruent, incongruent, control) x 7 repetitions = 84 trials
+* trials are randomly sampled
+
+Trial Timing:
+- stimuli stay on screen until response (latencies are measured from onset of stimuli)
+- intertrial interval of 200ms
+- error feedback of 400ms
+
+
+STIMULI
+congruent/incongruent: color words
+control: rectangle shapes
+
+INSTRUCTIONS
+see section Editable Instructions
+
+EDITABLE CODE:
+check below for (relatively) easily editable parameters, stimuli, instructions etc. 
+Keep in mind that you can use this script as a template and therefore always "mess" with the entire code to further customize your experiment.
+
+
+</usermanual>
+
+
+**************************************************************************************************************
+**************************************************************************************************************
+	EDITABLE STIMULI
+**************************************************************************************************************
+**************************************************************************************************************
+
+<text redreminder>
+/ items = ("d = vermelho")
+/ position = (20%, 20%)
+/ fontstyle = ("Arial", 3%, true, false, false, false, 5, 0)
+/ erase = false
+/ txcolor = darkgray
+</text>
+
+<text greenreminder>
+/ items = ("f = verde")
+/ position = (40%, 20%)
+/ fontstyle = ("Arial", 3%, true, false, false, false, 5, 0)
+/ erase = false
+/ txcolor = darkgray
+</text>
+
+<text bluereminder>
+/ items = ("j = azul")
+/ position = (60%, 20%)
+/ fontstyle = ("Arial", 3%, true, false, false, false, 5, 0)
+/ erase = false
+/ txcolor = darkgray
+</text>
+
+<text blackreminder>
+/ items = ("k = preto")
+/ position = (80%, 20%)
+/ fontstyle = ("Arial", 3%, true, false, false, false, 5, 0)
+/ erase = false
+/ txcolor = darkgray
+</text>
+
+<text redincongruent>
+/ items = ("verde", "azul", "preto")
+/ color = red
+</text>
+
+<text redcongruent>
+/ items = ("vermelho")
+/ color = red
+</text>
+
+<text redcontrol>
+/ items = ("verde", "azul", "preto")
+/ color = red
+/ txbgcolor = red
+</text>
+
+<text blueincongruent>
+/ items = ("verde", "vermelho", "preto")
+/ color = blue
+</text>
+
+<text bluecongruent>
+/ items = ("azul")
+/ color = blue
+</text>
+
+<text bluecontrol>
+/ items = ("verde", "vermelho", "preto")
+/ color = blue
+/ txbgcolor = blue
+</text>
+
+<text greenincongruent>
+/ items = ("azul", "vermelho", "preto")
+/ color = green
+</text>
+
+<text greencongruent>
+/ items = ("verde")
+/ color = green
+</text>
+
+<text greencontrol>
+/ items = ("azul", "vermelho", "preto")
+/ color = green
+/ txbgcolor = green
+</text>
+
+<text blackincongruent>
+/ items = ("azul", "vermelho", "verde")
+/ color = black
+</text>
+
+<text blackcongruent>
+/ items = ("preto")
+/ color = black
+</text>
+
+<text blackcontrol>
+/ items = ("azul", "vermelho", "verde")
+/ color = black
+/ txbgcolor = black
+</text>
+
+<text ready>
+/items=("Pressione a barra de espaço quando estiver pronto para começar")
+/color = (100,100,100)
+/txbgcolor = transparent
+/size = (400, 200)
+/ fontstyle = ("Arial", 3%, true, false, false, false, 5, 1)
+</text>
+
+
+**************************************************************************************************************
+**************************************************************************************************************
+	EDITABLE INSTRUCTIONS: change instructions here
+**************************************************************************************************************
+**************************************************************************************************************
+
+
+Note: edits can be made in the htm-file directly
+<htmlpage stroop>
+/ file = "StroopInstructions1_Portuguese.htm"
+</htmlpage>
+
+
+<instruct>
+/ nextlabel = "Barra de Espaço"
+/ finishlabel = " Barra de Espaço "
+/ fontstyle = ("Arial", 2.8%, true, false, false, false, 5, 1)
+/ txcolor = black
+</instruct>
+
+<page end>
+^A demonstração do Stroop está concluída. Obrigado pela participação!
+^^^ Resumo do tempo de resposta médio
+^^Estímulos Congruentes: <%expressions.meanRTcorr_congruent%> ms
+^Estímulos Incongruentes: <%expressions.meanRTcorr_incongruent%> ms
+^Estímulos Controles: <%expressions.meanRtcorr_control%> ms
+</page>
+
+*******************************
+General Helper Instructions
+******************************
+
+<text getReady>
+/items = ("Prepare-se:
+~n<%expressions.buttoninstruct2%>")
+/ fontstyle = ("Arial", 3.00%, false, false, false, false, 5, 1)
+/ size = (80%, 40%)
+</text>
+
+*************************************************************************************
+general instruction expressions: adjust the instruction text depending on device used to run script
+*************************************************************************************
+<expressions>
+/buttoninstruct1 = if (computer.touch && !computer.haskeyboard) {"botão de resposta";} else {"tecla";}
+/buttoninstruct2 = if (computer.touch && !computer.haskeyboard) {"Posicione seus dedos médios e indicadores sobre as teclas 'd', 'f', 'j', and 'k' que são as teclas de resposta.";} else {"Posicione seus dedos sobre as teclas 'd', 'f', 'j', e 'k' ";}
+/buttoninstruct3 = if (computer.touch && !computer.haskeyboard) {" Com a entrada utilizando os botões de resposta "} else {"Teclado"}
+</expressions>
+
+***********************************************************
+these instructions will be run if the script is
+run on a touchscreen
+***********************************************************
+
+<text touchscreenInstruct1>
+/ items = ("Nota Geral sobre uso da tela de toque para esta tarefa:")
+/ fontstyle = ("Arial", 5%, true, false, false, false, 5, 1)
+/ position = (50%, 20%)
+/ size = (80%, 20%)
+/ vjustify = center
+</text>
+
+<text touchscreenInstruct2>
+/ items = ("Todas as teclas de resposta necessárias serão fornecidos na parte inferior da tela.")
+
+ 
+
+/ fontstyle = ("Arial", 3%, true, false, false, false, 5, 1)
+/ position = (50%, 50%)
+/ size = (70%, 30%)
+/ vjustify = center
+</text>
+
+**************************************************************************************************************
+				!!!REMAINING CODE: Customize after careful consideration only!!!
+**************************************************************************************************************
+
+
+**************************************************************************************************************
+**************************************************************************************************************
+	DEFAULTS
+**************************************************************************************************************
+**************************************************************************************************************
+script requires Inquisit 5.0.7.0 or higher
+
+<defaults>
+/canvasaspectratio = (4,3)
+/minimumversion = "5.0.7.0"
+/ screencolor = white
+/ fontstyle = ("Arial", 6.00%, true, false, false, false, 5, 1)
+/ txbgcolor = white
+/ txcolor = black
+/ inputdevice = keyboard
+</defaults>
+
+
+**************************************************************************************************************
+**************************************************************************************************************
+	DATA
+**************************************************************************************************************
+**************************************************************************************************************
+
+Note: data file explanations under User Manual Information at the top
+
+***********
+raw data
+***********
+
+<data> 
+/separatefiles = true
+/ columns = (build computer.platform date time subject blockcode blocknum trialcode trialnum values.congruency stimulusitem 
+			response correct latency)
+</data>
+
+**********
+summary data
+**********
+
+<summarydata>
+/columns = (script.startdate, script.starttime, script.subjectid, script.groupid, script.elapsedtime, computer.platform, values.completed,
+			expressions.propcorrect, expressions.meanRT,
+			expressions.meanRTcorr_congruent, expressions.meanRTcorr_incongruent, expressions.meanRTcorr_control,
+			expressions.propcorrect_congruent, expressions.propcorrect_incongruent, expressions.propcorrect_control)
+/ separatefiles = true
+</summarydata>
+
+**************************************************************************************************************
+**************************************************************************************************************
+	VALUES: automatically updated
+**************************************************************************************************************
+**************************************************************************************************************
+                                    
+/completed:				0 = script was not completed (script prematurely aborted); 1 = script was completed (all conditions run)
+/congruencey:			1 = congruent; 2 = incongruent; 3 = control 
+
+<values>
+/completed = 0
+/congruency = 0
+</values>
+
+
+**************************************************************************************************************
+**************************************************************************************************************
+	EXPRESSIONS
+**************************************************************************************************************
+**************************************************************************************************************
+/propcorrect:							overall proportion correct of all trials
+/meanRT:								overall mean latency (in ms) of all correct trials
+
+/meanRTcorr_congruent:					mean latency of all correct congruent trials (in ms)
+/meanRTcorr_incongruent:				mean latency of all correct incongruent trials (in ms)
+/meanRtcorr_control:					mean latency of all correct control trials (in ms)
+
+/propcorrect_congruent:					proportion correct of congruent trials
+/propcorrect_incongruent:				proportion correct of all incongruent trials
+/propcorrect_control:					proportion correct of all control trials
+
+
+<expressions>
+/propcorrect = list.responses.mean
+/meanRT = list.latencies.mean
+/meanRTcorr_congruent = list.latencies_congruent.mean
+/meanRTcorr_incongruent = list.latencies_incongruent.mean
+/meanRtcorr_control = list.latencies_control.mean
+/propcorrect_congruent = list.responses_congruent.mean
+/propcorrect_incongruent = list.responses_incongruent.mean
+/propcorrect_control = list.responses_control.mean
+</expressions>
+
+**************************************************************************************************************
+**************************************************************************************************************
+	STIMULI
+**************************************************************************************************************
+**************************************************************************************************************
+
+<text x>
+/ items = ("X")
+/ position = (50, 60)
+/ fontstyle = ("Arial", 7%, true, false, false, false, 5, 0)
+/ txcolor = red
+</text>
+
+<text target>
+/ items = ("*")
+/ color = white
+</text>
+
+**************************************************************************************************************
+**************************************************************************************************************
+	LISTS	
+**************************************************************************************************************
+**************************************************************************************************************
+
+*************************************************
+Data Lists: used for descriptive statistics
+store latencies/accuracy data
+fill up during runtime
+*************************************************
+
+<list responses>
+</list>
+
+<list latencies>
+</list>
+
+<list latencies_congruent>
+</list>
+
+<list latencies_incongruent>
+</list>
+
+<list latencies_control>
+</list>
+
+
+<list responses_congruent>
+</list>
+
+<list responses_incongruent>
+</list>
+
+<list responses_control>
+</list>
+
+**************************************************************************************************************
+**************************************************************************************************************
+	TRIALS 	
+**************************************************************************************************************
+**************************************************************************************************************
+
+<trial redcongruent> 
+/ontrialbegin = [
+	values.congruency = 1;
+]
+/ pretrialpause = 200
+/ stimulustimes = [1=redcongruent, redreminder, greenreminder, bluereminder, blackreminder]
+/ correctresponse = ("d")
+/ validresponse = ("d", "f", "j", "k")
+/ errormessage = true(x, 400)
+/ontrialend = [
+	list.responses.insertitem(trial.redcongruent.correct, 1);
+	list.responses_congruent.insertitem(trial.redcongruent.correct, 1);
+
+	if (trial.redcongruent.correct) {
+		list.latencies.insertitem(trial.redcongruent.latency, 1);
+		list.latencies_congruent.insertitem(trial.redcongruent.latency, 1);
+	}
+]
+</trial>
+
+<trial redincongruent> 
+/ontrialbegin = [
+	values.congruency = 2;
+]
+/ pretrialpause = 200
+/ stimulustimes = [1=redincongruent, redreminder, greenreminder, bluereminder, blackreminder]
+/ correctresponse = ("d")
+/ validresponse = ("d", "f", "j", "k")
+/ errormessage = true(x, 400)
+/ontrialend = [
+	list.responses.insertitem(trial.redincongruent.correct, 1);
+	list.responses_incongruent.insertitem(trial.redincongruent.correct, 1);
+
+	if (trial.redincongruent.correct) {		
+		list.latencies.insertitem(trial.redincongruent.latency, 1);
+		list.latencies_incongruent.insertitem(trial.redincongruent.latency, 1);
+	}
+]
+</trial>
+
+<trial redcontrol> 
+/ontrialbegin = [
+	values.congruency = 3;
+]
+/ pretrialpause = 200
+/ stimulustimes = [1=redcontrol, redreminder, greenreminder, bluereminder, blackreminder]
+/ correctresponse = ("d")
+/ validresponse = ("d", "f", "j", "k")
+/ errormessage = true(x, 400)
+/ontrialend = [
+	list.responses.insertitem(trial.redcontrol.correct, 1);
+	list.responses_control.insertitem(trial.redcontrol.correct, 1);
+	
+	if (trial.redcontrol.correct) {
+		list.latencies.insertitem(trial.redcontrol.latency, 1);
+		list.latencies_control.insertitem(trial.redcontrol.latency, 1);
+	}
+]
+</trial>
+
+<trial greencongruent> 
+/ontrialbegin = [
+	values.congruency = 1;
+]
+/ pretrialpause = 200
+/ stimulustimes = [1=greencongruent, redreminder, greenreminder, bluereminder, blackreminder]
+/ correctresponse = ("f")
+/ validresponse = ("d", "f", "j", "k")
+/ errormessage = true(x, 400)
+/ontrialend = [
+	list.responses.insertitem(trial.greencongruent.correct, 1);
+	list.responses_congruent.insertitem(trial.greencongruent.correct, 1);
+	
+	if (trial.greencongruent.correct) {
+		list.latencies.insertitem(trial.greencongruent.latency, 1);
+		list.latencies_congruent.insertitem(trial.greencongruent.latency, 1);		
+	}
+]
+</trial>
+
+<trial greenincongruent> 
+/ontrialbegin = [
+	values.congruency = 2;
+]
+/ pretrialpause = 200
+/ stimulustimes = [1=greenincongruent, redreminder, greenreminder, bluereminder, blackreminder]
+/ correctresponse = ("f")
+/ validresponse = ("d", "f", "j", "k")
+/ errormessage = true(x, 400)
+/ontrialend = [
+	list.responses.insertitem(trial.greenincongruent.correct, 1);
+	list.responses_incongruent.insertitem(trial.greenincongruent.correct, 1);
+
+	if (trial.greenincongruent.correct) {
+		list.latencies.insertitem(trial.greenincongruent.latency, 1);
+		list.latencies_incongruent.insertitem(trial.greenincongruent.latency, 1);
+	}
+]
+</trial>
+
+<trial greencontrol> 
+/ontrialbegin = [
+	values.congruency = 3;
+]
+/ pretrialpause = 200
+/ stimulustimes = [1=greencontrol, redreminder, greenreminder, bluereminder, blackreminder]
+/ correctresponse = ("f")
+/ validresponse = ("d", "f", "j", "k")
+/ errormessage = true(x, 400)
+/ontrialend = [
+	list.responses.insertitem(trial.greencontrol.correct, 1);
+	list.responses_control.insertitem(trial.greencontrol.correct, 1);
+
+	if (trial.greencontrol.correct) {
+		list.latencies.insertitem(trial.greencontrol.latency, 1);
+		list.latencies_control.insertitem(trial.greencontrol.latency, 1);
+	}
+]
+</trial>
+
+<trial bluecongruent> 
+/ontrialbegin = [
+	values.congruency = 1;
+]
+/ pretrialpause = 200
+/ stimulustimes = [1=bluecongruent, redreminder, greenreminder, bluereminder, blackreminder]
+/ correctresponse = ("j")
+/ validresponse = ("d", "f", "j", "k")
+/ errormessage = true(x, 400)
+/ontrialend = [
+	list.responses.insertitem(trial.bluecongruent.correct, 1);
+	list.responses_congruent.insertitem(trial.bluecongruent.correct, 1);
+
+	if (trial.bluecongruent.correct) {	
+		list.latencies.insertitem(trial.bluecongruent.latency, 1);
+		list.latencies_congruent.insertitem(trial.bluecongruent.latency, 1);		
+	}
+]
+</trial>
+
+<trial blueincongruent> 
+/ontrialbegin = [
+	values.congruency = 2;
+]
+/ pretrialpause = 200
+/ stimulustimes = [1=blueincongruent, redreminder, greenreminder, bluereminder, blackreminder]
+/ correctresponse = ("j")
+/ validresponse = ("d", "f", "j", "k")
+/ errormessage = true(x, 400)
+/ontrialend = [
+	list.responses.insertitem(trial.blueincongruent.correct, 1);
+	list.responses_incongruent.insertitem(trial.blueincongruent.correct, 1);
+	
+	if (trial.blueincongruent.correct) {
+		list.latencies.insertitem(trial.blueincongruent.latency, 1);
+		list.latencies_incongruent.insertitem(trial.blueincongruent.latency, 1);
+	}
+]
+</trial>
+
+<trial bluecontrol> 
+/ontrialbegin = [
+	values.congruency = 3;
+]
+/ pretrialpause = 200
+/ stimulustimes = [1=bluecontrol, redreminder, greenreminder, bluereminder, blackreminder]
+/ correctresponse = ("j")
+/ validresponse = ("d", "f", "j", "k")
+/ errormessage = true(x, 400)
+/ontrialend = [
+	list.responses.insertitem(trial.bluecontrol.correct, 1);
+	list.responses_control.insertitem(trial.bluecontrol.correct, 1);
+
+	if (trial.bluecontrol.correct) {		
+		list.latencies.insertitem(trial.bluecontrol.latency, 1);
+		list.latencies_control.insertitem(trial.bluecontrol.latency, 1);
+	}
+]
+</trial>
+
+<trial blackcongruent> 
+/ontrialbegin = [
+	values.congruency = 1;
+]
+/ pretrialpause = 200
+/ stimulustimes = [1=blackcongruent, redreminder, greenreminder, bluereminder, blackreminder]
+/ correctresponse = ("k")
+/ validresponse = ("d", "f", "j", "k")
+/ errormessage = true(x, 400)
+/ontrialend = [
+	list.responses.insertitem(trial.blackcongruent.correct, 1);
+	list.responses_congruent.insertitem(trial.blackcongruent.correct, 1);
+	
+	if (trial.blackcongruent.correct) {		
+		list.latencies.insertitem(trial.blackcongruent.latency, 1);
+		list.latencies_congruent.insertitem(trial.blackcongruent.latency, 1);		
+	}
+]
+</trial>
+
+<trial blackincongruent> 
+/ontrialbegin = [
+	values.congruency = 2;
+]
+/ pretrialpause = 200
+/ stimulustimes = [1=blackincongruent, redreminder, greenreminder, bluereminder, blackreminder]
+/ correctresponse = ("k")
+/ validresponse = ("d", "f", "j", "k")
+/ errormessage = true(x, 400)
+/ontrialend = [
+	list.responses.insertitem(trial.blackincongruent.correct, 1);
+	list.responses_incongruent.insertitem(trial.blackincongruent.correct, 1);
+	
+	if (trial.blackincongruent.correct) {		
+		list.latencies.insertitem(trial.blackincongruent.latency, 1);
+		list.latencies_incongruent.insertitem(trial.blackincongruent.latency, 1);
+	}
+]
+</trial>
+
+<trial blackcontrol> 
+/ontrialbegin = [
+	values.congruency = 3;
+]
+/ pretrialpause = 200
+/ stimulustimes = [1=blackcontrol, redreminder, greenreminder, bluereminder, blackreminder]
+/ correctresponse = ("k")
+/ validresponse = ("d", "f", "j", "k")
+/ errormessage = true(x, 400)
+/ontrialend = [
+	list.responses.insertitem(trial.blackcontrol.correct, 1);
+	list.responses_control.insertitem(trial.blackcontrol.correct, 1);
+
+	if (trial.blackcontrol.correct) {	
+		list.latencies.insertitem(trial.blackcontrol.latency, 1);
+		list.latencies_control.insertitem(trial.blackcontrol.latency, 1);
+	}
+]
+</trial>
+
+***********************************************
+Remaining trials
+***********************************************
+
+<trial ready>
+/stimulustimes = [0=ready]
+/correctresponse = (" ")
+/inputdevice = keyboard
+/recorddata = false
+</trial>
+
+This trial is used when participants are asked to place their fingers on specific response
+buttons. On the touchscreen, this trial presents the (inactive) response buttons to the participants.
+<trial getReady>
+/ stimulusframes = [1 = getReady]
+/ trialduration = 7000
+/ validresponse = (32,33,36,37)
+/ beginresponsetime = 7000
+/ errormessage = false
+/ recorddata = false
+</trial>
+
+<trial touchscreenInstruct>
+/ skip = [
+	!computer.touch || computer.haskeyboard;
+]
+/ stimulusframes = [1 = touchscreenInstruct1, touchscreenInstruct2]
+/ validresponse = (57)
+/ recorddata = false
+</trial>
+
+
+**************************************************************************************************************
+**************************************************************************************************************
+	BLOCKS
+**************************************************************************************************************
+**************************************************************************************************************
+
+<block stroop>
+/preinstructions = (stroop)
+/ onblockbegin = [
+	list.latencies.reset();
+	list.latencies_congruent.reset();
+	list.latencies_control.reset();
+	list.latencies_incongruent.reset();
+	list.responses.reset();
+	list.responses_congruent.reset();
+	list.responses_control.reset();
+	list.responses_incongruent.reset();
+]
+/ trials = [1=getReady; 2-85 =noreplace(redcongruent, redincongruent, redcontrol, greencongruent, greenincongruent, greencontrol, bluecongruent, blueincongruent, bluecontrol, blackcongruent, blackincongruent, blackcontrol)]
+</block>
+
+
+<block Instructions>
+/ trials = [1 = touchscreenInstruct]
+</block>
+
+**************************************************************************************************************
+**************************************************************************************************************
+	EXPERIMENT 
+**************************************************************************************************************
+**************************************************************************************************************
+
+<expt>
+/postinstructions = (end)
+/ blocks = [1 = Instructions; 2=stroop]
+/onexptend = [
+	values.completed = 1;
+]
+</expt>
+
+**************************************************************************************************************
+												End of File
+**************************************************************************************************************

@@ -1,0 +1,395 @@
+﻿<usermanual>
+						
+									SIMPLE REACTION TIME TASK - visual
+SCRIPT INFO
+
+Script Author: Katja Borchert, Ph.D. (katjab@millisecond.com) for Millisecond Software, LLC
+last updated: 01-26-2016 by K.Borchert (katjab@millisecond.com) for Millisecond Software LLC
+
+Copyright © 01-26-2016 Millisecond Software
+
+
+BACKGROUND INFO
+
+											*Purpose*
+This script runs a simple visual reaction time task. 
+
+											  *Task*
+The participant gets presented a fixation cross that is followed after variable time intervals 
+by a visual target stimulus (here: circle). The participant's task is to press the spacebar as soon as the target stimulus appears
+on the screen. Latency, mean latency, and latency standard deviation are recorded in the data file.
+
+DATA FILE INFORMATION: 
+The default data stored in the data files are:
+
+(1) Raw data file: 'SRTVisual_raw*.iqdat' (a separate file for each participant)
+
+build:								Inquisit build
+computer.platform:					the platform the script was run on
+date, time, subject, group:			date and time script was run with the current subject/groupnumber 
+blockcode, blocknum:				the name and number of the current block
+trialcode, trialnum: 				the name and number of the currently recorded trial
+										(Note: not all trials that are run might record data; by default data is collected unless /recorddata = false is set for a particular trial/block) 
+stimulusitem:						the first presented stimulus (=fixation cross)
+parameters.focusx:					the x-coordinate of the fixation cross
+parameters.focusy:					the y-coordinate of the fixation cross
+parameters.focuscolor:				the color of the fixation cross
+parameters.focussize:				the size of the fixation cross
+stimulusitem:						the second presented stimulus (=target)
+parameters.targetcolor:				the current color of the target circle
+parameters.targetsize:				the current color of the target circle
+parameters.targetx:					the x-coordinate of the target circle
+parameters.targety:					the y-coordinate of the target circle
+parameters.fixed:					0= fixed position of target; 1 = random position of target
+parameters.maxtrialnumber:			the number of trials in a block
+trials.SRTT.count	:				counts the SRTT trials run in a given block
+values.stiminterval:				the current stimulus interval
+latency:							the latency of the response (in ms)
+trial.SRTT.meanlatency:				the mean latency in the current block (in ms)
+trial.SRTT.medianlatency:			the median latency in the current block (in ms)
+trial.SRTT.minlatency:				the fastest response in the current block (in ms)
+trial.SRTT.maxlatency:				the slowest response in the current block (in ms)
+trial.SRTT.sdlatency:				the standard deviation of the latency responses in the current block
+trial.SRTT.varlatency:				the variance of the latency responses in the current block
+trial.SRTT.totalmeanlatency:		the mean latency across all trials.SRTT (in ms)
+trial.SRTT.totalmedianlatency:		the median latency across all trials.SRTT (in ms)
+trial.SRTT.totalminlatency:			the fastest response across all trials SRTT (in ms)
+trial.SRTT.totalmaxlatency:			the slowest response across all trials SRTT (in ms)
+trial.SRTT.totalsdlatency:			the the standard deviation of the latency responses across all trials SRTT
+trial.SRTT.totalvarlatency:			the variance of the latency responses across all trials SRTT
+
+
+(2) Summary data file: 'SRTVisual_summary*.iqdat' (a separate file for each participant)
+
+script.startdate:					date script was run
+script.starttime:					time script was started
+script.subjectid:					subject id number
+script.groupid:						group id number
+script.elapsedtime:					time it took to run script (in ms)
+computer.platform:					the platform the script was run on
+/completed:							0 = script was not completed (prematurely aborted); 1 = script was completed (all conditions run)
+trial.SRTT.totalmeanlatency:		the mean latency across all trials.SRTT (in ms)
+trial.SRTT.totalmedianlatency:		the median latency across all trials.SRTT (in ms)
+trial.SRTT.totalminlatency:			the fastest response across all trials SRTT (in ms)
+trial.SRTT.totalmaxlatency:			the slowest response across all trials SRTT (in ms)
+trial.SRTT.totalsdlatency:			the the standard deviation of the latency responses across all trials SRTT
+trial.SRTT.totalvarlatency:			the variance of the latency responses across all trials SRTT
+
+
+EXPERIMENTAL SET-UP
+* By default, the script runs 2 blocks of 20 trials each
+* By default, the fixation cross as well as the target stimuli appear in the center of the screen. Changes can be made under 
+section Editable Parameter, including changing the script so that the target stimuli appear randomly in one of 9 screen positions.
+* By default, the time intervals are randomly chosen  from 2000ms, 3000ms, 4000ms, 5000ms, 6000ms, 7000ms, 8000ms
+* By default, the fixation cross is black. 
+* By default, the color of the circle is red.
+* By default, the color of the screen background is white. 
+
+INSTRUCTIONS
+see section Editable Instructions
+
+EDITABLE CODE:
+check below for (relatively) easily editable parameters, stimuli, instructions etc. 
+Keep in mind that you can use this script as a template and therefore always "mess" with the entire code to further customize your experiment.
+
+The parameters you can change are:
+
+targetcolor:							sets the color of the circle; the default is red
+targetsize:								sets the size of the circle; the default is 10% of the vertical screen
+targetx:								sets the x-coordinate of  the target circle ; the default is the center (50%)
+targety:								sets the y-coordinate of the target circle , the default is the center (50%)
+focusx:									sets the x-coordinate of the focus stimulus; the default is the center (50%)
+focusy:									sets the y-coordinate of the focus stimulus; the default is the center (50%) 
+focuscolor:								sets the color of the focus stimulus; the default is black
+focussize:								sets the size of the focus stimulus
+maxtrialnumber:							sets the number of trials that should be run in a block; the default is 20
+screencolor:							sets the background color of the screen
+fixed:									determines whether to use the fixed coordinates for the target stimulus (= 0) or to select
+										randomly from 9 different screen positions (=1) ;  default is 0
+
+</usermanual>
+
+
+**************************************************************************************************************
+**************************************************************************************************************
+	EDITABLE PARAMETERS: change editable parameters here
+**************************************************************************************************************
+**************************************************************************************************************
+
+<parameters>
+/targetcolor = red
+/targetsize = 10%
+/targetx = 50%
+/targety = 50%
+/focusx = 50%
+/focusy = 50%
+/focuscolor = black
+/focussize = 10%
+/maxtrialnumber = 20
+/screencolor = white
+/fixed = 0 
+</parameters>
+
+**************************************************************************************************************
+**************************************************************************************************************
+	EDITABLE INSTRUCTIONS: change instructions here
+**************************************************************************************************************
+**************************************************************************************************************
+<instruct>
+/ fontstyle = ("Arial", 3.00%, false, false, false, false, 5, 0)
+/ txcolor = black
+</instruct>
+
+Note:
+Change instructions to suit your experiment
+
+<htmlpage instructions_1>
+/ file = "srt_instructions_1.html"
+</htmlpage>
+
+<page instructions_2>
+We will now do a practice round. Please place your fingers on the space bar. (add three trial practice rounds without feedback no practice right now)
+
+</page>
+
+<page post_practice_1>
+Great Job! 
+
+Now you will play the game for real. Please place your fingers on the space bar
+</page>
+
+<page post_game>
+Congratulations, you have finished the game!
+
+Please press the green button to have the experimenter come back to the room and start you on the next activity.
+</page>
+
+
+****************************************************************************************************
+general instruction expressions: adjust the instruction text depending on device used to run script
+****************************************************************************************************
+<expressions>
+/buttoninstruct1 = if (computer.touch && !computer.haskeyboard) {"A Spacebar button will be located at the bottom of your screen.";} else {"";}
+</expressions>
+
+
+**************************************************************************************************************
+**************************************************************************************************************
+	EDITABLE LISTS: change editable lists here
+**************************************************************************************************************
+**************************************************************************************************************
+
+**************************************************************
+STIMULUS PRESENTATION INTERVAL LIST
+**************************************************************
+Note:
+List.stimulusinterval randomly selects with replacement the amount of time that the focus stimulus will be shown before 
+presenting the target.
+
+<list stimulusinterval>
+/ items = (2000, 3000, 4000, 5000, 6000, 7000, 8000)
+/ replace = true
+/ selectionrate = trial
+</list>
+
+**************************************************************
+RANDOM TARGET POSITIONS LIST
+**************************************************************
+Note:
+list.targetposition selects randomly an x-coordinate and a y-coordinate, so that the target can appear in 9 different screen locations
+
+<list targetposition>
+/items = (25%, 50%, 75%)
+/replace = true
+/ selectionrate = always
+</list>
+
+**************************************************************************************************************
+								!!!REMAINING CODE: Customize after careful consideration only!!!
+**************************************************************************************************************
+
+
+**************************************************************************************************************
+**************************************************************************************************************
+	DEFAULTS
+**************************************************************************************************************
+**************************************************************************************************************
+script requires Inquisit 5.0.0.0 or higher
+
+<defaults>
+/ fontstyle = ("Arial", 3.5%)
+/ screencolor = (white)
+/ txbgcolor = (0,0,0)
+/ txcolor = (255, 255, 255)
+/ minimumversion = "5.0.0.0"
+/canvasaspectratio = (4,3)
+</defaults>
+
+**************************************************************************************************************
+**************************************************************************************************************
+	DATA
+**************************************************************************************************************
+**************************************************************************************************************
+
+Note: data file explanations under User Manual Information at the top
+
+*************************
+raw data
+*************************
+<data>
+/ columns = (build, computer.platform, date, time, subject, group, blockcode, blocknum, trialcode, trialnum,
+					stimulusitem, parameters.focusx, parameters.focusy, parameters.focuscolor,
+					stimulusitem, parameters.targetcolor, parameters.targetsize, parameters.fixed, parameters.targetx, parameters.targety, 
+					parameters.maxtrialnumber, trial.SRTT.count, values.stiminterval, response, correct, latency, 
+					trial.SRTT.meanlatency, trial.SRTT.medianlatency, trial.SRTT.minlatency, trial.SRTT.maxlatency, trial.SRTT.sdlatency, trial.SRTT.varlatency,
+					trial.SRTT.totalmeanlatency, trial.SRTT.totalmedianlatency, trial.SRTT.totalminlatency, trial.SRTT.totalmaxlatency, 
+					trial.SRTT.totalsdlatency, trial.SRTT.totalvarlatency)
+/ separatefiles = true
+</data>
+
+
+***********************
+Summary Data
+***********************
+
+<summarydata>
+/ columns = (script.startdate, script.starttime, script.subjectid, script.groupid, script.elapsedtime, computer.platform, values.completed, 
+			trial.SRTT.totalmeanlatency, trial.SRTT.totalmedianlatency, 
+			trial.SRTT.totalminlatency, trial.SRTT.totalmaxlatency, 
+			trial.SRTT.totalsdlatency, trial.SRTT.totalvarlatency)
+/ separatefiles = true
+</summarydata>
+
+**************************************************************************************************************
+**************************************************************************************************************
+	VALUES: automatically updated
+**************************************************************************************************************
+**************************************************************************************************************
+                                    
+completed:							0 = script was not completed (prematurely aborted); 1 = script was completed (all conditions run)
+stiminterval:						determines how long the focus stimulus is shown before the target stimulus is presented
+
+<values>
+/completed = 0
+/stiminterval = 0
+</values>
+
+**************************************************************************************************************
+**************************************************************************************************************
+	STIMULI
+**************************************************************************************************************
+**************************************************************************************************************
+
+***TARGETSTIMULUS: A CIRCLE
+<shape targetcircle>
+/ shape = circle
+/ position = (parameters.targetx, parameters.targety)
+/ color  = red
+/ size = (parameters.targetsize*0.75, parameters.targetsize)
+</shape>
+
+
+***FOCUSSTIMULUS: 
+<text focus>
+/ items = ("+")
+/position = (parameters.focusx, parameters.focusy)
+/ fontstyle = ("Arial", parameters.focussize, true, false, false, false, 5, 0)
+/ txcolor = black
+/ txbgcolor = white
+/erase = false
+</text>
+
+**************************************************************************************************************
+**************************************************************************************************************
+	TRIALS 	
+**************************************************************************************************************
+**************************************************************************************************************
+
+Note:
+trial.SRTT presents the fixationcross and the stimulus (either in a fixed position or randomly) and waits for pressing the spacebar. 
+
+<trial SRTT>
+/ ontrialbegin = [
+	if (parameters.fixed == 1) 
+			{parameters.targetx = list.targetposition.nextvalue; 
+			parameters.targety= list.targetposition.nextvalue};
+
+	values.stiminterval = list.stimulusinterval.nextvalue;
+	trial.SRTT.insertstimulustime(shape.targetcircle, values.stiminterval);
+]
+/ stimulustimes = [0 = focus]
+/ beginresponsetime = values.stiminterval
+/ validresponse = (57)
+/ correctresponse = (57)
+/ ontrialend = [trial.SRTT.resetstimulusframes()]
+/ branch = [trial.SRTT]  
+</trial>
+
+
+<trial practice_trial>
+/ ontrialbegin = [
+	if (parameters.fixed == 1) 
+			{parameters.targetx = list.targetposition.nextvalue; 
+			parameters.targety= list.targetposition.nextvalue};
+
+	values.stiminterval = list.stimulusinterval.nextvalue;
+	trial.SRTT.insertstimulustime(shape.targetcircle, values.stiminterval);
+]
+/ stimulustimes = [0 = focus]
+/ beginresponsetime = values.stiminterval
+/ validresponse = (57)
+/ correctresponse = (57)
+/ ontrialend = [trial.SRTT.resetstimulusframes()]
+/ branch = [trial.SRTT]  
+/ recorddata = false
+</trial>
+**************************************************************************************************************
+**************************************************************************************************************
+	BLOCKS
+**************************************************************************************************************
+**************************************************************************************************************
+
+Note: block.SRTTblock runs the specified number of trials with either a fixed or a random position for the target circles.
+If a separate block is needed for random target positions, copy the code below, rename the block, and add the line
+/ ontrialbegin = [parameters.fixed = 1]. 
+<block practice>
+/ onblockbegin = [ shape.targetcircle.color = parameters.targetcolor]
+/ onblockbegin = [text.focus.textcolor = parameters.focuscolor; text.focus.textbgcolor = parameters.screencolor]
+
+/ trials = [1 = SRTT]
+/ onblockbegin = [block.SRTTblock.screencolor = parameters.screencolor]
+/ preinstructions = (instructions_1, instructions_2)
+/ postinstructions = (post_practice_1)
+/ stop = [trial.SRTT.count == 3]
+</block>
+
+
+<block SRTTblock>
+/ onblockbegin = [ shape.targetcircle.color = parameters.targetcolor]
+/ onblockbegin = [text.focus.textcolor = parameters.focuscolor; text.focus.textbgcolor = parameters.screencolor]
+
+/ trials = [1 = SRTT]
+/ onblockbegin = [block.SRTTblock.screencolor = parameters.screencolor]
+/ postinstructions = (post_game)
+/ stop = [trial.SRTT.count == parameters.maxtrialnumber]
+</block>
+
+**************************************************************************************************************
+**************************************************************************************************************
+	EXPERIMENT 
+**************************************************************************************************************
+**************************************************************************************************************
+
+Note: Main script, change according to your needs.
+<expt>
+/ blocks = [1=practice ; 2=SRTTblock]
+/onexptend = [values.completed = 1]
+</expt>
+
+<monkey>
+/ latencydistribution = normal(300, 40)
+</monkey>
+
+**************************************************************************************************************
+												End of File
+**************************************************************************************************************

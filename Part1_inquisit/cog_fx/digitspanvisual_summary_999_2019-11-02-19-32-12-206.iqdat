@@ -1,0 +1,2 @@
+script.startdate	script.starttime	script.subjectid	script.groupid	script.elapsedtime	computer.platform	values.completed	values.fTE_ML	values.fTE_TT	values.fML	values.fMS	values.bTE_ML	values.bTE_TT	values.bML	values.bMS
+110219	15:32:12	999	2	293209	win	1	8	6	10	9.4166666666666678509	-1	-1	0	0

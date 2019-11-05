@@ -1,0 +1,1 @@
+[x,y,buttons] = GetMouse;

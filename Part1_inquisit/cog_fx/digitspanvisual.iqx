@@ -1,0 +1,5184 @@
+﻿<usermanual>
+						
+									DIGIT SPAN (VISUAL)
+SCRIPT INFO
+
+Script Author: Katja Borchert, Ph.D. (katjab@millisecond.com) for Millisecond Software, LLC
+last updated: 08-29-2016 by K.Borchert (katjab@millisecond.com) for Millisecond Software LLC
+
+Copyright © 08-29-2016 Millisecond Software
+
+
+BACKGROUND INFO
+
+											*Purpose*
+This script implements the Digit Span procedure as described in:
+Woods, D.L. et al (2011). Journal of Clinicial and Experimental Neuropsychology, 33, 101-111
+
+Note:
+Digit span assessment with traditional measure, the Two Error Maximal Lenght (TE_ML), and a new measure, the Maximum Length (ML)
+recalled.
+
+
+											  *Task*
+Participants see digit sequences and have to recall them (in either a forward or backward manner)
+by selecting the digits from a circle of digits with the mouse.
+Depending on performance, participants move up a level or down a level.
+Assessment is over after 14 trials.
+
+
+DATA FILE INFORMATION: 
+The default data stored in the data files are:
+
+(1) Raw data file: 'DigitSpanVisual_raw*.iqdat' (a separate file for each participant)
+
+build:									Inquisit build
+computer.platform:						the platform the script was run on
+date, time, subject, group:				date and time script was run with the current subject/groupnumber 
+blockcode, blocknum:					the name and number of the current block
+trialcode, trialnum: 					the name and number of the currently recorded trial
+											(Note: not all trials that are run might record data; by default data is collected unless /recorddata = false is set for a particular trial/block) 
+values.assesstype:						0 for Forward and 1 for Backward trials
+list.digitsequences.currentvalue:		the selected sequence
+list.digitsequences.currentindex:		the index of the current sequence
+values.N:								the number of digits presented in a trial
+values.countTrials:						counts the trials run in the current assessment
+values.sequence:						the digit sequence presented
+values.correctSolution:					the correct digit sequence
+values.proposedSolution:				the entered digit sequence
+values.correct:							1 = proposed solution is correct; 0 = otherwise
+values.con_errorcount:					consecutive error count on a level
+values.TE_ML:							the TE_ML, it's -1 until it's set (and once it's set it it should not change anymore)
+values.TE_TT:							the TE_TT, it's -1 until it's set (and once it's set it should not change anymore)
+values.ML:								the ML, it's 0 until participant recalls digit sequences correctly. The ML is subject to change throughout all 14 trials.
+										The last ML recorded represents the participant's actual ML.
+values.MS: 								the MS, it's 0 until it's calculated at the end of a block. A value < 3 only happens if participant repeatedly failed on level 3.
+
+(2) Summary data file: 'DigitSpanVisual_summary*.iqdat' (a separate file for each participant)
+
+script.startdate:				date script was run
+script.starttime:				time script was started
+script.subjectid:				subject id number
+script.groupid:					group id number
+script.elapsedtime:				stores the time in ms it took to run the script
+computer.platform:				the platform the script was run on
+completed:						0 = script was not completed; 1 = script was completed (all conditions run)
+
+fTE_ML = 	Two-error maximum length, the traditional measure of a participant's FORWARD digit span. It is the last digitspan a participant gets correct 
+				before making two consecutive errors. 
+fTE_TT = 	Two-error total trials, the number of trials before FORWARD TE_ML is reached (measure of consistency)
+fML = 		Maximal  FORWARD digit span that a participant recalled correctly during all 14 trials
+fMS = 		The FORWARD digit span that a participant is expected to get correct 50% of all times based on overall performance during all 14 trials.
+bTE_ML = 	Two-error maximum length, the traditional measure of a participant's BACKWARDS digit span. It is the last digitspan a participant gets 
+				correct before making two consecutive errors.
+bTE_TT = 	Two-error total trials, the number of trials before BACKWARD TE_ML is reached (measure of consistency)
+bML = 		Maximal BACKWARD digit span that a participant recalled correctly during all 14 trials. It is set to 0 before the start of the assessment.
+bMS =	 	The BACKWARD digit span that a participant is expected to get correct 50% of all times based on overall performance during all 14 trials.
+
+
+
+EXPERIMENTAL SET-UP
+Overview of procedure implemented:
+For the duration of 14 trials (based on  Experiment 1, Woods et al, 2011), a participant sees a sequence of visual digits (starting with 3 digits -
+level 3), where each digit is presented for 1 s. A visual signal  is presented for the duration of 1s, after which the participant is asked to recall the 
+digit sequence and type the answer into a presented textbox.
+If the response is correct (in digits and presentation order), the participant moves up to the next level (e.g. level 4).
+If the response is incorrect, the same level is presented a second time. 
+If a consecutive error occurs  the participant moves back down to a lower level, starting over.
+The first time a participant makes a consecutive error, the traditional measure TE_ML is set to the last correctly recalled number of digits 
+(e.g. if participant reaches level 8, but answers incorrectly both times, the TE_ML is set to 7). Because the digit span assessment does not exit when 
+TE_ML is set - as is done in traditional digit span assessments- but goes on for the remainder of the 14 trials, it is possible for participants to superpass levels 
+they previously failed (e.g participant with TE_ML = 7 may successfully recall 8 digits on a later try).
+The new digit span assessment measure, ML,  is set to the maximal length of digits correctly recalled during 14 trials. 
+Assessment is done for FORWARD assessment (= recall the digits in the order presented) and BACKWARD assessment (= recall the digits in reversed order).	
+Note: 
+Forward assessment starts at level 3
+Backward assessment starts at level 2
+
+by default, participant runs through the forward and then the backward assessment.
+
+STIMULI
+see section Editable Stimuli/Editable Lists
+
+INSTRUCTIONS
+see section Editable Instructions
+
+EDITABLE CODE:
+check below for (relatively) easily editable parameters, stimuli, instructions etc. 
+Keep in mind that you can use this script as a template and therefore always "mess" with the entire code to further customize your experiment.
+
+The parameters you can change are:
+				
+/circleproportion:				proportion of canvas height used for the circle radius of response buttons (default: 0.3)
+
+</usermanual>
+
+
+**************************************************************************************************************
+**************************************************************************************************************
+	EDITABLE PARAMETERS: change editable parameters here
+**************************************************************************************************************
+**************************************************************************************************************
+<parameters>
+/ circleproportion = 0.3
+</parameters>
+
+
+**************************************************************************************************************
+**************************************************************************************************************
+	EDITABLE STIMULI: change editable stimuli here
+**************************************************************************************************************
+**************************************************************************************************************
+
+<item digits>
+/ 1 = "1"
+/ 2 = "2"
+/ 3 = "3"
+/ 4 = "4"
+/ 5 = "5"
+/ 6 = "6"
+/ 7 = "7"
+/ 8 = "8"
+/ 9 = "9"
+</item>
+
+**************************************************************************************************************
+**************************************************************************************************************
+	EDITABLE INSTRUCTIONS: change instructions here
+**************************************************************************************************************
+**************************************************************************************************************
+<instruct>
+/ inputdevice = mouse
+/ fontstyle = ("Arial", 2.5%, false, false, false, false, 5, 1)
+/ lastlabel = ""
+/ nextlabel = ""
+/ prevlabel = ""
+</instruct>
+
+
+* to be changed if desired
+
+<page instructions_1>
+Your job in this game is to remember the numbers on the screen in the order that they appear
+^^
+Each round will start with a red circle followed by a sequence of numbers that will appear one at a time on the screen
+^^
+When the sequence is over, another circle will appear
+^^
+It will look like this: 
+</page>
+
+<page instructions_2>
+After the round, you will see a circle of numbers 0-9 
+</page>
+
+<page instructions_3>
+Now we will do two practice rounds together 
+</page>
+
+<page post_practice>
+Great Job!
+^^
+Now we will play the real game. You will not receive feedback during the game.
+</page>
+
+<page post_exp>
+Congratulations, you have finished the game!
+^^
+Please press the green button to have the experimenter come back to the room and start you on the next activity.
+</page>
+
+
+
+
+<page pre_bblock>
+^The BACKWARD digit span assessment is about to begin.
+^^There will be NO feedback during the assessment.
+^^
+^^Continue when your are ready.
+</page>
+
+<page post_bblock>
+^THANK YOU!
+^^ BACKWARD assessment:
+^^ the maximum number of digits recalled correctly was: <% values.bML %>
+^^ the maximum number of digits recalled correctly before making two consecutive errors was: <% values.bTE_ML %>
+^^The second measure is comparable to the traditional assessment of BACKWARD digit span.
+</page>
+
+
+
+
+
+
+
+<text f_instructions>
+/ items = ("Select the digits in the order that they appeared then click submit")
+/ position = (50%, 10%)
+/ fontstyle = ("Arial", 3%, true, false, false, false, 5, 0)
+/ erase = false
+</text>
+
+<text f_example_instructions>
+/ items =("Use the mouse to select the digits in the order that they appeared. Then click submit.")
+/ position = (50%, 10%)
+/ fontstyle = ("Arial", 3%, true, false, false, false, 5, 0)
+/ erase = false
+</text>
+
+<text b_instructions>
+/ items = ("Select digits in  BACKWARD (= reversed) order")
+/ position = (50%, 10%)
+/ fontstyle = ("Arial", 3%, true, false, false, false, 5, 0)
+/ erase = false
+</text>
+
+<text posfeedback>
+/ items = ("Correct")
+/ fontstyle = ("Arial", 5%, true, false, false, false, 5, 0)
+</text>
+
+<text negfeedback>
+/ items = ("Incorrect")
+/ fontstyle = ("Arial", 5%, true, false, false, false, 5, 0)
+</text>
+
+
+
+<text b_intermediatepage>
+/ items = ("You have reached the end of the BACKWARD assessment. 
+To get to your summary page, please press any key") 
+/ position = (50%, 50%)
+/ fontstyle = ("Arial", 3%, false, false, false, false, 5, 1)
+/ txcolor = black
+/ size = (80%, 50%)
+</text>
+
+<text backward_feedback1>
+/ items = (" Remember this is the BACKWARD assessment.") 
+/ fontstyle = ("Arial", 2.33%, false, false, false, false, 5, 0)
+/ position = (50%, 40%)
+</text>
+
+<text backward_feedback2>
+/ items = (" Please, type your answer in REVERSED order.") 
+/ fontstyle = ("Arial", 2.33%, false, false, false, false, 5, 0)
+/ position = (50%, 50%)
+</text>
+
+**************************************************************************************************************
+**************************************************************************************************************
+	EDITABLE LISTS: change editable lists here
+**************************************************************************************************************
+**************************************************************************************************************
+
+*list digitsequences:	pool of 194 preselected, semi-randomly constructed digitsequences of 16 digits that meet the following constraints
+								1. digits from 1-9 only
+								2. no repeated digits for digit 1-9, 10-16
+								3. digit 10 is different from digit 9
+								4. no equal distances between 3 consecutive digits
+								5. no repeated sequences				
+
+
+<list digitsequences>
+/ items = (
+9847253618513629;
+7465928137615324;
+1735964829175263;
+9846351721695873;
+5378629149643581;
+9247381563782156;
+1289574368691435;
+6492571386713859;
+6835219472893716;
+3261584791426375;
+1378659423564819;
+2839541763426917;
+7314965825632418;
+3291465874823597;
+9726134854697213;
+1538976242687193;
+3158729649724536;
+6754832917426518;
+3145872691748592;
+7645219384659832;
+9657431824958261;
+5236479185478293;
+6279348513781524;
+8537269418273941;
+9674351289281764;
+8259314679856473;
+5128379643792648;
+4267913857649215;
+7549163821385479;
+7324915861286749;
+6459213873241896;
+5398274618562371;
+7834256915381694;
+5429617382473815;
+8279361541927356;
+3827149565348679;
+7431892658962713;
+9824537161495326;
+3165287949278361;
+2651398471628594;
+6719835424781365;
+6498215732416935;
+7825964132953867;
+6819254734361857;
+2915367486743158;
+1385967426273598;
+8542376191253984;
+2538967145324871;
+9257438617315846;
+6795328415413827;
+9768325149581637;
+7854136298417529;
+3625941875283961;
+2178659341639425;
+9842356175196278;
+5413786297953614;
+7862539419541736;
+6839174527148362;
+7348652918714392;
+6285937145874316;
+7426853914532961;
+9276341585397842;
+4928367152417835;
+9254638174615397;
+3485762197125648;
+3516872494968327;
+7459328163598124;
+4913672853689721;
+1964735826931784;
+1978542362378569;
+5162983479672351;
+7462981535648327;
+5471893267649823;
+6243197856829437;
+6537482193481725;
+8921645735964178;
+6145827934631759;
+4529816379574268;
+8296751348592143;
+9867524315486172;
+8572396418594267;
+2189437565689743;
+7139682545329461;
+9274516835326489;
+5342961785976438;
+6417923857398261;
+8621374598137945;
+5931847621623587;
+8917436527935264;
+1862479359721483;
+8423165979523841;
+9324586174698537;
+6431859274295638;
+1634785921684537;
+7596284316182935;
+6497128351746932;
+8467351921736458;
+4589673121763495;
+8164359725982413;
+9374265819578631;
+1367529481728564;
+6978542139825641;
+7956483124796831;
+7158439269687254;
+2178635491786952;
+7461259832491786;
+6189453278367152;
+5326748919542168;
+7319524861863427;
+1372859647316958;
+2481635973742568;
+8195743621786394;
+5136824796735894;
+9184632758596431;
+9356148728726439;
+7832961459438576;
+7594361825241879;
+8715249361584732;
+5379286146419738;
+7968534214139687;
+4318759262186573;
+7489536219851267;
+3481965272514936;
+1672354892375914;
+6431729858536492;
+1489625379372615;
+5692378416375129;
+3421697853986241;
+5986243714293871;
+1958723649782436;
+1937862541374956;
+5618732948562319;
+6392875149162738;
+9273158461874926;
+1398652742657398;
+4976382516458927;
+1657324984389652;
+5284173968165973;
+8467315298429571;
+6748921534391687;
+3156978243514627;
+2351768497861423;
+2397681546572831;
+1723985647182946;
+4539178262638794;
+4198375624195283;
+3597612484231756;
+3716284598379462;
+7521348967429581;
+6879145327134896;
+8539674212685731;
+8691524379572316;
+8921547365684173;
+4627158931582364;
+5624189739437186;
+5712438692893176;
+4275961838576193;
+8164592375326847;
+7845962315869471;
+2639854715684291;
+5487362917526183;
+9813675421382795;
+5348617296412758;
+8721539463526984;
+6937182542458697;
+1863724596891542;
+3856214971457869;
+4897165236821435;
+5279384161547289;
+9243561871736529;
+1967458329716842;
+8953271647815462;
+9153827645214679;
+4792518636417593;
+6572934189865247;
+1647352981853972;
+4286571934139578;
+5239647189467513;
+1786539429762513;
+9476832518546297;
+4651732982197638;
+7523961847235691;
+4529817361537249;
+3854612792675983;
+3198265748752649;
+2396481758539261;
+2853469178342719;
+2517638946912758;
+9453821675197624;
+4126875939148367;
+9438261756145739;
+4738965124981375;
+2956417838752613;
+7942563813165948)
+/ replace = false
+/ selectionrate = trial
+</list>
+
+**************************************************************************************************************
+								!!!REMAINING CODE: Customize after careful consideration only!!!
+**************************************************************************************************************
+
+
+**************************************************************************************************************
+**************************************************************************************************************
+	DEFAULTS
+**************************************************************************************************************
+**************************************************************************************************************
+script requires Inquisit 5.0.0.0 or higher
+
+<defaults>
+/ canvasaspectratio = (4,3)
+/ minimumversion = "5.0.0.0"
+/ fontstyle = ("Arial", 20%, true, false, false, false, 5, 1)
+/ txbgcolor = white
+/ txcolor = black
+</defaults>
+
+**************************************************************************************************************
+**************************************************************************************************************
+	DATA
+**************************************************************************************************************
+**************************************************************************************************************
+
+
+
+**************************************************************************************************************
+**************************************************************************************************************
+	VALUES: automatically updated
+**************************************************************************************************************
+**************************************************************************************************************
+
+*********************
+updated at runtime
+*********************
+fTE_ML = 	Two-error maximum length, the traditional measure of a participant's FORWARD digit span. It is the last digitspan a participant gets correct 
+				before making two consecutive errors. It is set to -1 before the start of the assessment.
+fTE_TT = 	Two-error total trials, the number of trials before FORWARD TE_ML is reached (measure of consistency), is set to -1 before the start of the 
+				assessment.
+fML = 		Maximal  FORWARD digit span that a participant recalled correctly during all 14 trials, it is set to 0 before the start of the assessment.
+fMS = 		The FORWARD digit span that a participant is expected to get correct 50% of all times based on overall performance during all 14 trials.
+				It is set to 0 before the start of the assessment. MS stands for mean digit span.
+bTE_ML = 	Two-error maximum length, the traditional measure of a participant's BACKWARDS digit span. It is the last digitspan a participant gets 
+				correct before making two consecutive errors. It is set to -1 before the start of the assessment.
+bTE_TT = 	Two-error total trials, the number of trials before BACKWARD TE_ML is reached (measure of consistency), is set to -1 before the start 
+				of the assessment. 
+bML = 		Maximal BACKWARD digit span that a participant recalled correctly during all 14 trials. It is set to 0 before the start of the assessment.
+bMS =	 		The BACKWARD digit span that a participant is expected to get correct 50% of all times based on overall performance during all 14 trials.
+				before the start of the assessment.
+(both backward and forward digit variables get stored in the datafile under the same name e.g. TE_TT, TE_ML, ML and MS)
+
+con_errorcount = Number of consecutive errors for a repeated digitspan, can vary between 0-2. It resets for each new digitspan. 
+						Initial value is set to 0.
+sequence = 			Stores the digit sequence of digits presented, set to 0 before the start of the assessment
+N = 		Number of digits presented in a specific trial, set to 0 before the start of the assessment.
+assesstype = 		Codes whether the trial is run during a FORWARD (0) or BACKWARD  assessment (1). 
+						It's set to 0 (forward) before the start of the assessment.
+completed:			0 = script was not completed; 1 = script was completed (all conditions run)
+
+
+/proposedSolution:	the digit sequence solution provided
+/correctSolution:	the correct digit sequence
+/lastDigit:			helper variable to determine the last digit entered
+/countTrials:		counts all relevant trials in a block
+/correct:			1 = proposed solution is correct; 0 = otherwise
+
+<values>
+/ TE_ML = -1
+/ TE_TT = -1
+/ ML = 0
+/ MS = 0
+/ fTE_ML = -1
+/ fTE_TT = -1
+/ fML = 0
+/ fMS = 0
+/ bTE_ML = -1
+/ bTE_TT = -1
+/ bML = 0
+/ bMS = 0
+/ con_errorcount = 0
+/ sequence = 0
+/ N = 0
+/ assesstype = 0
+/ completed = 0
+/ proposedSolution = ""
+/ correctSolution = ""
+/ lastDigit = ""
+/ countTrials = 0
+/ correct = 0
+</values>
+
+**************************************************************************************************************
+**************************************************************************************************************
+	EXPRESSIONS: CIRCLE COORDINATES
+**************************************************************************************************************
+**************************************************************************************************************
+The following expressions are used to calculate the coordinates of the 10 circle positions (in px)
+
+/centerx-
+/centery:					x and y center coordinates in pixels based on canvas dimensions
+/radius_px:					the radius of the circle in pixels
+/Radians_angle0 -
+/Radians_angle324:			the radians angles of the 10 circle positions
+/heightchange_angle36: 		change in height (measured from screen center) for circleposition on angle36 with radius expressions.radius_px
+/widthchange_angle36: 		change in width (measured from screen center) for circleposition on angle36 with radius expressions.radius_px
+(same for all other angles)
+
+
+<expressions>
+/ centerx = 0.5*display.canvaswidth
+/ centery = 0.5*display.canvasheight
+/ radius_px = parameters.circleproportion * display.canvasheight
+
+/ Radians_angle0 = rad(0)
+/ Radians_angle36 = rad(36)
+/ Radians_angle72 = rad(72)
+/ Radians_angle108 = rad(108)
+/ Radians_angle144 = rad(144)
+/ Radians_angle180 = rad(180)
+/ Radians_angle216 = rad(216)
+/ Radians_angle252 = rad(252)
+/ Radians_angle288 = rad(288)
+/ Radians_angle324 = rad(324)
+
+/ heightchange_angle36 = sin(expressions.Radians_angle36) * expressions.radius_px
+/ widthchange_angle36 = cos(expressions.Radians_angle36) * expressions.radius_px
+/ heightchange_angle72 = sin(expressions.Radians_angle72) * expressions.radius_px
+/ widthchange_angle72 = cos(expressions.Radians_angle72) * expressions.radius_px
+/ heightchange_angle108 = sin(expressions.Radians_angle108) * expressions.radius_px
+/ widthchange_angle108 = cos(expressions.Radians_angle108) * expressions.radius_px
+/ heightchange_angle144 = sin(expressions.Radians_angle144) * expressions.radius_px
+/ widthchange_angle144 = cos(expressions.Radians_angle144) * expressions.radius_px
+/ heightchange_angle180 = sin(expressions.Radians_angle180) * expressions.radius_px
+/ widthchange_angle180 = cos(expressions.Radians_angle180) * expressions.radius_px
+/ heightchange_angle216 = sin(expressions.Radians_angle216) * expressions.radius_px
+/ widthchange_angle216 = cos(expressions.Radians_angle216) * expressions.radius_px
+/ heightchange_angle252 = sin(expressions.Radians_angle252) * expressions.radius_px
+/ widthchange_angle252 = cos(expressions.Radians_angle252) * expressions.radius_px
+/ heightchange_angle288 = sin(expressions.Radians_angle288) * expressions.radius_px
+/ widthchange_angle288 = cos(expressions.Radians_angle288) * expressions.radius_px
+/ heightchange_angle324 = sin(expressions.Radians_angle324) * expressions.radius_px
+/ widthchange_angle324 = cos(expressions.Radians_angle324) * expressions.radius_px
+/ heightchange_angle0 = 0
+/ widthchange_angle0 = expressions.radius_px
+</expressions>
+
+**************************************************************************************************************
+**************************************************************************************************************
+	EXPRESSIONS
+**************************************************************************************************************
+**************************************************************************************************************
+(1) f_digitsequence1.....etc: 	expressions that convert a sequence of single digits into a string of digits ("3", "4", "6" -> "346") by adding 
+										characters together in a semi-recursive manner using the function concat
+(2) fMS16 ....etc: 					expressions that calculate MS values for each participant:
+										ATTENTION: a calculated MS values less than 3 suggests repeated failure on level 3
+(3) 1digit.....etc:					expressions that extract a digit from a sequence of digits at a specified index (e.g. first digit)
+
+* f signals expressions used in forward trials
+* b signals expressions used in backward trials
+
+<expressions>
+/ f_digitsequence1 = text.digit1.currentitem
+/ f_digitsequence2 = concat(expressions.f_digitsequence1, text.digit2.currentitem)
+/ f_digitsequence3 = concat(expressions.f_digitsequence2, text.digit3.currentitem)
+/ f_digitsequence4 = concat(expressions.f_digitsequence3, text.digit4.currentitem)
+/ f_digitsequence5 = concat(expressions.f_digitsequence4, text.digit5.currentitem)
+/ f_digitsequence6 = concat(expressions.f_digitsequence5, text.digit6.currentitem)
+/ f_digitsequence7 = concat(expressions.f_digitsequence6, text.digit7.currentitem)
+/ f_digitsequence8 = concat(expressions.f_digitsequence7, text.digit8.currentitem)
+/ f_digitsequence9 = concat(expressions.f_digitsequence8, text.digit9.currentitem)
+/ f_digitsequence10 = concat(expressions.f_digitsequence9, text.digit10.currentitem)
+/ f_digitsequence11 = concat(expressions.f_digitsequence10, text.digit11.currentitem)
+/ f_digitsequence12 = concat(expressions.f_digitsequence11, text.digit12.currentitem)
+/ f_digitsequence13 = concat(expressions.f_digitsequence12, text.digit13.currentitem)
+/ f_digitsequence14 = concat(expressions.f_digitsequence13, text.digit14.currentitem)
+/ f_digitsequence15 = concat(expressions.f_digitsequence14, text.digit15.currentitem)
+/ f_digitsequence16 = concat(expressions.f_digitsequence15, text.digit16.currentitem)
+
+/ b_digitsequence1 = text.digit1.currentitem
+/ b_digitsequence2 = concat(text.digit2.currentitem, expressions.b_digitsequence1)
+/ b_digitsequence3 = concat(text.digit3.currentitem, expressions.b_digitsequence2)
+/ b_digitsequence4 = concat(text.digit4.currentitem, expressions.b_digitsequence3)
+/ b_digitsequence5 = concat(text.digit5.currentitem, expressions.b_digitsequence4)
+/ b_digitsequence6 = concat(text.digit6.currentitem, expressions.b_digitsequence5)
+/ b_digitsequence7 = concat(text.digit7.currentitem, expressions.b_digitsequence6)
+/ b_digitsequence8 = concat(text.digit8.currentitem, expressions.b_digitsequence7)
+/ b_digitsequence9 = concat(text.digit9.currentitem, expressions.b_digitsequence8)
+/ b_digitsequence10 = concat(text.digit10.currentitem, expressions.b_digitsequence9)
+/ b_digitsequence11 = concat(text.digit11.currentitem, expressions.b_digitsequence10)
+/ b_digitsequence12 = concat(text.digit12.currentitem, expressions.b_digitsequence11)
+/ b_digitsequence13 = concat(text.digit13.currentitem, expressions.b_digitsequence12)
+/ b_digitsequence14 = concat(text.digit14.currentitem, expressions.b_digitsequence13)
+/ b_digitsequence15 = concat(text.digit15.currentitem, expressions.b_digitsequence14)
+/ b_digitsequence16 = concat(text.digit16.currentitem, expressions.b_digitsequence15)
+
+/ fMS16 = 2.5 + trial.f_trial16.correctcount/trial.f_trial16.count + trial.f_trial15.correctcount/trial.f_trial15.count +
+			trial.f_trial14.correctcount/trial.f_trial14.count + trial.f_trial13.correctcount/trial.f_trial13.count  +
+			trial.f_trial12.correctcount/trial.f_trial12.count  + trial.f_trial11.correctcount/trial.f_trial11.count  +
+			trial.f_trial10.correctcount/trial.f_trial10.count  + trial.f_trial9.correctcount/trial.f_trial9.count  +
+			trial.f_trial8.correctcount/trial.f_trial8.count + trial.f_trial7.correctcount/trial.f_trial7.count +
+			trial.f_trial6.correctcount/trial.f_trial6.count + trial.f_trial5.correctcount/trial.f_trial5.count  +
+			trial.f_trial4.correctcount/trial.f_trial4.count  + trial.f_trial3.correctcount/trial.f_trial3.count  
+/ fMS15 = 2.5 + trial.f_trial15.correctcount/trial.f_trial15.count +
+			trial.f_trial14.correctcount/trial.f_trial14.count + trial.f_trial13.correctcount/trial.f_trial13.count  +
+			trial.f_trial12.correctcount/trial.f_trial12.count  + trial.f_trial11.correctcount/trial.f_trial11.count  +
+			trial.f_trial10.correctcount/trial.f_trial10.count  + trial.f_trial9.correctcount/trial.f_trial9.count  +
+			trial.f_trial8.correctcount/trial.f_trial8.count + trial.f_trial7.correctcount/trial.f_trial7.count +
+			trial.f_trial6.correctcount/trial.f_trial6.count + trial.f_trial5.correctcount/trial.f_trial5.count  +
+			trial.f_trial4.correctcount/trial.f_trial4.count  + trial.f_trial3.correctcount/trial.f_trial3.count  
+/ fMS14 = 2.5+ trial.f_trial14.correctcount/trial.f_trial14.count + trial.f_trial13.correctcount/trial.f_trial13.count  +
+			trial.f_trial12.correctcount/trial.f_trial12.count  + trial.f_trial11.correctcount/trial.f_trial11.count  +
+			trial.f_trial10.correctcount/trial.f_trial10.count  + trial.f_trial9.correctcount/trial.f_trial9.count  +
+			trial.f_trial8.correctcount/trial.f_trial8.count + trial.f_trial7.correctcount/trial.f_trial7.count +
+			trial.f_trial6.correctcount/trial.f_trial6.count + trial.f_trial5.correctcount/trial.f_trial5.count  +
+			trial.f_trial4.correctcount/trial.f_trial4.count  + trial.f_trial3.correctcount/trial.f_trial3.count  
+/ fMS13 = 2.5 + trial.f_trial13.correctcount/trial.f_trial13.count  +
+			trial.f_trial12.correctcount/trial.f_trial12.count  + trial.f_trial11.correctcount/trial.f_trial11.count  +
+			trial.f_trial10.correctcount/trial.f_trial10.count  + trial.f_trial9.correctcount/trial.f_trial9.count  +
+			trial.f_trial8.correctcount/trial.f_trial8.count + trial.f_trial7.correctcount/trial.f_trial7.count +
+			trial.f_trial6.correctcount/trial.f_trial6.count + trial.f_trial5.correctcount/trial.f_trial5.count  +
+			trial.f_trial4.correctcount/trial.f_trial4.count  + trial.f_trial3.correctcount/trial.f_trial3.count  
+/ fMS12 = 2.5 + trial.f_trial12.correctcount/trial.f_trial12.count  + trial.f_trial11.correctcount/trial.f_trial11.count  +
+			trial.f_trial10.correctcount/trial.f_trial10.count  + trial.f_trial9.correctcount/trial.f_trial9.count  +
+			trial.f_trial8.correctcount/trial.f_trial8.count + trial.f_trial7.correctcount/trial.f_trial7.count +
+			trial.f_trial6.correctcount/trial.f_trial6.count + trial.f_trial5.correctcount/trial.f_trial5.count  +
+			trial.f_trial4.correctcount/trial.f_trial4.count  + trial.f_trial3.correctcount/trial.f_trial3.count  
+/ fMS11 = 2.5 + trial.f_trial11.correctcount/trial.f_trial11.count  +
+			trial.f_trial10.correctcount/trial.f_trial10.count  + trial.f_trial9.correctcount/trial.f_trial9.count  +
+			trial.f_trial8.correctcount/trial.f_trial8.count + trial.f_trial7.correctcount/trial.f_trial7.count +
+			trial.f_trial6.correctcount/trial.f_trial6.count + trial.f_trial5.correctcount/trial.f_trial5.count  +
+			trial.f_trial4.correctcount/trial.f_trial4.count  + trial.f_trial3.correctcount/trial.f_trial3.count 
+/ fMS10 = 2.5 + trial.f_trial10.correctcount/trial.f_trial10.count  + trial.f_trial9.correctcount/trial.f_trial9.count  +
+			trial.f_trial8.correctcount/trial.f_trial8.count + trial.f_trial7.correctcount/trial.f_trial7.count +
+			trial.f_trial6.correctcount/trial.f_trial6.count + trial.f_trial5.correctcount/trial.f_trial5.count  +
+			trial.f_trial4.correctcount/trial.f_trial4.count  + trial.f_trial3.correctcount/trial.f_trial3.count 
+/ fMS9 = 2.5 + trial.f_trial9.correctcount/trial.f_trial9.count  +
+			trial.f_trial8.correctcount/trial.f_trial8.count + trial.f_trial7.correctcount/trial.f_trial7.count +
+			trial.f_trial6.correctcount/trial.f_trial6.count + trial.f_trial5.correctcount/trial.f_trial5.count  +
+			trial.f_trial4.correctcount/trial.f_trial4.count  + trial.f_trial3.correctcount/trial.f_trial3.count
+/ fMS8 = 2.5 + trial.f_trial8.correctcount/trial.f_trial8.count + trial.f_trial7.correctcount/trial.f_trial7.count +
+			trial.f_trial6.correctcount/trial.f_trial6.count + trial.f_trial5.correctcount/trial.f_trial5.count  +
+			trial.f_trial4.correctcount/trial.f_trial4.count  + trial.f_trial3.correctcount/trial.f_trial3.count 
+/ fMS7 = 2.5 + trial.f_trial7.correctcount/trial.f_trial7.count +
+			trial.f_trial6.correctcount/trial.f_trial6.count + trial.f_trial5.correctcount/trial.f_trial5.count  +
+			trial.f_trial4.correctcount/trial.f_trial4.count  + trial.f_trial3.correctcount/trial.f_trial3.count 
+/ fMS6 = 2.5 + trial.f_trial6.correctcount/trial.f_trial6.count + trial.f_trial5.correctcount/trial.f_trial5.count  +
+			trial.f_trial4.correctcount/trial.f_trial4.count  + trial.f_trial3.correctcount/trial.f_trial3.count
+/ fMS5 = 2.5 + trial.f_trial5.correctcount/trial.f_trial5.count  +
+			trial.f_trial4.correctcount/trial.f_trial4.count  + trial.f_trial3.correctcount/trial.f_trial3.count 
+/ fMS4 = 2.5 + trial.f_trial4.correctcount/trial.f_trial4.count  + trial.f_trial3.correctcount/trial.f_trial3.count
+/ fMS3 = 2.5 + trial.f_trial3.correctcount/trial.f_trial3.count
+
+/ bMS15 = 1.5 + trial.b_trial15.correctcount/trial.b_trial15.count +
+			trial.b_trial14.correctcount/trial.b_trial14.count + trial.b_trial13.correctcount/trial.b_trial13.count  +
+			trial.b_trial12.correctcount/trial.b_trial12.count  + trial.b_trial11.correctcount/trial.b_trial11.count  +
+			trial.b_trial10.correctcount/trial.b_trial10.count  + trial.b_trial9.correctcount/trial.b_trial9.count  +
+			trial.b_trial8.correctcount/trial.b_trial8.count + trial.b_trial7.correctcount/trial.b_trial7.count +
+			trial.b_trial6.correctcount/trial.b_trial6.count + trial.b_trial5.correctcount/trial.b_trial5.count  +
+			trial.b_trial4.correctcount/trial.b_trial4.count  + trial.b_trial3.correctcount/trial.b_trial3.count  
+			 + trial.b_trial2.correctcount/trial.b_trial2.count
+/ bMS14 = 1.5 + trial.b_trial14.correctcount/trial.b_trial14.count + trial.b_trial13.correctcount/trial.b_trial13.count  +
+			trial.b_trial12.correctcount/trial.b_trial12.count  + trial.b_trial11.correctcount/trial.b_trial11.count  +
+			trial.b_trial10.correctcount/trial.b_trial10.count  + trial.b_trial9.correctcount/trial.b_trial9.count  +
+			trial.b_trial8.correctcount/trial.b_trial8.count + trial.b_trial7.correctcount/trial.b_trial7.count +
+			trial.b_trial6.correctcount/trial.b_trial6.count + trial.b_trial5.correctcount/trial.b_trial5.count  +
+			trial.b_trial4.correctcount/trial.b_trial4.count  + trial.b_trial3.correctcount/trial.b_trial3.count 
+			  + trial.b_trial2.correctcount/trial.b_trial2.count
+/ bMS13 = 1.5 + trial.b_trial13.correctcount/trial.b_trial13.count  +
+			trial.b_trial12.correctcount/trial.b_trial12.count  + trial.b_trial11.correctcount/trial.b_trial11.count  +
+			trial.b_trial10.correctcount/trial.b_trial10.count  + trial.b_trial9.correctcount/trial.b_trial9.count  +
+			trial.b_trial8.correctcount/trial.b_trial8.count + trial.b_trial7.correctcount/trial.b_trial7.count +
+			trial.b_trial6.correctcount/trial.b_trial6.count + trial.b_trial5.correctcount/trial.b_trial5.count  +
+			trial.b_trial4.correctcount/trial.b_trial4.count  + trial.b_trial3.correctcount/trial.b_trial3.count 
+			  + trial.b_trial2.correctcount/trial.b_trial2.count
+/ bMS12 = 1.5 + trial.b_trial12.correctcount/trial.b_trial12.count  + trial.b_trial11.correctcount/trial.b_trial11.count  +
+			trial.b_trial10.correctcount/trial.b_trial10.count  + trial.b_trial9.correctcount/trial.b_trial9.count  +
+			trial.b_trial8.correctcount/trial.b_trial8.count + trial.b_trial7.correctcount/trial.b_trial7.count +
+			trial.b_trial6.correctcount/trial.b_trial6.count + trial.b_trial5.correctcount/trial.b_trial5.count  +
+			trial.b_trial4.correctcount/trial.b_trial4.count  + trial.b_trial3.correctcount/trial.b_trial3.count
+			   + trial.b_trial2.correctcount/trial.b_trial2.count
+/ bMS11 = 1.5 + trial.b_trial11.correctcount/trial.b_trial11.count  +
+			trial.b_trial10.correctcount/trial.b_trial10.count  + trial.b_trial9.correctcount/trial.b_trial9.count  +
+			trial.b_trial8.correctcount/trial.b_trial8.count + trial.b_trial7.correctcount/trial.b_trial7.count +
+			trial.b_trial6.correctcount/trial.b_trial6.count + trial.b_trial5.correctcount/trial.b_trial5.count  +
+			trial.b_trial4.correctcount/trial.b_trial4.count  + trial.b_trial3.correctcount/trial.b_trial3.count 
+			  + trial.b_trial2.correctcount/trial.b_trial2.count
+/ bMS10 = 1.5 +trial.b_trial10.correctcount/trial.b_trial10.count  + trial.b_trial9.correctcount/trial.b_trial9.count  +
+			trial.b_trial8.correctcount/trial.b_trial8.count + trial.b_trial7.correctcount/trial.b_trial7.count +
+			trial.b_trial6.correctcount/trial.b_trial6.count + trial.b_trial5.correctcount/trial.b_trial5.count  +
+			trial.b_trial4.correctcount/trial.b_trial4.count  + trial.b_trial3.correctcount/trial.b_trial3.count 
+			  + trial.b_trial2.correctcount/trial.b_trial2.count
+/ bMS9 = 1.5 + trial.b_trial9.correctcount/trial.b_trial9.count  +
+			trial.b_trial8.correctcount/trial.b_trial8.count + trial.b_trial7.correctcount/trial.b_trial7.count +
+			trial.b_trial6.correctcount/trial.b_trial6.count + trial.b_trial5.correctcount/trial.b_trial5.count  +
+			trial.b_trial4.correctcount/trial.b_trial4.count  + trial.b_trial3.correctcount/trial.b_trial3.count
+			  + trial.b_trial2.correctcount/trial.b_trial2.count
+/ bMS8 = 1.5 + trial.b_trial8.correctcount/trial.b_trial8.count + trial.b_trial7.correctcount/trial.b_trial7.count +
+			trial.b_trial6.correctcount/trial.b_trial6.count + trial.b_trial5.correctcount/trial.b_trial5.count  +
+			trial.b_trial4.correctcount/trial.b_trial4.count  + trial.b_trial3.correctcount/trial.b_trial3.count
+			  + trial.b_trial2.correctcount/trial.b_trial2.count
+/ bMS7 = 1.5 + trial.b_trial7.correctcount/trial.b_trial7.count +
+			trial.b_trial6.correctcount/trial.b_trial6.count + trial.b_trial5.correctcount/trial.b_trial5.count  +
+			trial.b_trial4.correctcount/trial.b_trial4.count  + trial.b_trial3.correctcount/trial.b_trial3.count  
+			+ trial.b_trial2.correctcount/trial.b_trial2.count
+/ bMS6 = 1.5 + trial.b_trial6.correctcount/trial.b_trial6.count + trial.b_trial5.correctcount/trial.b_trial5.count  +
+			trial.b_trial4.correctcount/trial.b_trial4.count  + trial.b_trial3.correctcount/trial.b_trial3.count 
+			 + trial.b_trial2.correctcount/trial.b_trial2.count
+/ bMS5 = 1.5 + trial.b_trial5.correctcount/trial.b_trial5.count  +
+			trial.b_trial4.correctcount/trial.b_trial4.count  + trial.b_trial3.correctcount/trial.b_trial3.count
+			  + trial.b_trial2.correctcount/trial.b_trial2.count
+/ bMS4 = 1.5 + trial.b_trial4.correctcount/trial.b_trial4.count  + trial.b_trial3.correctcount/trial.b_trial3.count
+			   + trial.b_trial2.correctcount/trial.b_trial2.count
+/ bMS3 = 1.5 + trial.b_trial3.correctcount/trial.b_trial3.count  + trial.b_trial2.correctcount/trial.b_trial2.count 
+/ bMS2 = 1.5 + trial.b_trial2.correctcount/trial.b_trial2.count
+
+/ 1digit = substring(list.digitsequences.nextvalue, 0, 1)
+/ 2digit = substring(list.digitsequences.currentvalue, 1, 1)
+/ 3digit = substring(list.digitsequences.currentvalue, 2, 1)
+/ 4digit = substring(list.digitsequences.currentvalue, 3, 1)
+/ 5digit = substring(list.digitsequences.currentvalue, 4, 1)
+/ 6digit = substring(list.digitsequences.currentvalue, 5, 1)
+/ 7digit = substring(list.digitsequences.currentvalue, 6, 1)
+/ 8digit = substring(list.digitsequences.currentvalue, 7, 1)
+/ 9digit = substring(list.digitsequences.currentvalue, 8, 1)
+/ 10digit = substring(list.digitsequences.currentvalue, 9, 1)
+/ 11digit = substring(list.digitsequences.currentvalue, 10, 1)
+/ 12digit = substring(list.digitsequences.currentvalue, 11, 1)
+/ 13digit = substring(list.digitsequences.currentvalue, 12, 1)
+/ 14digit = substring(list.digitsequences.currentvalue, 13, 1)
+/ 15digit = substring(list.digitsequences.currentvalue, 14, 1)
+/ 16digit = substring(list.digitsequences.currentvalue, 15, 1)
+</expressions>
+
+**************************************************************************************************************
+**************************************************************************************************************
+	DATA
+**************************************************************************************************************
+**************************************************************************************************************
+
+*********************
+raw data
+*********************
+<data>
+/ separatefiles = true
+/ columns = (build, computer.platform, date, time, subject, group, blockcode, blocknum trialnum, trialcode, 
+				values.assesstype, list.digitsequences.currentvalue, list.digitsequences.currentindex,
+				values.N, values.countTrials, values.sequence, values.correctSolution, values.proposedSolution, values.correct, values.con_errorcount,
+				values.TE_ML, values.TE_TT, values.ML, values.MS)
+</data>
+
+*********************
+summary data
+*********************
+
+<summarydata>
+/ columns = (script.startdate, script.starttime, script.subjectid, script.groupid, script.elapsedtime, computer.platform, values.completed,
+values.fTE_ML, values.fTE_TT, values.fML, values.fMS,
+values.bTE_ML, values.bTE_TT, values.bML, values.bMS)
+/ separatefiles = true
+</summarydata>
+
+**************************************************************************************************************
+**************************************************************************************************************
+	STIMULI
+**************************************************************************************************************
+**************************************************************************************************************
+
+<text digit1>
+/ items = digits
+/ select = expressions.1digit
+/ txcolor = black
+</text>
+
+<text digit2>	
+/ items = digits
+/ select = expressions.2digit
+/ txcolor = black
+</text>
+
+<text digit3>
+/ items = digits
+/ select = expressions.3digit
+/ txcolor = black
+</text>
+
+<text digit4>
+/ items = digits
+/ select = expressions.4digit
+/ txcolor = black
+</text>
+
+<text digit5>
+/ items = digits
+/ select = expressions.5digit
+/ txcolor = black
+</text>
+
+<text digit6>
+/ items = digits
+/ select = expressions.6digit
+/ txcolor = black
+</text>
+
+<text digit7>
+/ items = digits
+/ select = expressions.7digit
+/ txcolor = black
+</text>
+
+<text digit8>
+/ items = digits
+/ select = expressions.8digit
+/ txcolor = black
+</text>
+
+<text digit9>
+/ items = digits
+/ select = expressions.9digit
+/ txcolor = black
+</text>
+
+<text digit10>
+/ items = digits
+/ select = expressions.10digit
+/ txcolor = black
+</text>
+
+<text digit11>
+/ items = digits
+/ select = expressions.11digit
+/ txcolor = black
+</text>
+
+<text digit12>
+/ items = digits
+/ select = expressions.12digit
+/ txcolor = black
+</text>
+
+<text digit13>
+/ items = digits
+/ select = expressions.13digit
+/ txcolor = black
+</text>
+
+<text digit14>
+/ items = digits
+/ select = expressions.14digit
+/ txcolor = black
+</text>
+
+<text digit15>
+/ items = digits
+/ select = expressions.15digit
+/ txcolor = black
+</text>
+
+<text digit16>
+/ items = digits
+/ select = expressions.16digit
+/ txcolor = black
+</text>
+
+***************************
+Response Dial
+***************************
+
+<text 4>
+/ erase = false
+/ items = ("4")
+/ fontstyle = ("Verdana", 5%, true, false, false, false, 5, 0)
+/ hposition = 1px * (expressions.centerx + expressions.widthchange_angle36)
+/ vposition = 1px * (expressions.centery + expressions.heightchange_angle36)
+/ size = (9%, 9%)
+/ vjustify = center
+/ txbgcolor = black
+/ txcolor = white
+</text>
+
+<text 5>
+/ erase = false
+/ items = ("5")
+/ fontstyle = ("Verdana", 5%, true, false, false, false, 5, 0)
+/ hposition = 1px * (expressions.centerx + expressions.widthchange_angle72)
+/ vposition = 1px * (expressions.centery + expressions.heightchange_angle72)
+/ size = (9%, 9%)
+/ vjustify = center
+/ txbgcolor = black
+/ txcolor = white
+</text>
+
+<text 6>
+/ erase = false
+/ items = ("6")
+/ fontstyle = ("Verdana", 5%, true, false, false, false, 5, 0)
+/ hposition = 1px * (expressions.centerx + expressions.widthchange_angle108)
+/ vposition = 1px * (expressions.centery + expressions.heightchange_angle108)
+/ size = (9%, 9%)
+/ vjustify = center
+/ txbgcolor = black
+/ txcolor = white
+</text>
+
+<text 7>
+/ erase = false
+/ items = ("7")
+/ fontstyle = ("Verdana", 5%, true, false, false, false, 5, 0)
+/ hposition = 1px * (expressions.centerx + expressions.widthchange_angle144)
+/ vposition = 1px * (expressions.centery + expressions.heightchange_angle144)
+/ size = (9%, 9%)
+/ vjustify = center
+/ txbgcolor = black
+/ txcolor = white
+</text>
+
+<text 8>
+/ erase = false
+/ items = ("8")
+/ fontstyle = ("Verdana", 5%, true, false, false, false, 5, 0)
+/ hposition = 1px * (expressions.centerx + expressions.widthchange_angle180)
+/ vposition = 1px * (expressions.centery + expressions.heightchange_angle180)
+/ size = (9%, 9%)
+/ vjustify = center
+/ txbgcolor = black
+/ txcolor = white
+</text>
+
+<text 9>
+/ erase = false
+/ items = ("9")
+/ fontstyle = ("Verdana", 5%, true, false, false, false, 5, 0)
+/ hposition = 1px * (expressions.centerx + expressions.widthchange_angle216)
+/ vposition = 1px * (expressions.centery + expressions.heightchange_angle216)
+/ size = (9%, 9%)
+/ vjustify = center
+/ txbgcolor = black
+/ txcolor = white
+</text>
+
+<text 00>
+/ erase = false
+/ items = ("0")
+/ fontstyle = ("Verdana", 5%, true, false, false, false, 5, 0)
+/ hposition = 1px * (expressions.centerx + expressions.widthchange_angle252)
+/ vposition = 1px * (expressions.centery + expressions.heightchange_angle252)
+/ size = (9%, 9%)
+/ vjustify = center
+/ txbgcolor = black
+/ txcolor = white
+</text>
+
+<text 1>
+/ erase = false
+/ items = ("1")
+/ fontstyle = ("Verdana", 5%, true, false, false, false, 5, 0)
+/ hposition = 1px * (expressions.centerx + expressions.widthchange_angle288)
+/ vposition = 1px * (expressions.centery + expressions.heightchange_angle288)
+/ size = (9%, 9%)
+/ vjustify = center
+/ txbgcolor = black
+/ txcolor = white
+</text>
+
+<text 2>
+/ erase = false
+/ items = ("2")
+/ fontstyle = ("Verdana", 5%, true, false, false, false, 5, 0)
+/ hposition = 1px * (expressions.centerx + expressions.widthchange_angle324)
+/ vposition = 1px * (expressions.centery + expressions.heightchange_angle324)
+/ size = (9%, 9%)
+/ vjustify = center
+/ txbgcolor = black
+/ txcolor = white
+</text>
+
+<text 3>
+/ erase = false
+/ items = ("3")
+/ fontstyle = ("Verdana", 5%, true, false, false, false, 5, 0)
+/ hposition = 1px * (expressions.centerx + expressions.widthchange_angle0)
+/ vposition = 1px * (expressions.centery + expressions.heightchange_angle0)
+/ size = (9%, 9%)
+/ vjustify = center
+/ txbgcolor = black
+/ txcolor = white
+</text>
+
+<text submit>
+/ erase = false
+/ items = ("submit")
+/ fontstyle = ("Verdana", 3%, false, false, false, false, 5, 0)
+/ position = (50%, 95%)
+/ size = (15%, 5%)
+/ vjustify = center
+/ txbgcolor = green
+/ txcolor = black
+</text>
+
+<text erase>
+/ erase = false
+/ items = ("Backspace")
+/ fontstyle = ("Verdana", 3%, false, false, false, false, 5, 0)
+/ position = (20%, 95%)
+/ size = (15%, 5%)
+/ vjustify = center
+/ txbgcolor = yellow
+/ txcolor = black
+</text>
+
+<text 4_HL>
+/ erase = false
+/ items = ("4")
+/ fontstyle = ("Verdana", 5%, true, false, false, false, 5, 0)
+/ hposition = 1px * (expressions.centerx + expressions.widthchange_angle36)
+/ vposition = 1px * (expressions.centery + expressions.heightchange_angle36)
+/ size = (9%, 9%)
+/ vjustify = center
+/ txbgcolor = yellow
+/ txcolor = white
+</text>
+
+<text 5_HL>
+/ erase = false
+/ items = ("5")
+/ fontstyle = ("Verdana", 5%, true, false, false, false, 5, 0)
+/ hposition = 1px * (expressions.centerx + expressions.widthchange_angle72)
+/ vposition = 1px * (expressions.centery + expressions.heightchange_angle72)
+/ size = (9%, 9%)
+/ vjustify = center
+/ txbgcolor = yellow
+/ txcolor = white
+</text>
+
+<text 6_HL>
+/ erase = false
+/ items = ("6")
+/ fontstyle = ("Verdana", 5%, true, false, false, false, 5, 0)
+/ hposition = 1px * (expressions.centerx + expressions.widthchange_angle108)
+/ vposition = 1px * (expressions.centery + expressions.heightchange_angle108)
+/ size = (9%, 9%)
+/ vjustify = center
+/ txbgcolor = yellow
+/ txcolor = white
+</text>
+
+<text 7_HL>
+/ erase = false
+/ items = ("7")
+/ fontstyle = ("Verdana", 5%, true, false, false, false, 5, 0)
+/ hposition = 1px * (expressions.centerx + expressions.widthchange_angle144)
+/ vposition = 1px * (expressions.centery + expressions.heightchange_angle144)
+/ size = (9%, 9%)
+/ vjustify = center
+/ txbgcolor = yellow
+/ txcolor = white
+</text>
+
+<text 8_HL>
+/ erase = false
+/ items = ("8")
+/ fontstyle = ("Verdana", 5%, true, false, false, false, 5, 0)
+/ hposition = 1px * (expressions.centerx + expressions.widthchange_angle180)
+/ vposition = 1px * (expressions.centery + expressions.heightchange_angle180)
+/ size = (9%, 9%)
+/ vjustify = center
+/ txbgcolor = yellow
+/ txcolor = white
+</text>
+
+<text 9_HL>
+/ erase = false
+/ items = ("9")
+/ fontstyle = ("Verdana", 5%, true, false, false, false, 5, 0)
+/ hposition = 1px * (expressions.centerx + expressions.widthchange_angle216)
+/ vposition = 1px * (expressions.centery + expressions.heightchange_angle216)
+/ size = (9%, 9%)
+/ vjustify = center
+/ txbgcolor = yellow
+/ txcolor = white
+</text>
+
+<text 00_HL>
+/ erase = false
+/ items = ("0")
+/ fontstyle = ("Verdana", 5%, true, false, false, false, 5, 0)
+/ hposition = 1px * (expressions.centerx + expressions.widthchange_angle252)
+/ vposition = 1px * (expressions.centery + expressions.heightchange_angle252)
+/ size = (9%, 9%)
+/ vjustify = center
+/ txbgcolor = yellow
+/ txcolor = white
+</text>
+
+<text 1_HL>
+/ erase = false
+/ items = ("1")
+/ fontstyle = ("Verdana", 5%, true, false, false, false, 5, 0)
+/ hposition = 1px * (expressions.centerx + expressions.widthchange_angle288)
+/ vposition = 1px * (expressions.centery + expressions.heightchange_angle288)
+/ size = (9%, 9%)
+/ vjustify = center
+/ txbgcolor = yellow
+/ txcolor = white
+</text>
+
+<text 2_HL>
+/ erase = false
+/ items = ("2")
+/ fontstyle = ("Verdana", 5%, true, false, false, false, 5, 0)
+/ hposition = 1px * (expressions.centerx + expressions.widthchange_angle324)
+/ vposition = 1px * (expressions.centery + expressions.heightchange_angle324)
+/ size = (9%, 9%)
+/ vjustify = center
+/ txbgcolor = yellow
+/ txcolor = white
+</text>
+
+<text 3_HL>
+/ erase = false
+/ items = ("3")
+/ fontstyle = ("Verdana", 5%, true, false, false, false, 5, 0)
+/ hposition = 1px * (expressions.centerx + expressions.widthchange_angle0)
+/ vposition = 1px * (expressions.centery + expressions.heightchange_angle0)
+/ size = (9%, 9%)
+/ vjustify = center
+/ txbgcolor = yellow
+/ txcolor = white
+</text>
+
+<text submit_HL>
+/ erase = false
+/ items = ("submit")
+/ fontstyle = ("Verdana", 3%, false, false, false, false, 5, 0)
+/ position = (50%, 95%)
+/ size = (15%, 5%)
+/ vjustify = center
+/ txbgcolor = yellow
+/ txcolor = white
+</text>
+
+<text erase_HL>
+/ erase = false
+/ items = ("Backspace")
+/ fontstyle = ("Verdana", 3%, false, false, false, false, 5, 0)
+/ position = (20%, 95%)
+/ size = (15%, 5%)
+/ vjustify = center
+/ txbgcolor = yellow
+/ txcolor = white
+</text>
+
+<text response>
+/ items = ("<%values.proposedSolution%>")
+/ position = (50%, 50%)
+/ size = (20%, 10%)
+/ vjustify = center
+/ fontstyle = ("Arial", 5%, true, false, false, false, 5, 1)
+/ txcolor = blue
+</text>
+
+**********************************************************************************************************************************************************************************************
+	ASSISTING ELEMENTS DURING TRIALS
+**********************************************************************************************************************************************************************************************
+
+* clearscreen: rectangle that has the same color as the background. It acts as an clearscreen for lingering stimuli
+* Signal: a small red circle in the middle of the screen that signals that either 
+			a) the digit sequence is about to start or 
+			b) that the response box is about to appear
+* f_instructions/b_instructions: text to appear above the recall box
+
+
+<shape signal>
+/ onprepare = [
+	shape.signal.height = display.getpixelsx(shape.signal.width);
+]
+/ shape = circle
+/ size = (5%, 5%)
+/ color = red
+</shape>
+
+
+
+**************************************************************************************************************
+**************************************************************************************************************
+	FORWARD TRIALS
+**************************************************************************************************************
+**************************************************************************************************************
+*	 Basic Trial Sequence:
+		Signal (red circle) for 1s -> digit 1 (1s) -> digit2 (1s) -> digit3 (1s) ->....Signal (red circle) for 1s -> Textbox for Recall-Input
+* 	Testing begins at Level 3
+* 	1 Correct Answer sends the participant up one level, 2 incorrect answers send the participant down one level
+* 	If two consecutive errors are made on level 3 for the first time, TE_ML is set to 2 and TE_TT = trialcount - 2.
+ 	Because there are no level 1 and level 2 testings, participant will stay on level 3 ( and con_errorcount is reset).
+* 	Testing continues for 14 trials
+*	Level 16 is the highest level that can theoretically be reached within 14 trials, starting at level 3
+
+
+
+***************************************
+Example Trials
+***************************************
+<trial f_example_stimuli>  
+/ ontrialbegin = [
+	values.N = 3;
+	values.assesstype = 0;
+	values.proposedSolution = "";
+	values.countTrials += 1;
+	values.correct = 0;
+	values.correct = 0;
+]
+/ stimulustimes = [0 = clearscreen, signal; 1000 = clearscreen, digit1;  2000 = clearscreen, digit2; 3000 = clearscreen, digit3; 
+						4000 = clearscreen, signal; 5000 = clearscreen]
+/ timeout = 5000
+/ ontrialend = [
+	values.sequence = expressions.f_digitsequence3;
+	values.correctSolution = values.sequence;
+]
+/ recorddata = false
+</trial>
+
+
+<trial f_example_responseInput>  
+/ inputdevice = mouse
+/ stimulustimes = [0 = f_example_instructions, response, 1, 2, 3, 4, 5, 6, 7, 8, 9, 00, submit, erase]
+/ validresponse = (1, 2, 3, 4, 5, 6, 7, 8, 9, 00, submit, erase)
+/ ontrialend = [
+	if (trial.f_example_responseInput.response != "submit" && trial.f_example_responseInput.response != "erase") {
+		if (trial.f_example_responseInput.response == "00") {
+			values.lastDigit = 0;
+		} else {
+			values.lastDigit = trial.f_example_responseInput.response;
+		};
+		values.proposedSolution = concat(values.proposedSolution, values.lastDigit);
+	} ;
+]
+/ branch = [
+	if (trial.f_example_responseInput.response == "erase") {
+		trial.f_example_eraseLast;
+	} else if (trial.f_example_responseInput.response == "submit") {
+		trial.f_example;
+	} else {
+		trial.f_example_responseInput;
+	}
+]
+/ responsemessage = (1, text.1_HL, 50)
+/ responsemessage = (2, text.2_HL, 50)
+/ responsemessage = (3, text.3_HL, 50)
+/ responsemessage = (4, text.4_HL, 50)
+/ responsemessage = (5, text.5_HL, 50)
+/ responsemessage = (6, text.6_HL, 50)
+/ responsemessage = (7, text.7_HL, 50)
+/ responsemessage = (8, text.8_HL, 50)
+/ responsemessage = (9, text.9_HL, 50)
+/ responsemessage = (00, text.00_HL, 50)
+/ recorddata = false
+</trial>
+
+Note; trial.eraseLast
+* erases the last entered digit from the proposed solution (as long as there are digits)
+<trial f_example_eraseLast>
+/ ontrialbegin = [
+	values.proposedSolution = trimright(values.proposedSolution, values.lastDigit);
+	values.lastDigit = substring(values.proposedSolution, length(values.proposedSolution) - 1, 1);
+]
+/ trialduration = 0
+/ branch = [
+	trial.f_example_responseInput;
+]
+/ recorddata = false
+</trial>
+
+
+<trial f_example>
+/ trialduration = 0
+/ recorddata = false
+</trial>
+***************************************
+Forward Level 3
+***************************************
+
+<trial f_trial3_digits>  
+/ ontrialbegin = [
+	values.N = 3;
+	values.assesstype = 0;
+	values.proposedSolution = "";
+	values.countTrials += 1;
+	values.correct = 0;
+	values.correct = 0;
+]
+/ stimulustimes = [0 = clearscreen, signal; 1000 = clearscreen, digit1;  2000 = clearscreen, digit2; 3000 = clearscreen, digit3; 
+						4000 = clearscreen, signal; 5000 = clearscreen]
+/ timeout = 5000
+/ ontrialend = [
+	values.sequence = expressions.f_digitsequence3;
+	values.correctSolution = values.sequence;
+]
+/ branch = [
+	trial.f_trial3_responseInput;
+]
+/ recorddata = false
+</trial>
+
+<trial f_trial3_responseInput>  
+/ inputdevice = mouse
+/ stimulustimes = [0 = f_instructions, response, 1, 2, 3, 4, 5, 6, 7, 8, 9, 00, submit, erase]
+/ validresponse = (1, 2, 3, 4, 5, 6, 7, 8, 9, 00, submit, erase)
+/ ontrialend = [
+	if (trial.f_trial3_responseInput.response != "submit" && trial.f_trial3_responseInput.response != "erase") {
+		if (trial.f_trial3_responseInput.response == "00") {
+			values.lastDigit = 0;
+		} else {
+			values.lastDigit = trial.f_trial3_responseInput.response;
+		};
+		values.proposedSolution = concat(values.proposedSolution, values.lastDigit);
+	} ;
+]
+/ branch = [
+	if (trial.f_trial3_responseInput.response == "erase") {
+		trial.f_trial3_eraseLast;
+	} else if (trial.f_trial3_responseInput.response == "submit") {
+		trial.f_trial3;
+	} else {
+		trial.f_trial3_responseInput;
+	}
+]
+/ responsemessage = (1, text.1_HL, 50)
+/ responsemessage = (2, text.2_HL, 50)
+/ responsemessage = (3, text.3_HL, 50)
+/ responsemessage = (4, text.4_HL, 50)
+/ responsemessage = (5, text.5_HL, 50)
+/ responsemessage = (6, text.6_HL, 50)
+/ responsemessage = (7, text.7_HL, 50)
+/ responsemessage = (8, text.8_HL, 50)
+/ responsemessage = (9, text.9_HL, 50)
+/ responsemessage = (00, text.00_HL, 50)
+/ recorddata = false
+</trial>
+
+Note; trial.eraseLast
+* erases the last entered digit from the proposed solution (as long as there are digits)
+<trial f_trial3_eraseLast>
+/ ontrialbegin = [
+	values.proposedSolution = trimright(values.proposedSolution, values.lastDigit);
+	values.lastDigit = substring(values.proposedSolution, length(values.proposedSolution) - 1, 1);
+]
+/ trialduration = 0
+/ branch = [
+	trial.f_trial3_responseInput;
+]
+/ recorddata = false
+</trial>
+
+<trial f_trial3>
+/ trialduration = 0
+/ ontrialbegin = [
+	if (monkey.monkeymode == true && replace(0,1) == 1) {
+		values.proposedSolution = values.correctSolution;
+	};
+]
+/ iscorrectresponse = [
+	values.proposedSolution == values.sequence;
+]
+/ ontrialend = [
+	if (trial.f_trial3.correct && values.fML < 3)
+		values.fML = 3;
+	if (trial.f_trial3.error)
+		values.con_errorcount += 1;
+	if (values.con_errorcount == 2 && values.fTE_ML == -1) {
+		values.fTE_ML =  2;
+		values.fTE_TT = values.countTrials- 2;
+	};
+	values.ML = values.fML;
+	values.TE_ML = values.fTE_ML;
+	values.TE_TT = values.fTE_TT;
+	values.MS = values.fMS;
+	values.correct = trial.f_trial3.correct;
+]
+/ branch = [
+	if (values.countTrials == 14) {
+		values.con_errorcount = 0;
+		trial.f_exit;
+	} else if (trial.f_trial3.correct) {
+		values.con_errorcount = 0;
+		trial.f_trial4_digits;
+	} else if (values.con_errorcount == 2) {
+		values.con_errorcount = 0;
+		trial.f_trial3_digits;
+	} else
+		trial.f_trial3_digits;
+]
+/ recorddata = true
+</trial>
+
+
+***************************************
+Forward Level 4
+***************************************
+
+<trial f_trial4_digits>  
+/ ontrialbegin = [
+	values.N = 4;
+	values.assesstype = 0;
+	values.proposedSolution = "";
+	values.countTrials += 1;
+	values.correct = 0;
+]
+/ stimulustimes = [0 = clearscreen, signal; 1000 = clearscreen, digit1; 2000 = clearscreen, digit2; 3000 = clearscreen, digit3; 
+						4000 = clearscreen, digit4; 5000 = clearscreen, signal; 6000 = clearscreen]
+/ timeout = 6000
+/ ontrialend = [
+	values.sequence = expressions.f_digitsequence4;
+	values.correctSolution = values.sequence;
+]
+/ branch = [
+	trial.f_trial4_responseInput;
+]
+/ recorddata = false
+</trial>
+
+<trial f_trial4_responseInput>  
+/ inputdevice = mouse
+/ stimulustimes = [0 = f_instructions, response, 1, 2, 3, 4, 5, 6, 7, 8, 9, 00, submit, erase]
+/ validresponse = (1, 2, 3, 4, 5, 6, 7, 8, 9, 00, submit, erase)
+/ ontrialend = [
+	if (trial.f_trial4_responseInput.response != "submit" && trial.f_trial4_responseInput.response != "erase") {
+		if (trial.f_trial4_responseInput.response == "00") {
+			values.lastDigit = 0;
+		} else {
+			values.lastDigit = trial.f_trial4_responseInput.response;
+		};
+		values.proposedSolution = concat(values.proposedSolution, values.lastDigit);
+	} ;
+]
+/ branch = [
+	if (trial.f_trial4_responseInput.response == "erase") {
+		trial.f_trial4_eraseLast;
+	} else if (trial.f_trial4_responseInput.response == "submit") {
+		trial.f_trial4;
+	} else {
+		trial.f_trial4_responseInput;
+	}
+]
+/ responsemessage = (1, text.1_HL, 50)
+/ responsemessage = (2, text.2_HL, 50)
+/ responsemessage = (3, text.3_HL, 50)
+/ responsemessage = (4, text.4_HL, 50)
+/ responsemessage = (5, text.5_HL, 50)
+/ responsemessage = (6, text.6_HL, 50)
+/ responsemessage = (7, text.7_HL, 50)
+/ responsemessage = (8, text.8_HL, 50)
+/ responsemessage = (9, text.9_HL, 50)
+/ responsemessage = (00, text.00_HL, 50)
+/ recorddata = false
+</trial>
+
+Note; trial.eraseLast
+* erases the last entered digit from the proposed solution (as long as there are digits)
+<trial f_trial4_eraseLast>
+/ ontrialbegin = [
+	values.proposedSolution = trimright(values.proposedSolution, values.lastDigit);
+	values.lastDigit = substring(values.proposedSolution, length(values.proposedSolution) - 1, 1);
+]
+/ trialduration = 0
+/ branch = [
+	trial.f_trial4_responseInput;
+]
+/ recorddata = false
+</trial>
+
+<trial f_trial4>
+/ trialduration = 0
+/ ontrialbegin = [
+	if (monkey.monkeymode == true && replace(0,1) == 1) {
+		values.proposedSolution = values.correctSolution;
+	};
+]
+/ iscorrectresponse = [
+	values.proposedSolution == values.sequence;
+]
+/ ontrialend = [
+	if (trial.f_trial4.error)
+		values.con_errorcount += 1;
+	if (values.con_errorcount == 2 && values.fTE_ML == -1) {
+		values.fTE_ML = 3;
+		values.fTE_TT = values.countTrials  - 2
+	};
+	if (trial.f_trial4.correct && values.fML <  4)
+		values.fML = 4;
+	values.ML = values.fML;
+	values.TE_ML = values.fTE_ML;
+	values.TE_TT = values.fTE_TT;
+	values.correct = trial.f_trial4.correct;
+]																	
+/ branch = [
+if (values.countTrials == 14) {
+	values.con_errorcount = 0;
+	trial.f_exit;
+} else if (trial.f_trial4.correct) {
+	values.con_errorcount = 0;
+	trial.f_trial5_digits;
+} else if (values.con_errorcount == 2) {
+		values.con_errorcount = 0;
+		trial.f_trial3_digits;
+} else
+		trial.f_trial4_digits;
+	
+]
+/ recorddata = true
+</trial>
+
+***************************************
+Forward Level 5
+***************************************
+
+<trial f_trial5_digits>  
+/ ontrialbegin = [
+	values.N = 5;
+	values.assesstype = 0;
+	values.proposedSolution = "";
+	values.countTrials += 1;
+	values.correct = 0;
+]
+/ stimulustimes = [0 = clearscreen, signal; 1000 = clearscreen, digit1; 2000 = clearscreen, digit2; 3000 = clearscreen, digit3; 
+						4000 = clearscreen, digit4; 5000 = clearscreen, digit5 ; 6000 = clearscreen, signal; 7000 = clearscreen]
+/ timeout = 7000
+/ ontrialend = [
+	values.sequence = expressions.f_digitsequence5;
+	values.correctSolution = values.sequence;
+]
+/ branch = [
+	trial.f_trial5_responseInput;
+]
+/ recorddata = false
+</trial>
+
+<trial f_trial5_responseInput>  
+/ inputdevice = mouse
+/ stimulustimes = [0 = f_instructions, response, 1, 2, 3, 4, 5, 6, 7, 8, 9, 00, submit, erase]
+/ validresponse = (1, 2, 3, 4, 5, 6, 7, 8, 9, 00, submit, erase)
+/ ontrialend = [
+	if (trial.f_trial5_responseInput.response != "submit" && trial.f_trial5_responseInput.response != "erase") {
+		if (trial.f_trial5_responseInput.response == "00") {
+			values.lastDigit = 0;
+		} else {
+			values.lastDigit = trial.f_trial5_responseInput.response;
+		};
+		values.proposedSolution = concat(values.proposedSolution, values.lastDigit);
+	} ;
+]
+/ branch = [
+	if (trial.f_trial5_responseInput.response == "erase") {
+		trial.f_trial5_eraseLast;
+	} else if (trial.f_trial5_responseInput.response == "submit") {
+		trial.f_trial5;
+	} else {
+		trial.f_trial5_responseInput;
+	}
+]
+/ responsemessage = (1, text.1_HL, 50)
+/ responsemessage = (2, text.2_HL, 50)
+/ responsemessage = (3, text.3_HL, 50)
+/ responsemessage = (4, text.4_HL, 50)
+/ responsemessage = (5, text.5_HL, 50)
+/ responsemessage = (6, text.6_HL, 50)
+/ responsemessage = (7, text.7_HL, 50)
+/ responsemessage = (8, text.8_HL, 50)
+/ responsemessage = (9, text.9_HL, 50)
+/ responsemessage = (00, text.00_HL, 50)
+/ recorddata = false
+</trial>
+
+Note; trial.eraseLast
+* erases the last entered digit from the proposed solution (as long as there are digits)
+<trial f_trial5_eraseLast>
+/ ontrialbegin = [
+	values.proposedSolution = trimright(values.proposedSolution, values.lastDigit);
+	values.lastDigit = substring(values.proposedSolution, length(values.proposedSolution) - 1, 1);
+]
+/ trialduration = 0
+/ branch = [
+	trial.f_trial5_responseInput;
+]
+/ recorddata = false
+</trial>
+
+<trial f_trial5>
+/ trialduration = 0
+/ ontrialbegin = [
+	if (monkey.monkeymode == true && replace(0,1) == 1) {
+		values.proposedSolution = values.correctSolution;
+	};
+]
+/ iscorrectresponse = [
+	values.proposedSolution == values.sequence;
+]
+/ ontrialend = [
+	if (trial.f_trial5.error)
+		values.con_errorcount += 1;
+	if (values.con_errorcount == 2 && values.fTE_ML == -1) {
+		values.fTE_ML = 4;
+		values.fTE_TT = values.countTrials  - 2
+	};
+	if (trial.f_trial5.correct && values.fML <  5)
+		values.fML = 5;
+	values.ML = values.fML;
+	values.TE_ML = values.fTE_ML;
+	values.TE_TT = values.fTE_TT;
+	values.correct = trial.f_trial5.correct;
+]
+/ branch = [
+	if (values.countTrials == 14) {
+		values.con_errorcount = 0;
+		trial.f_exit;
+	} else if (trial.f_trial5.correct) {
+		values.con_errorcount = 0;
+		trial.f_trial6_digits;
+	} else if (values.con_errorcount == 2) {
+		values.con_errorcount = 0;
+		trial.f_trial4_digits;
+	} else
+		trial.f_trial5_digits;
+]
+/ recorddata = true
+</trial>
+
+***************************************
+Forward Level 6
+***************************************
+
+<trial f_trial6_digits>  
+/ ontrialbegin = [
+	values.N = 6;
+	values.assesstype = 0;
+	values.proposedSolution = "";
+	values.countTrials += 1;
+	values.correct = 0;
+]
+/ stimulustimes = [0 = signal; 1000 = clearscreen, digit1; 2000 = clearscreen, digit2; 3000 = clearscreen, digit3; 
+						4000 = clearscreen, digit4; 5000 = clearscreen, digit5 ; 6000 = clearscreen, digit6;
+						7000 = clearscreen, signal; 8000 = clearscreen]
+/ timeout = 8000
+/ ontrialend = [
+	values.sequence = expressions.f_digitsequence6;
+	values.correctSolution = values.sequence;
+]
+/ branch = [
+	trial.f_trial6_responseInput;
+]
+/ recorddata = false
+</trial>
+
+<trial f_trial6_responseInput>  
+/ inputdevice = mouse
+/ stimulustimes = [0 = f_instructions, response, 1, 2, 3, 4, 5, 6, 7, 8, 9, 00, submit, erase]
+/ validresponse = (1, 2, 3, 4, 5, 6, 7, 8, 9, 00, submit, erase)
+/ ontrialend = [
+	if (trial.f_trial6_responseInput.response != "submit" && trial.f_trial6_responseInput.response != "erase") {
+		if (trial.f_trial6_responseInput.response == "00") {
+			values.lastDigit = 0;
+		} else {
+			values.lastDigit = trial.f_trial6_responseInput.response;
+		};
+		values.proposedSolution = concat(values.proposedSolution, values.lastDigit);
+	} ;
+]
+/ branch = [
+	if (trial.f_trial6_responseInput.response == "erase") {
+		trial.f_trial6_eraseLast;
+	} else if (trial.f_trial6_responseInput.response == "submit") {
+		trial.f_trial6;
+	} else {
+		trial.f_trial6_responseInput;
+	}
+]
+/ responsemessage = (1, text.1_HL, 50)
+/ responsemessage = (2, text.2_HL, 50)
+/ responsemessage = (3, text.3_HL, 50)
+/ responsemessage = (4, text.4_HL, 50)
+/ responsemessage = (5, text.5_HL, 50)
+/ responsemessage = (6, text.6_HL, 50)
+/ responsemessage = (7, text.7_HL, 50)
+/ responsemessage = (8, text.8_HL, 50)
+/ responsemessage = (9, text.9_HL, 50)
+/ responsemessage = (00, text.00_HL, 50)
+/ recorddata = false
+</trial>
+
+Note; trial.eraseLast
+* erases the last entered digit from the proposed solution (as long as there are digits)
+<trial f_trial6_eraseLast>
+/ ontrialbegin = [
+	values.proposedSolution = trimright(values.proposedSolution, values.lastDigit);
+	values.lastDigit = substring(values.proposedSolution, length(values.proposedSolution) - 1, 1);
+]
+/ trialduration = 0
+/ branch = [
+	trial.f_trial6_responseInput;
+]
+/ recorddata = false
+</trial>
+
+<trial f_trial6>
+/ trialduration = 0
+/ ontrialbegin = [
+	if (monkey.monkeymode == true && replace(0,1) == 1) {
+		values.proposedSolution = values.correctSolution;
+	};
+]
+/ iscorrectresponse = [
+	values.proposedSolution == values.sequence;
+]
+/ ontrialend = [
+	if (trial.f_trial6.error)
+		values.con_errorcount += 1;
+	if (values.con_errorcount == 2 && values.fTE_ML == -1) {
+		values.fTE_ML= 5;
+		values.fTE_TT = values.countTrials  - 2;
+	};
+	if (trial.f_trial6.correct && values.fML <  6)
+		values.fML = 6;
+	values.ML = values.fML;
+	values.TE_ML = values.fTE_ML;
+	values.TE_TT = values.fTE_TT;
+	values.correct = trial.f_trial6.correct;
+]
+/ branch = [
+	if (values.countTrials == 14) {
+		values.con_errorcount = 0;
+		trial.f_exit;
+	} else if (trial.f_trial6.correct) {
+		values.con_errorcount = 0;
+		trial.f_trial7_digits;
+	} else if (values.con_errorcount == 2) {
+		values.con_errorcount = 0;
+		trial.f_trial5_digits;
+	} else
+		trial.f_trial6_digits;
+]
+/ recorddata = true
+</trial>
+
+***************************************
+Forward Level 7
+***************************************
+
+<trial f_trial7_digits>  
+/ ontrialbegin = [
+	values.N = 7;
+	values.assesstype = 0;
+	values.proposedSolution = "";
+	values.countTrials += 1;
+	values.correct = 0;
+]
+/ stimulustimes = [0 = signal; 1000 = clearscreen, digit1; 2000 = clearscreen, digit2; 3000 = clearscreen, digit3; 
+						4000 = clearscreen, digit4; 5000 = clearscreen, digit5 ; 6000 = clearscreen, digit6;
+						7000 = clearscreen, digit7; 8000 = clearscreen, signal; 9000 = clearscreen]
+/ timeout = 9000
+/ ontrialend = [
+	values.sequence = expressions.f_digitsequence7;
+	values.correctSolution = values.sequence;
+]
+/ branch = [
+	trial.f_trial7_responseInput;
+]
+/ recorddata = false
+</trial>
+
+<trial f_trial7_responseInput>  
+/ inputdevice = mouse
+/ stimulustimes = [0 = f_instructions, response, 1, 2, 3, 4, 5, 6, 7, 8, 9, 00, submit, erase]
+/ validresponse = (1, 2, 3, 4, 5, 6, 7, 8, 9, 00, submit, erase)
+/ ontrialend = [
+	if (trial.f_trial7_responseInput.response != "submit" && trial.f_trial7_responseInput.response != "erase") {
+		if (trial.f_trial7_responseInput.response == "00") {
+			values.lastDigit = 0;
+		} else {
+			values.lastDigit = trial.f_trial7_responseInput.response;
+		};
+		values.proposedSolution = concat(values.proposedSolution, values.lastDigit);
+	} ;
+]
+/ branch = [
+	if (trial.f_trial7_responseInput.response == "erase") {
+		trial.f_trial7_eraseLast;
+	} else if (trial.f_trial7_responseInput.response == "submit") {
+		trial.f_trial7;
+	} else {
+		trial.f_trial7_responseInput;
+	}
+]
+/ responsemessage = (1, text.1_HL, 50)
+/ responsemessage = (2, text.2_HL, 50)
+/ responsemessage = (3, text.3_HL, 50)
+/ responsemessage = (4, text.4_HL, 50)
+/ responsemessage = (5, text.5_HL, 50)
+/ responsemessage = (6, text.6_HL, 50)
+/ responsemessage = (7, text.7_HL, 50)
+/ responsemessage = (8, text.8_HL, 50)
+/ responsemessage = (9, text.9_HL, 50)
+/ responsemessage = (00, text.00_HL, 50)
+/ recorddata = false
+</trial>
+
+Note; trial.eraseLast
+* erases the last entered digit from the proposed solution (as long as there are digits)
+<trial f_trial7_eraseLast>
+/ ontrialbegin = [
+	values.proposedSolution = trimright(values.proposedSolution, values.lastDigit);
+	values.lastDigit = substring(values.proposedSolution, length(values.proposedSolution) - 1, 1);
+]
+/ trialduration = 0
+/ branch = [
+	trial.f_trial7_responseInput;
+]
+/ recorddata = false
+</trial>
+
+<trial f_trial7>
+/ trialduration = 0
+/ ontrialbegin = [
+	if (monkey.monkeymode == true && replace(0,1) == 1) {
+		values.proposedSolution = values.correctSolution;
+	};
+]
+/ iscorrectresponse = [
+	values.proposedSolution == values.sequence;
+]
+/ ontrialend = [
+	if (trial.f_trial7.error)
+		values.con_errorcount += 1;
+	if (values.con_errorcount == 2 && values.fTE_ML == -1) {
+		values.fTE_ML= 6;
+		values.fTE_TT = values.countTrials - 2
+	};
+	if (trial.f_trial7.correct && values.fML <  7)
+		values.fML = 7;
+	values.ML = values.fML;
+	values.TE_ML = values.fTE_ML;
+	values.TE_TT = values.fTE_TT;
+	values.correct = trial.f_trial7.correct;
+]
+/ branch = [
+	if (values.countTrials == 14) {
+		values.con_errorcount = 0;
+		trial.f_exit;
+	} else if (trial.f_trial7.correct) {
+		values.con_errorcount = 0;
+		trial.f_trial8_digits;
+	} else if (values.con_errorcount == 2) {
+		values.con_errorcount = 0;
+		trial.f_trial6_digits;
+	} else
+		trial.f_trial7_digits;
+]
+/ recorddata = true
+</trial>
+
+***************************************
+Forward Level 8
+***************************************
+
+<trial f_trial8_digits>  
+/ ontrialbegin = [
+	values.N = 8;
+	values.assesstype = 0;
+	values.proposedSolution = "";
+	values.countTrials += 1;
+	values.correct = 0;
+]
+/ stimulustimes = [0 = signal; 1000 = clearscreen, digit1; 2000 = clearscreen, digit2; 3000 = clearscreen, digit3; 
+						4000 = clearscreen, digit4; 5000 = clearscreen, digit5 ; 6000 = clearscreen, digit6;
+						7000 = clearscreen, digit7; 8000 = clearscreen, digit8; 9000 = clearscreen, signal; 
+						10000 = clearscreen]
+/ timeout = 10000
+/ ontrialend = [
+	values.sequence = expressions.f_digitsequence8;
+	values.correctSolution = values.sequence;
+]
+/ branch = [
+	trial.f_trial8_responseInput;
+]
+/ recorddata = false
+</trial>
+
+<trial f_trial8_responseInput>  
+/ inputdevice = mouse
+/ stimulustimes = [0 = f_instructions, response, 1, 2, 3, 4, 5, 6, 7, 8, 9, 00, submit, erase]
+/ validresponse = (1, 2, 3, 4, 5, 6, 7, 8, 9, 00, submit, erase)
+/ ontrialend = [
+	if (trial.f_trial8_responseInput.response != "submit" && trial.f_trial8_responseInput.response != "erase") {
+		if (trial.f_trial8_responseInput.response == "00") {
+			values.lastDigit = 0;
+		} else {
+			values.lastDigit = trial.f_trial8_responseInput.response;
+		};
+		values.proposedSolution = concat(values.proposedSolution, values.lastDigit);
+	} ;
+]
+/ branch = [
+	if (trial.f_trial8_responseInput.response == "erase") {
+		trial.f_trial8_eraseLast;
+	} else if (trial.f_trial8_responseInput.response == "submit") {
+		trial.f_trial8;
+	} else {
+		trial.f_trial8_responseInput;
+	}
+]
+/ responsemessage = (1, text.1_HL, 50)
+/ responsemessage = (2, text.2_HL, 50)
+/ responsemessage = (3, text.3_HL, 50)
+/ responsemessage = (4, text.4_HL, 50)
+/ responsemessage = (5, text.5_HL, 50)
+/ responsemessage = (6, text.6_HL, 50)
+/ responsemessage = (7, text.7_HL, 50)
+/ responsemessage = (8, text.8_HL, 50)
+/ responsemessage = (9, text.9_HL, 50)
+/ responsemessage = (00, text.00_HL, 50)
+/ recorddata = false
+</trial>
+
+Note; trial.eraseLast
+* erases the last entered digit from the proposed solution (as long as there are digits)
+<trial f_trial8_eraseLast>
+/ ontrialbegin = [
+	values.proposedSolution = trimright(values.proposedSolution, values.lastDigit);
+	values.lastDigit = substring(values.proposedSolution, length(values.proposedSolution) - 1, 1);
+]
+/ trialduration = 0
+/ branch = [
+	trial.f_trial8_responseInput;
+]
+/ recorddata = false
+</trial>
+
+<trial f_trial8>
+/ trialduration = 0
+/ ontrialbegin = [
+	if (monkey.monkeymode == true && replace(0,1) == 1) {
+		values.proposedSolution = values.correctSolution;
+	};
+]
+/ iscorrectresponse = [
+	values.proposedSolution == values.sequence;
+]
+/ ontrialend = [
+	if (trial.f_trial8.error)
+		values.con_errorcount += 1;
+	if (values.con_errorcount == 2 && values.fTE_ML == -1) {
+		values.fTE_ML= 7;
+		values.fTE_TT = values.countTrials - 2
+	};
+	if (trial.f_trial8.correct && values.fML <  8)
+		values.fML = 8;
+	values.ML = values.fML;
+	values.TE_ML = values.fTE_ML;
+	values.TE_TT = values.fTE_TT;
+	values.correct = trial.f_trial8.correct;
+]
+/ branch = [
+	if (values.countTrials == 14) {
+		values.con_errorcount = 0;
+		trial.f_exit
+	} else if (trial.f_trial8.correct) {
+		values.con_errorcount = 0;
+		trial.f_trial9_digits;
+	} else if (values.con_errorcount == 2) {
+		values.con_errorcount = 0;
+		trial.f_trial7_digits;
+	} else
+		trial.f_trial8_digits;
+]
+/ recorddata = true
+</trial>
+
+
+********************************************
+COMMENT: 
+it's theoretically possible (though unlikely) to reach level 9 or higher within 14 trials without making a concecutive  error. 
+In this case the experimenter needs to decide on values for TE_ML and TE_TT, e.g.  this script defines TE_ML (in case of a last correct 9 level answer) = 9 
+and TE_TT = trialcount.
+*********************************************
+
+***************************************
+Forward Level 9
+***************************************
+
+<trial f_trial9_digits>  
+/ ontrialbegin = [
+	values.N = 9;
+	values.assesstype = 0;
+	values.proposedSolution = "";
+	values.countTrials += 1;
+	values.correct = 0;
+]
+/ stimulustimes = [0 = signal; 1000 = clearscreen, digit1; 2000 = clearscreen, digit2; 3000 = clearscreen, digit3; 
+						4000 = clearscreen, digit4; 5000 = clearscreen, digit5 ; 6000 = clearscreen, digit6;
+						7000 = clearscreen, digit7; 8000 = clearscreen, digit8; 9000 = clearscreen, digit9; 
+						10000 = clearscreen, signal; 11000 = clearscreen]
+/ timeout = 11000
+/ ontrialend = [
+	values.sequence = expressions.f_digitsequence9;
+	values.correctSolution = values.sequence;
+]
+/ branch = [
+	trial.f_trial9_responseInput;
+]
+/ recorddata = false
+</trial>
+
+<trial f_trial9_responseInput>  
+/ inputdevice = mouse
+/ stimulustimes = [0 = f_instructions, response, 1, 2, 3, 4, 5, 6, 7, 8, 9, 00, submit, erase]
+/ validresponse = (1, 2, 3, 4, 5, 6, 7, 8, 9, 00, submit, erase)
+/ ontrialend = [
+	if (trial.f_trial9_responseInput.response != "submit" && trial.f_trial9_responseInput.response != "erase") {
+		if (trial.f_trial9_responseInput.response == "00") {
+			values.lastDigit = 0;
+		} else {
+			values.lastDigit = trial.f_trial9_responseInput.response;
+		};
+		values.proposedSolution = concat(values.proposedSolution, values.lastDigit);
+	};
+]
+/ branch = [
+	if (trial.f_trial9_responseInput.response == "erase") {
+		trial.f_trial9_eraseLast;
+	} else if (trial.f_trial9_responseInput.response == "submit") {
+		trial.f_trial9;
+	} else {
+		trial.f_trial9_responseInput;
+	};
+]
+/ responsemessage = (1, text.1_HL, 50)
+/ responsemessage = (2, text.2_HL, 50)
+/ responsemessage = (3, text.3_HL, 50)
+/ responsemessage = (4, text.4_HL, 50)
+/ responsemessage = (5, text.5_HL, 50)
+/ responsemessage = (6, text.6_HL, 50)
+/ responsemessage = (7, text.7_HL, 50)
+/ responsemessage = (8, text.8_HL, 50)
+/ responsemessage = (9, text.9_HL, 50)
+/ responsemessage = (00, text.00_HL, 50)
+/ recorddata = false
+</trial>
+
+Note; trial.eraseLast
+* erases the last entered digit from the proposed solution (as long as there are digits)
+<trial f_trial9_eraseLast>
+/ ontrialbegin = [
+	values.proposedSolution = trimright(values.proposedSolution, values.lastDigit);
+	values.lastDigit = substring(values.proposedSolution, length(values.proposedSolution) - 1, 1);
+]
+/ trialduration = 0
+/ branch = [
+	trial.f_trial9_responseInput;
+]
+/ recorddata = false
+</trial>
+
+<trial f_trial9>
+/ trialduration = 0
+/ ontrialbegin = [
+	if (monkey.monkeymode == true && replace(0,1) == 1) {
+		values.proposedSolution = values.correctSolution;
+	};
+]
+/ iscorrectresponse = [
+	values.proposedSolution == values.sequence;
+]
+/ ontrialend = [
+	if (trial.f_trial9.error)
+		values.con_errorcount += 1;
+	if (values.con_errorcount == 2 && values.fTE_ML == -1) {
+		values.fTE_ML = 8;
+		values.fTE_TT = values.countTrials - 2
+	};
+	if (values.countTrials == 14 && trial.f_trial9.correct && values.fTE_ML == -1) {
+		values.fTE_ML = 9;
+		values.fTE_TT = values.countTrials
+	};
+	if (trial.f_trial9.correct && values.fML <  9)
+		values.fML = 9;
+	values.ML = values.fML;
+	values.TE_ML = values.fTE_ML;
+	values.TE_TT = values.fTE_TT;
+	values.correct = trial.f_trial9.correct;
+]
+/ branch = [
+	if (values.countTrials == 14) {
+		values.con_errorcount = 0;
+		trial.f_exit;
+	} else if (trial.f_trial9.correct) {
+		values.con_errorcount = 0;
+		trial.f_trial10_digits;
+	} else if (values.con_errorcount == 2) {
+		values.con_errorcount = 0;
+		trial.f_trial8_digits;
+	} else
+		trial.f_trial9_digits;
+]
+/ recorddata = true
+</trial>
+
+
+***************************************
+Forward Level 10
+***************************************
+
+<trial f_trial10_digits>  
+/ ontrialbegin = [
+	values.N = 10;
+	values.assesstype = 0;
+	values.proposedSolution = "";
+	values.countTrials += 1;
+	values.correct = 0;
+]
+/ stimulustimes = [0 = signal; 1000 = clearscreen, digit1; 2000 = clearscreen, digit2; 3000 = clearscreen, digit3; 
+						4000 = clearscreen, digit4; 5000 = clearscreen, digit5 ; 6000 = clearscreen, digit6;
+						7000 = clearscreen, digit7; 8000 = clearscreen, digit8; 9000 = clearscreen, digit9; 
+						10000 = clearscreen, digit10; 11000 = clearscreen, signal; 12000 = clearscreen]
+/ timeout = 12000
+/ ontrialend = [
+	values.sequence = expressions.f_digitsequence10;
+	values.correctSolution = values.sequence;
+]
+/ branch = [
+	trial.f_trial10_responseInput;
+]
+/ recorddata = false
+</trial>
+
+<trial f_trial10_responseInput>  
+/ inputdevice = mouse
+/ stimulustimes = [0 = f_instructions, response, 1, 2, 3, 4, 5, 6, 7, 8, 9, 00, submit, erase]
+/ validresponse = (1, 2, 3, 4, 5, 6, 7, 8, 9, 00, submit, erase)
+/ ontrialend = [
+	if (trial.f_trial10_responseInput.response != "submit" && trial.f_trial10_responseInput.response != "erase") {
+		if (trial.f_trial10_responseInput.response == "00") {
+			values.lastDigit = 0;
+		} else {
+			values.lastDigit = trial.f_trial10_responseInput.response;
+		};
+		values.proposedSolution = concat(values.proposedSolution, values.lastDigit);
+	};
+]
+/ branch = [
+	if (trial.f_trial10_responseInput.response == "erase") {
+		trial.f_trial10_eraseLast;
+	} else if (trial.f_trial10_responseInput.response == "submit") {
+		trial.f_trial10;
+	} else {
+		trial.f_trial10_responseInput;
+	};
+]
+/ responsemessage = (1, text.1_HL, 50)
+/ responsemessage = (2, text.2_HL, 50)
+/ responsemessage = (3, text.3_HL, 50)
+/ responsemessage = (4, text.4_HL, 50)
+/ responsemessage = (5, text.5_HL, 50)
+/ responsemessage = (6, text.6_HL, 50)
+/ responsemessage = (7, text.7_HL, 50)
+/ responsemessage = (8, text.8_HL, 50)
+/ responsemessage = (9, text.9_HL, 50)
+/ responsemessage = (00, text.00_HL, 50)
+/ recorddata = false
+</trial>
+
+Note; trial.eraseLast
+* erases the last entered digit from the proposed solution (as long as there are digits)
+<trial f_trial10_eraseLast>
+/ ontrialbegin = [
+	values.proposedSolution = trimright(values.proposedSolution, values.lastDigit);
+	values.lastDigit = substring(values.proposedSolution, length(values.proposedSolution) - 1, 1);
+]
+/ trialduration = 0
+/ branch = [
+	trial.f_trial10_responseInput;
+]
+/ recorddata = false
+</trial>
+
+<trial f_trial10>
+/ trialduration = 0
+/ ontrialbegin = [
+	if (monkey.monkeymode == true && replace(0,1) == 1) {
+		values.proposedSolution = values.correctSolution;
+	};
+]
+/ iscorrectresponse = [
+	values.proposedSolution == values.sequence;
+]
+/ ontrialend = [
+	if (trial.f_trial10.error)
+		values.con_errorcount += 1;
+	if (values.con_errorcount == 2 && values.fTE_ML == -1) {
+		values.fTE_ML= 9;
+		values.fTE_TT = values.countTrials - 2
+	};
+	if (values.countTrials == 14 && trial.f_trial10.correct && values.fTE_ML == -1) {
+		values.fTE_ML = 10;
+		values.fTE_TT = values.countTrials
+	};
+	if (values.countTrials == 14 && trial.f_trial10.error && values.fTE_ML == -1) {
+		values.fTE_ML = 9;
+		values.fTE_TT = values.countTrials - 1
+	};
+	if (trial.f_trial10.correct && values.fML <  10)
+		values.fML = 10;
+	values.ML = values.fML;
+	values.TE_ML = values.fTE_ML;
+	values.TE_TT = values.fTE_TT;
+	values.correct = trial.f_trial10.correct;
+]
+/ branch = [
+	if (values.countTrials == 14) {
+		values.con_errorcount = 0;
+		trial.f_exit;
+	} else if (trial.f_trial10.correct) {
+		values.con_errorcount = 0;
+		trial.f_trial11_digits;
+	} else if (values.con_errorcount == 2) {
+		values.con_errorcount = 0;
+		trial.f_trial9_digits;
+	} else
+		trial.f_trial10_digits;
+]
+/ recorddata = true
+</trial>
+
+***************************************
+Forward Level 11
+***************************************
+
+<trial f_trial11_digits>  
+/ ontrialbegin = [
+	values.N = 11;
+	values.assesstype = 0;
+	values.proposedSolution = "";
+	values.countTrials += 1;
+	values.correct = 0;
+]
+/ stimulustimes = [0 = signal; 1000 = clearscreen, digit1; 2000 = clearscreen, digit2; 3000 = clearscreen, digit3; 
+						4000 = clearscreen, digit4; 5000 = clearscreen, digit5 ; 6000 = clearscreen, digit6;
+						7000 = clearscreen, digit7; 8000 = clearscreen, digit8; 9000 = clearscreen, digit9; 
+						10000 = clearscreen, digit10; 11000 = clearscreen, digit11; 12000 = clearscreen, signal; 
+						13000 = clearscreen]
+/ timeout = 13000
+/ ontrialend = [
+	values.sequence = expressions.f_digitsequence11;
+	values.correctSolution = values.sequence;
+]
+/ branch = [
+	trial.f_trial11_responseInput;
+]
+/ recorddata = false
+</trial>
+
+<trial f_trial11_responseInput>  
+/ inputdevice = mouse
+/ stimulustimes = [0 = f_instructions, response, 1, 2, 3, 4, 5, 6, 7, 8, 9, 00, submit, erase]
+/ validresponse = (1, 2, 3, 4, 5, 6, 7, 8, 9, 00, submit, erase)
+/ ontrialend = [
+	if (trial.f_trial11_responseInput.response != "submit" && trial.f_trial11_responseInput.response != "erase") {
+		if (trial.f_trial11_responseInput.response == "00") {
+			values.lastDigit = 0;
+		} else {
+			values.lastDigit = trial.f_trial11_responseInput.response;
+		};
+		values.proposedSolution = concat(values.proposedSolution, values.lastDigit);
+	};
+]
+/ branch = [
+	if (trial.f_trial11_responseInput.response == "erase") {
+		trial.f_trial11_eraseLast;
+	} else if (trial.f_trial11_responseInput.response == "submit") {
+		trial.f_trial11;
+	} else {
+		trial.f_trial11_responseInput;
+	};
+]
+/ responsemessage = (1, text.1_HL, 50)
+/ responsemessage = (2, text.2_HL, 50)
+/ responsemessage = (3, text.3_HL, 50)
+/ responsemessage = (4, text.4_HL, 50)
+/ responsemessage = (5, text.5_HL, 50)
+/ responsemessage = (6, text.6_HL, 50)
+/ responsemessage = (7, text.7_HL, 50)
+/ responsemessage = (8, text.8_HL, 50)
+/ responsemessage = (9, text.9_HL, 50)
+/ responsemessage = (00, text.00_HL, 50)
+/ recorddata = false
+</trial>
+
+Note; trial.eraseLast
+* erases the last entered digit from the proposed solution (as long as there are digits)
+<trial f_trial11_eraseLast>
+/ ontrialbegin = [
+	values.proposedSolution = trimright(values.proposedSolution, values.lastDigit);
+	values.lastDigit = substring(values.proposedSolution, length(values.proposedSolution) - 1, 1);
+]
+/ trialduration = 0
+/ branch = [
+	trial.f_trial11_responseInput;
+]
+/ recorddata = false
+</trial>
+
+<trial f_trial11>
+/ trialduration = 0
+/ ontrialbegin = [
+	if (monkey.monkeymode == true && replace(0,1) == 1) {
+		values.proposedSolution = values.correctSolution;
+	};
+]
+/ iscorrectresponse = [
+	values.proposedSolution == values.sequence;
+]
+/ ontrialend = [
+	if (trial.f_trial11.error)
+		values.con_errorcount += 1;
+	if (values.con_errorcount == 2 && values.fTE_ML == -1) {
+		values.fTE_ML= 10;
+		values.fTE_TT = values.countTrials - 2
+	};
+	if (values.countTrials == 14 && trial.f_trial11.correct && values.fTE_ML == -1) {
+		values.fTE_ML = 11;
+		values.fTE_TT = values.countTrials
+	};
+	if (values.countTrials == 14 && trial.f_trial11.error && values.fTE_ML == -1) {
+		values.fTE_ML = 10;
+		values.fTE_TT = values.countTrials - 1
+	};
+	if (trial.f_trial11.correct && values.fML <  11)
+		values.fML = 11;
+	values.ML = values.fML;
+	values.TE_ML = values.fTE_ML;
+	values.TE_TT = values.fTE_TT;
+	values.correct = trial.f_trial11.correct;
+]
+/ branch = [
+	if (values.countTrials == 14) {
+		values.con_errorcount = 0;
+		trial.f_exit;
+	} else if (trial.f_trial11.correct) {
+		values.con_errorcount = 0;
+		trial.f_trial12_digits;
+	} else if (values.con_errorcount == 2) {
+		values.con_errorcount = 0;
+		trial.f_trial10_digits;
+	} else
+		trial.f_trial11_digits;
+]
+/ recorddata = true
+</trial>
+
+***************************************
+Forward Level 12
+***************************************
+
+<trial f_trial12_digits>  
+/ ontrialbegin = [
+	values.N = 12;
+	values.assesstype = 0;
+	values.proposedSolution = "";
+	values.countTrials += 1;
+	values.correct = 0;
+]
+/ stimulustimes = [0 = signal; 1000 = clearscreen, digit1; 2000 = clearscreen, digit2; 3000 = clearscreen, digit3; 
+						4000 = clearscreen, digit4; 5000 = clearscreen, digit5 ; 6000 = clearscreen, digit6;
+						7000 = clearscreen, digit7; 8000 = clearscreen, digit8; 9000 = clearscreen, digit9; 
+						10000 = clearscreen, digit10; 11000 = clearscreen, digit11; 12000 = clearscreen, digit12;
+						 13000 = clearscreen, signal; 14000 = clearscreen]
+/ timeout = 14000
+/ ontrialend = [
+	values.sequence = expressions.f_digitsequence12;
+	values.correctSolution = values.sequence;
+]
+/ branch = [
+	trial.f_trial12_responseInput;
+]
+/ recorddata = false
+</trial>
+
+<trial f_trial12_responseInput>  
+/ inputdevice = mouse
+/ stimulustimes = [0 = f_instructions, response, 1, 2, 3, 4, 5, 6, 7, 8, 9, 00, submit, erase]
+/ validresponse = (1, 2, 3, 4, 5, 6, 7, 8, 9, 00, submit, erase)
+/ ontrialend = [
+	if (trial.f_trial12_responseInput.response != "submit" && trial.f_trial12_responseInput.response != "erase") {
+		if (trial.f_trial12_responseInput.response == "00") {
+			values.lastDigit = 0;
+		} else {
+			values.lastDigit = trial.f_trial12_responseInput.response;
+		};
+		values.proposedSolution = concat(values.proposedSolution, values.lastDigit);
+	};
+]
+/ branch = [
+	if (trial.f_trial12_responseInput.response == "erase") {
+		trial.f_trial12_eraseLast;
+	} else if (trial.f_trial12_responseInput.response == "submit") {
+		trial.f_trial12;
+	} else {
+		trial.f_trial12_responseInput;
+	};
+]
+/ responsemessage = (1, text.1_HL, 50)
+/ responsemessage = (2, text.2_HL, 50)
+/ responsemessage = (3, text.3_HL, 50)
+/ responsemessage = (4, text.4_HL, 50)
+/ responsemessage = (5, text.5_HL, 50)
+/ responsemessage = (6, text.6_HL, 50)
+/ responsemessage = (7, text.7_HL, 50)
+/ responsemessage = (8, text.8_HL, 50)
+/ responsemessage = (9, text.9_HL, 50)
+/ responsemessage = (00, text.00_HL, 50)
+/ recorddata = false
+</trial>
+
+Note; trial.eraseLast
+* erases the last entered digit from the proposed solution (as long as there are digits)
+<trial f_trial12_eraseLast>
+/ ontrialbegin = [
+	values.proposedSolution = trimright(values.proposedSolution, values.lastDigit);
+	values.lastDigit = substring(values.proposedSolution, length(values.proposedSolution) - 1, 1);
+]
+/ trialduration = 0
+/ branch = [
+	trial.f_trial12_responseInput;
+]
+/ recorddata = false
+</trial>
+
+<trial f_trial12>
+/ trialduration = 0
+/ ontrialbegin = [
+	if (monkey.monkeymode == true && replace(0,1) == 1) {
+		values.proposedSolution = values.correctSolution;
+	};
+]
+/ iscorrectresponse = [
+	values.proposedSolution == values.sequence;
+]
+/ ontrialend = [
+	if (trial.f_trial12.error)
+		values.con_errorcount += 1;
+	if (values.con_errorcount == 2 && values.fTE_ML == -1) {
+		values.fTE_ML= 11;
+		values.fTE_TT = values.countTrials - 2
+	};
+	if (values.countTrials == 14 && trial.f_trial12.correct && values.fTE_ML == -1) {
+		values.fTE_ML = 12;
+		values.fTE_TT = values.countTrials
+	};
+	if (values.countTrials == 14 && trial.f_trial12.error && values.fTE_ML == -1) {
+		values.fTE_ML = 11;
+		values.fTE_TT = values.countTrials - 1
+	};
+	if (trial.f_trial12.correct && values.fML <  12)
+		values.fML = 12;
+	values.ML = values.fML;
+	values.TE_ML = values.fTE_ML;
+	values.TE_TT = values.fTE_TT;
+	values.correct = trial.f_trial12.correct;
+]
+/ branch = [
+	if (values.countTrials == 14) {
+		values.con_errorcount = 0;
+		trial.f_exit;
+	} else if (trial.f_trial12.correct) {
+		values.con_errorcount = 0;
+		trial.f_trial13_digits;
+	} else if (values.con_errorcount == 2) {
+		values.con_errorcount = 0;
+		trial.f_trial11_digits;
+	} else
+		trial.f_trial12_digits;
+]
+/ recorddata = true
+</trial>
+
+***************************************
+Forward Level 13
+***************************************
+
+<trial f_trial13_digits>  
+/ ontrialbegin = [
+	values.N = 13;
+	values.assesstype = 0;
+	values.proposedSolution = "";
+	values.countTrials += 1;
+	values.correct = 0;
+]
+/ stimulustimes = [0 = signal; 1000 = clearscreen, digit1; 2000 = clearscreen, digit2; 3000 = clearscreen, digit3; 
+						4000 = clearscreen, digit4; 5000 = clearscreen, digit5 ; 6000 = clearscreen, digit6;
+						7000 = clearscreen, digit7; 8000 = clearscreen, digit8; 9000 = clearscreen, digit9; 
+						10000 = clearscreen, digit10; 11000 = clearscreen, digit11; 12000 = clearscreen, digit12;
+						 13000 = clearscreen, digit13; 14000 = clearscreen, signal; 15000 = clearscreen]
+/ timeout = 15000
+/ ontrialend = [
+	values.sequence = expressions.f_digitsequence13;
+	values.correctSolution = values.sequence;
+]
+/ branch = [
+	trial.f_trial13_responseInput;
+]
+/ recorddata = false
+</trial>
+
+<trial f_trial13_responseInput>  
+/ inputdevice = mouse
+/ stimulustimes = [0 = f_instructions, response, 1, 2, 3, 4, 5, 6, 7, 8, 9, 00, submit, erase]
+/ validresponse = (1, 2, 3, 4, 5, 6, 7, 8, 9, 00, submit, erase)
+/ ontrialend = [
+	if (trial.f_trial13_responseInput.response != "submit" && trial.f_trial13_responseInput.response != "erase") {
+		if (trial.f_trial13_responseInput.response == "00") {
+			values.lastDigit = 0;
+		} else {
+			values.lastDigit = trial.f_trial13_responseInput.response;
+		};
+		values.proposedSolution = concat(values.proposedSolution, values.lastDigit);
+	};
+]
+/ branch = [
+	if (trial.f_trial13_responseInput.response == "erase") {
+		trial.f_trial13_eraseLast;
+	} else if (trial.f_trial13_responseInput.response == "submit") {
+		trial.f_trial13;
+	} else {
+		trial.f_trial13_responseInput;
+	};
+]
+/ responsemessage = (1, text.1_HL, 50)
+/ responsemessage = (2, text.2_HL, 50)
+/ responsemessage = (3, text.3_HL, 50)
+/ responsemessage = (4, text.4_HL, 50)
+/ responsemessage = (5, text.5_HL, 50)
+/ responsemessage = (6, text.6_HL, 50)
+/ responsemessage = (7, text.7_HL, 50)
+/ responsemessage = (8, text.8_HL, 50)
+/ responsemessage = (9, text.9_HL, 50)
+/ responsemessage = (00, text.00_HL, 50)
+/ recorddata = false
+</trial>
+
+Note; trial.eraseLast
+* erases the last entered digit from the proposed solution (as long as there are digits)
+<trial f_trial13_eraseLast>
+/ ontrialbegin = [
+	values.proposedSolution = trimright(values.proposedSolution, values.lastDigit);
+	values.lastDigit = substring(values.proposedSolution, length(values.proposedSolution) - 1, 1);
+]
+/ trialduration = 0
+/ branch = [
+	trial.f_trial13_responseInput;
+]
+/ recorddata = false
+</trial>
+
+<trial f_trial13>
+/ trialduration = 0
+/ ontrialbegin = [
+	if (monkey.monkeymode == true && replace(0,1) == 1) {
+		values.proposedSolution = values.correctSolution;
+	};
+]
+/ iscorrectresponse = [
+	values.proposedSolution == values.sequence;
+]
+/ ontrialend = [
+	if (trial.f_trial13.error)
+		values.con_errorcount += 1;
+	if (values.con_errorcount == 2 && values.fTE_ML == -1) {
+		values.fTE_ML= 12;
+		values.fTE_TT = values.countTrials - 2
+	};
+	if (values.countTrials == 14 && trial.f_trial13.correct && values.fTE_ML == -1) {
+		values.fTE_ML = 13;
+		values.fTE_TT = values.countTrials
+	};
+	if (values.countTrials == 14 && trial.f_trial13.error && values.fTE_ML == -1) {
+		values.fTE_ML = 12;
+		values.fTE_TT = values.countTrials - 1
+	};
+	if (trial.f_trial13.correct && values.fML <  13)
+		values.fML = 13;
+	values.ML = values.fML;
+	values.TE_ML = values.fTE_ML;
+	values.TE_TT = values.fTE_TT;
+	values.correct = trial.f_trial13.correct;
+]
+/ branch = [
+	if (values.countTrials == 14) {
+		values.con_errorcount = 0;
+		trial.f_exit;
+	} else if (trial.f_trial13.correct) {
+		values.con_errorcount = 0;
+		trial.f_trial14_digits;
+	} else if (values.con_errorcount == 2) {
+		values.con_errorcount = 0;
+		trial.f_trial12_digits;
+	} else
+		trial.f_trial13_digits;
+]
+/ recorddata = true
+</trial>
+
+***************************************
+Forward Level 14
+***************************************
+
+<trial f_trial14_digits>  
+/ ontrialbegin = [
+	values.N = 14;
+	values.assesstype = 0;
+	values.proposedSolution = "";
+	values.countTrials += 1;
+	values.correct = 0;
+]
+/ stimulustimes = [0 = signal; 1000 = clearscreen, digit1; 2000 = clearscreen, digit2; 3000 = clearscreen, digit3; 
+						4000 = clearscreen, digit4; 5000 = clearscreen, digit5 ; 6000 = clearscreen, digit6;
+						7000 = clearscreen, digit7; 8000 = clearscreen, digit8; 9000 = clearscreen, digit9; 
+						10000 = clearscreen, digit10; 11000 = clearscreen, digit11; 12000 = clearscreen, digit12;
+						 13000 = clearscreen, digit13; 14000 = clearscreen, digit14; 15000 = clearscreen, signal; 
+						 16000 = clearscreen]
+
+/ timeout = 16000
+/ ontrialend = [
+	values.sequence = expressions.f_digitsequence14;
+	values.correctSolution = values.sequence;
+]
+/ branch = [
+	trial.f_trial14_responseInput;
+]
+/ recorddata = false
+</trial>
+
+<trial f_trial14_responseInput>  
+/ inputdevice = mouse
+/ stimulustimes = [0 = f_instructions, response, 1, 2, 3, 4, 5, 6, 7, 8, 9, 00, submit, erase]
+/ validresponse = (1, 2, 3, 4, 5, 6, 7, 8, 9, 00, submit, erase)
+/ ontrialend = [
+	if (trial.f_trial14_responseInput.response != "submit" && trial.f_trial14_responseInput.response != "erase") {
+		if (trial.f_trial14_responseInput.response == "00") {
+			values.lastDigit = 0;
+		} else {
+			values.lastDigit = trial.f_trial14_responseInput.response;
+		};
+		values.proposedSolution = concat(values.proposedSolution, values.lastDigit);
+	};
+]
+/ branch = [
+	if (trial.f_trial14_responseInput.response == "erase") {
+		trial.f_trial14_eraseLast;
+	} else if (trial.f_trial14_responseInput.response == "submit") {
+		trial.f_trial14;
+	} else {
+		trial.f_trial14_responseInput;
+	};
+]
+/ responsemessage = (1, text.1_HL, 50)
+/ responsemessage = (2, text.2_HL, 50)
+/ responsemessage = (3, text.3_HL, 50)
+/ responsemessage = (4, text.4_HL, 50)
+/ responsemessage = (5, text.5_HL, 50)
+/ responsemessage = (6, text.6_HL, 50)
+/ responsemessage = (7, text.7_HL, 50)
+/ responsemessage = (8, text.8_HL, 50)
+/ responsemessage = (9, text.9_HL, 50)
+/ responsemessage = (00, text.00_HL, 50)
+/ recorddata = false
+</trial>
+
+Note; trial.eraseLast
+* erases the last entered digit from the proposed solution (as long as there are digits)
+<trial f_trial14_eraseLast>
+/ ontrialbegin = [
+	values.proposedSolution = trimright(values.proposedSolution, values.lastDigit);
+	values.lastDigit = substring(values.proposedSolution, length(values.proposedSolution) - 1, 1);
+]
+/ trialduration = 0
+/ branch = [
+	trial.f_trial14_responseInput;
+]
+/ recorddata = false
+</trial>
+
+<trial f_trial14>
+/ trialduration = 0
+/ ontrialbegin = [
+	if (monkey.monkeymode == true && replace(0,1) == 1) {
+		values.proposedSolution = values.correctSolution;
+	};
+]
+/ iscorrectresponse = [
+	values.proposedSolution == values.sequence;
+]
+/ ontrialend = [
+	if (trial.f_trial14.error)
+		values.con_errorcount += 1;
+	if (values.con_errorcount == 2 && values.fTE_ML == -1) {
+		values.fTE_ML= 13;
+		values.fTE_TT = values.countTrials - 2;
+	};
+	if (values.countTrials == 14 && trial.f_trial14.correct && values.fTE_ML == -1) {
+		values.fTE_ML = 14;
+		values.fTE_TT = values.countTrials;
+	};
+	if (values.countTrials == 14 && trial.f_trial14.error && values.fTE_ML == -1) {
+		values.fTE_ML = 13;
+		values.fTE_TT = values.countTrials - 1;
+	};
+	if (trial.f_trial14.correct && values.fML <  14)
+		values.fML = 14;
+	values.ML = values.fML;
+	values.TE_ML = values.fTE_ML;
+	values.TE_TT = values.fTE_TT;
+	values.correct = trial.f_trial14.correct;
+]
+/ branch = [
+	if (values.countTrials == 14) {
+		values.con_errorcount = 0;
+		trial.f_exit;
+	} else if (trial.f_trial14.correct) {
+		values.con_errorcount = 0;
+		trial.f_trial15_digits;
+	} else if (values.con_errorcount == 2) {
+		values.con_errorcount = 0;
+		trial.f_trial13_digits;
+	} else
+		trial.f_trial14_digits;
+]
+/ recorddata = true
+</trial>
+
+***************************************
+Forward Level 15
+***************************************
+
+<trial f_trial15_digits>  
+/ ontrialbegin = [
+	values.N = 15;
+	values.assesstype = 0;
+	values.proposedSolution = "";
+	values.countTrials += 1;
+	values.correct = 0;
+]
+/ stimulustimes = [0 = signal; 1000 = clearscreen, digit1; 2000 = clearscreen, digit2; 3000 = clearscreen, digit3; 
+						4000 = clearscreen, digit4; 5000 = clearscreen, digit5 ; 6000 = clearscreen, digit6;
+						7000 = clearscreen, digit7; 8000 = clearscreen, digit8; 9000 = clearscreen, digit9; 
+						10000 = clearscreen, digit10; 11000 = clearscreen, digit11; 12000 = clearscreen, digit12;
+						 13000 = clearscreen, digit13; 14000 = clearscreen, digit14; 15000 = clearscreen, digit15; 
+						16000 = clearscreen, signal; 17000 = clearscreen]
+
+/ timeout = 17000
+/ ontrialend = [
+	values.sequence = expressions.f_digitsequence15;
+	values.correctSolution = values.sequence;
+]
+/ branch = [
+	trial.f_trial15_responseInput;
+]
+/ recorddata = false
+</trial>
+
+<trial f_trial15_responseInput>  
+/ inputdevice = mouse
+/ stimulustimes = [0 = f_instructions, response, 1, 2, 3, 4, 5, 6, 7, 8, 9, 00, submit, erase]
+/ validresponse = (1, 2, 3, 4, 5, 6, 7, 8, 9, 00, submit, erase)
+/ ontrialend = [
+	if (trial.f_trial15_responseInput.response != "submit" && trial.f_trial15_responseInput.response != "erase") {
+		if (trial.f_trial15_responseInput.response == "00") {
+			values.lastDigit = 0;
+		} else {
+			values.lastDigit = trial.f_trial15_responseInput.response;
+		};
+		values.proposedSolution = concat(values.proposedSolution, values.lastDigit);
+	};
+]
+/ branch = [
+	if (trial.f_trial15_responseInput.response == "erase") {
+		trial.f_trial15_eraseLast;
+	} else if (trial.f_trial15_responseInput.response == "submit") {
+		trial.f_trial15;
+	} else {
+		trial.f_trial15_responseInput;
+	};
+]
+/ responsemessage = (1, text.1_HL, 50)
+/ responsemessage = (2, text.2_HL, 50)
+/ responsemessage = (3, text.3_HL, 50)
+/ responsemessage = (4, text.4_HL, 50)
+/ responsemessage = (5, text.5_HL, 50)
+/ responsemessage = (6, text.6_HL, 50)
+/ responsemessage = (7, text.7_HL, 50)
+/ responsemessage = (8, text.8_HL, 50)
+/ responsemessage = (9, text.9_HL, 50)
+/ responsemessage = (00, text.00_HL, 50)
+/ recorddata = false
+</trial>
+
+Note; trial.eraseLast
+* erases the last entered digit from the proposed solution (as long as there are digits)
+<trial f_trial15_eraseLast>
+/ ontrialbegin = [
+	values.proposedSolution = trimright(values.proposedSolution, values.lastDigit);
+	values.lastDigit = substring(values.proposedSolution, length(values.proposedSolution) - 1, 1);
+]
+/ trialduration = 0
+/ branch = [
+	trial.f_trial15_responseInput;
+]
+/ recorddata = false
+</trial>
+
+<trial f_trial15>
+/ trialduration = 0
+/ ontrialbegin = [
+	if (monkey.monkeymode == true && replace(0,1) == 1) {
+		values.proposedSolution = values.correctSolution;
+	};
+]
+/ iscorrectresponse = [
+	values.proposedSolution == values.sequence;
+]
+/ ontrialend = [
+	if (trial.f_trial15.error)
+		values.con_errorcount += 1;
+	if (values.con_errorcount == 2 && values.fTE_ML == -1) {
+		values.fTE_ML = 14;
+		values.fTE_TT = values.countTrials - 2;
+	};
+	if (values.countTrials == 14 && values.fTE_ML == -1 && trial.f_trial15.correct) {
+		values.fTE_ML = 15;
+		values.fTE_TT = values.countTrials;
+	};
+	if (values.countTrials == 14 && values.fTE_ML == -1 && trial.f_trial15.error) {
+		values.fTE_ML = 14;
+		values.fTE_TT = values.countTrials - 1;
+	};
+	if (trial.f_trial15.correct && values.fML <  15)
+		values.fML = 15;
+	values.ML = values.fML;
+	values.TE_ML = values.fTE_ML;
+	values.TE_TT = values.fTE_TT;
+	values.correct = trial.f_trial15.correct;
+]
+/ branch = [
+	if (values.countTrials == 14) {
+		values.con_errorcount = 0;
+		trial.f_exit;
+	} else if (trial.f_trial15.correct) {
+		values.con_errorcount = 0;
+		trial.f_trial16_digits;
+	} else if (values.con_errorcount == 2) {
+		values.con_errorcount = 0;
+		trial.f_trial14_digits;
+	} else
+		trial.f_trial15_digits;
+]
+/ recorddata = true
+</trial>
+
+
+* last possible trial in Forward assessment
+***************************************
+Forward Level 16
+***************************************
+
+<trial f_trial16_digits>  
+/ ontrialbegin = [
+	values.N = 16;
+	values.assesstype = 0;
+	values.proposedSolution = "";
+	values.countTrials += 1;
+	values.correct = 0;
+]
+/ stimulustimes = [0 = signal; 1000 = clearscreen, digit1; 2000 = clearscreen, digit2; 3000 = clearscreen, digit3; 
+						4000 = clearscreen, digit4; 5000 = clearscreen, digit5 ; 6000 = clearscreen, digit6;
+						7000 = clearscreen, digit7; 8000 = clearscreen, digit8; 9000 = clearscreen, digit9; 
+						10000 = clearscreen, digit10; 11000 = clearscreen, digit11; 12000 = clearscreen, digit12;
+						 13000 = clearscreen, digit13; 14000 = clearscreen, digit14; 15000 = clearscreen, digit15; 
+						16000 = clearscreen, digit16; 17000 = clearscreen, signal; 18000 = clearscreen]
+
+
+/ timeout = 18000
+/ ontrialend = [
+	values.sequence = expressions.f_digitsequence16;
+	values.correctSolution = values.sequence;
+]
+/ branch = [
+	trial.f_trial16_responseInput;
+]
+/ recorddata = false
+</trial>
+
+<trial f_trial16_responseInput>  
+/ inputdevice = mouse
+/ stimulustimes = [0 = f_instructions, response, 1, 2, 3, 4, 5, 6, 7, 8, 9, 00, submit, erase]
+/ validresponse = (1, 2, 3, 4, 5, 6, 7, 8, 9, 00, submit, erase)
+/ ontrialend = [
+	if (trial.f_trial16_responseInput.response != "submit" && trial.f_trial16_responseInput.response != "erase") {
+		if (trial.f_trial16_responseInput.response == "00") {
+			values.lastDigit = 0;
+		} else {
+			values.lastDigit = trial.f_trial16_responseInput.response;
+		};
+		values.proposedSolution = concat(values.proposedSolution, values.lastDigit);
+	};
+]
+/ branch = [
+	if (trial.f_trial16_responseInput.response == "erase") {
+		trial.f_trial16_eraseLast;
+	} else if (trial.f_trial16_responseInput.response == "submit") {
+		trial.f_trial16;
+	} else {
+		trial.f_trial16_responseInput;
+	};
+]
+/ responsemessage = (1, text.1_HL, 50)
+/ responsemessage = (2, text.2_HL, 50)
+/ responsemessage = (3, text.3_HL, 50)
+/ responsemessage = (4, text.4_HL, 50)
+/ responsemessage = (5, text.5_HL, 50)
+/ responsemessage = (6, text.6_HL, 50)
+/ responsemessage = (7, text.7_HL, 50)
+/ responsemessage = (8, text.8_HL, 50)
+/ responsemessage = (9, text.9_HL, 50)
+/ responsemessage = (00, text.00_HL, 50)
+/ recorddata = false
+</trial>
+
+Note; trial.eraseLast
+* erases the last entered digit from the proposed solution (as long as there are digits)
+<trial f_trial16_eraseLast>
+/ ontrialbegin = [
+	values.proposedSolution = trimright(values.proposedSolution, values.lastDigit);
+	values.lastDigit = substring(values.proposedSolution, length(values.proposedSolution) - 1, 1);
+]
+/ trialduration = 0
+/ branch = [
+	trial.f_trial16_responseInput;
+]
+/ recorddata = false
+</trial>
+
+<trial f_trial16>
+/ trialduration = 0
+/ ontrialbegin = [
+	if (monkey.monkeymode == true && replace(0,1) == 1) {
+		values.proposedSolution = values.correctSolution;
+	};
+]
+/ iscorrectresponse = [
+	values.proposedSolution == values.sequence;
+]
+/ ontrialend = [
+	if (trial.f_trial16.correct && values.fTE_ML == -1) {
+		values.fTE_ML = 16;
+		values.fTE_TT = values.countTrials;
+	};
+	if (trial.f_trial16.error && values.fTE_ML == -1) {
+		values.fTE_ML = 15;
+		values.fTE_TT = values.countTrials -1;
+	};
+	if (trial.f_trial16.correct && values.fML <  16)
+		values.fML = 16;
+	values.ML = values.fML;
+	values.TE_ML = values.fTE_ML;
+	values.TE_TT = values.fTE_TT;
+	values.correct = trial.f_trial16.correct;
+]
+/ branch = [
+	if (values.countTrials == 14) {
+		values.con_errorcount = 0;
+		trial.f_exit;
+	} else if (values.con_errorcount == 2) {
+		values.con_errorcount = 0;
+		trial.f_trial15_digits;
+	} else {
+		trial.f_trial16_digits;
+	};
+]
+/ recorddata = true
+</trial>
+
+
+**************************************************************************************************************
+**************************************************************************************************************
+	BACKWARD TRIALS
+**************************************************************************************************************
+**************************************************************************************************************
+
+*	Backward trials are similar to Forward trials. They only differ in:
+		1) start at level 2
+		2) values.assesstype = 1, set in trial.b_trial2
+		3) instructions above the Recall-Textbox and
+		4) how correct responses are calculated 
+	
+* 	The digit sequence saved in the data file for backward trials is the presented one (= the forward sequence), hence the code
+	values.sequence = expressions.f_digitsequenceX (the forward sequence)
+
+*Backward assessment starts with level 2 testing
+***************************************
+Backward Level 2
+***************************************
+
+<trial b_trial2_digits>  
+/ ontrialbegin = [
+	values.N = 2;
+	values.assesstype = 1;
+	values.proposedSolution = "";
+	values.countTrials += 1;
+	values.correct = 0;
+]
+/ stimulustimes = [0 = signal; 1000 = clearscreen, digit1;  2000 = clearscreen, digit2; 
+						3000 = clearscreen, signal; 4000 = clearscreen]
+
+
+/ timeout = 4000
+/ ontrialend = [
+	values.sequence = expressions.f_digitsequence2;
+	values.correctSolution = expressions.b_digitsequence2;
+]
+/ branch = [
+	trial.b_trial2_responseInput;
+]
+/ recorddata = false
+</trial>
+
+<trial b_trial2_responseInput>  
+/ inputdevice = mouse
+/ stimulustimes = [0 = b_instructions, response, 1, 2, 3, 4, 5, 6, 7, 8, 9, 00, submit, erase]
+/ validresponse = (1, 2, 3, 4, 5, 6, 7, 8, 9, 00, submit, erase)
+/ ontrialend = [
+	if (trial.b_trial2_responseInput.response != "submit" && trial.b_trial2_responseInput.response != "erase") {
+		if (trial.b_trial2_responseInput.response == "00") {
+			values.lastDigit = 0;
+		} else {
+			values.lastDigit = trial.b_trial2_responseInput.response;
+		};
+		values.proposedSolution = concat(values.proposedSolution, values.lastDigit);
+	};
+]
+/ branch = [
+	if (trial.b_trial2_responseInput.response == "erase") {
+		trial.b_trial2_eraseLast;
+	} else if (trial.b_trial2_responseInput.response == "submit") {
+		trial.b_trial2;
+	} else {
+		trial.b_trial2_responseInput;
+	};
+]
+/ responsemessage = (1, text.1_HL, 50)
+/ responsemessage = (2, text.2_HL, 50)
+/ responsemessage = (3, text.3_HL, 50)
+/ responsemessage = (4, text.4_HL, 50)
+/ responsemessage = (5, text.5_HL, 50)
+/ responsemessage = (6, text.6_HL, 50)
+/ responsemessage = (7, text.7_HL, 50)
+/ responsemessage = (8, text.8_HL, 50)
+/ responsemessage = (9, text.9_HL, 50)
+/ responsemessage = (00, text.00_HL, 50)
+/ recorddata = false
+</trial>
+
+Note; trial.eraseLast
+* erases the last entered digit from the proposed solution (as long as there are digits)
+<trial b_trial2_eraseLast>
+/ ontrialbegin = [
+	values.proposedSolution = trimright(values.proposedSolution, values.lastDigit);
+	values.lastDigit = substring(values.proposedSolution, length(values.proposedSolution) - 1, 1);
+]
+/ trialduration = 0
+/ branch = [
+	trial.b_trial2_responseInput;
+]
+/ recorddata = false
+</trial>
+
+<trial b_trial2>
+/ trialduration = 0
+/ ontrialbegin = [
+	if (monkey.monkeymode == true && replace(0,1) == 1) {
+		values.proposedSolution = values.correctSolution;
+	};
+]
+/ iscorrectresponse = [
+	values.proposedSolution == expressions.b_digitsequence2;
+]
+/ ontrialend = [
+	if (trial.b_trial2.correct && values.bML < 2)
+		values.bML = 2;
+	if (trial.b_trial2.error)
+		values.con_errorcount += 1;
+	if (values.con_errorcount == 2 && values.bTE_ML == -1) {
+		values.bTE_ML =  1;
+		values.bTE_TT = values.countTrials- 2;
+	};
+	values.ML = values.bML;
+	values.TE_ML = values.bTE_ML;
+	values.TE_TT = values.bTE_TT;
+	values.MS = values.bMS;
+	values.correct = trial.b_trial2.correct;
+]
+/ branch = [
+	if (values.countTrials == 14) {
+		values.con_errorcount = 0;
+		trial.b_exit;
+	} else if (trial.b_trial2.correct) {
+		values.con_errorcount = 0;
+		trial.b_trial3_digits;
+	} else if (values.con_errorcount == 2) {
+		values.con_errorcount = 0;
+		trial.b_trial2_digits;
+	} else
+		trial.b_trial2_digits;
+]
+/ recorddata = true
+</trial>
+
+
+***************************************
+Backward Level 3
+***************************************
+
+<trial b_trial3_digits>  
+/ ontrialbegin = [
+	values.N = 3;
+	values.assesstype = 1;
+	values.proposedSolution = "";
+	values.countTrials += 1;
+	values.correct = 0;
+]
+/ stimulustimes = [0 = signal; 1000 = clearscreen, digit1;  2000 = clearscreen, digit2; 3000 = clearscreen, digit3; 
+						4000 = clearscreen, signal; 5000 = clearscreen]
+
+
+/ timeout = 5000
+/ ontrialend = [
+	values.sequence = expressions.f_digitsequence3;
+	values.correctSolution = expressions.b_digitsequence3;
+]
+/ branch = [
+	trial.b_trial3_responseInput;
+]
+/ recorddata = false
+</trial>
+
+<trial b_trial3_responseInput>  
+/ inputdevice = mouse
+/ stimulustimes = [0 = b_instructions, response, 1, 2, 3, 4, 5, 6, 7, 8, 9, 00, submit, erase]
+/ validresponse = (1, 2, 3, 4, 5, 6, 7, 8, 9, 00, submit, erase)
+/ ontrialend = [
+	if (trial.b_trial3_responseInput.response != "submit" && trial.b_trial3_responseInput.response != "erase") {
+		if (trial.b_trial3_responseInput.response == "00") {
+			values.lastDigit = 0;
+		} else {
+			values.lastDigit = trial.b_trial3_responseInput.response;
+		};
+		values.proposedSolution = concat(values.proposedSolution, values.lastDigit);
+	};
+]
+/ branch = [
+	if (trial.b_trial3_responseInput.response == "erase") {
+		trial.b_trial3_eraseLast;
+	} else if (trial.b_trial3_responseInput.response == "submit") {
+		trial.b_trial3;
+	} else {
+		trial.b_trial3_responseInput;
+	};
+]
+/ responsemessage = (1, text.1_HL, 50)
+/ responsemessage = (2, text.2_HL, 50)
+/ responsemessage = (3, text.3_HL, 50)
+/ responsemessage = (4, text.4_HL, 50)
+/ responsemessage = (5, text.5_HL, 50)
+/ responsemessage = (6, text.6_HL, 50)
+/ responsemessage = (7, text.7_HL, 50)
+/ responsemessage = (8, text.8_HL, 50)
+/ responsemessage = (9, text.9_HL, 50)
+/ responsemessage = (00, text.00_HL, 50)
+/ recorddata = false
+</trial>
+
+Note; trial.eraseLast
+* erases the last entered digit from the proposed solution (as long as there are digits)
+<trial b_trial3_eraseLast>
+/ ontrialbegin = [
+	values.proposedSolution = trimright(values.proposedSolution, values.lastDigit);
+	values.lastDigit = substring(values.proposedSolution, length(values.proposedSolution) - 1, 1);
+]
+/ trialduration = 0
+/ branch = [
+	trial.b_trial3_responseInput;
+]
+/ recorddata = false
+</trial>
+
+<trial b_trial3>
+/ trialduration = 0
+/ ontrialbegin = [
+	if (monkey.monkeymode == true && replace(0,1) == 1) {
+		values.proposedSolution = values.correctSolution;
+	};
+]
+/ iscorrectresponse = [
+	values.proposedSolution == expressions.b_digitsequence3;
+]
+/ ontrialend = [
+	if (trial.b_trial3.correct && values.bML < 3)
+		values.bML = 3;
+	if (trial.b_trial3.error)
+		values.con_errorcount += 1;
+	if (values.con_errorcount == 2 && values.bTE_ML == -1) {
+		values.bTE_ML =  2;
+		values.bTE_TT = values.countTrials- 2;
+	};
+	values.ML = values.bML;
+	values.TE_ML = values.bTE_ML;
+	values.TE_TT = values.bTE_TT;
+	values.correct = trial.b_trial3.correct;
+]
+/ branch = [
+	if (values.countTrials ==14) {
+		values.con_errorcount = 0;
+		trial.b_exit;
+	} else if (trial.b_trial3.correct) {
+		values.con_errorcount = 0;
+		trial.b_trial4_digits;
+	} else if (values.con_errorcount == 2) {
+		values.con_errorcount = 0;
+		trial.b_trial2_digits;
+	} else
+		trial.b_trial3_digits;
+]
+/ recorddata = true
+</trial>
+
+
+***************************************
+Backward Level 4
+***************************************
+
+<trial b_trial4_digits>  
+/ ontrialbegin = [
+	values.N = 4;
+	values.assesstype = 1;
+	values.proposedSolution = "";
+	values.countTrials += 1;
+	values.correct = 0;
+]
+/ stimulustimes = [0 = clearscreen, signal; 1000 = clearscreen, digit1; 2000 = clearscreen, digit2; 3000 = clearscreen, digit3; 
+						4000 = clearscreen, digit4; 5000 = clearscreen, signal; 6000 = clearscreen]
+
+/ timeout = 6000
+/ ontrialend = [
+	values.sequence = expressions.f_digitsequence4;
+	values.correctSolution = expressions.b_digitsequence4;
+]
+/ branch = [
+	trial.b_trial4_responseInput;
+]
+/ recorddata = false
+</trial>
+
+<trial b_trial4_responseInput>  
+/ inputdevice = mouse
+/ stimulustimes = [0 = b_instructions, response, 1, 2, 3, 4, 5, 6, 7, 8, 9, 00, submit, erase]
+/ validresponse = (1, 2, 3, 4, 5, 6, 7, 8, 9, 00, submit, erase)
+/ ontrialend = [
+	if (trial.b_trial4_responseInput.response != "submit" && trial.b_trial4_responseInput.response != "erase") {
+		if (trial.b_trial4_responseInput.response == "00") {
+			values.lastDigit = 0;
+		} else {
+			values.lastDigit = trial.b_trial4_responseInput.response;
+		};
+		values.proposedSolution = concat(values.proposedSolution, values.lastDigit);
+	};
+]
+/ branch = [
+	if (trial.b_trial4_responseInput.response == "erase") {
+		trial.b_trial4_eraseLast;
+	} else if (trial.b_trial4_responseInput.response == "submit") {
+		trial.b_trial4;
+	} else {
+		trial.b_trial4_responseInput;
+	};
+]
+/ responsemessage = (1, text.1_HL, 50)
+/ responsemessage = (2, text.2_HL, 50)
+/ responsemessage = (3, text.3_HL, 50)
+/ responsemessage = (4, text.4_HL, 50)
+/ responsemessage = (5, text.5_HL, 50)
+/ responsemessage = (6, text.6_HL, 50)
+/ responsemessage = (7, text.7_HL, 50)
+/ responsemessage = (8, text.8_HL, 50)
+/ responsemessage = (9, text.9_HL, 50)
+/ responsemessage = (00, text.00_HL, 50)
+/ recorddata = false
+</trial>
+
+Note; trial.eraseLast
+* erases the last entered digit from the proposed solution (as long as there are digits)
+<trial b_trial4_eraseLast>
+/ ontrialbegin = [
+	values.proposedSolution = trimright(values.proposedSolution, values.lastDigit);
+	values.lastDigit = substring(values.proposedSolution, length(values.proposedSolution) - 1, 1);
+]
+/ trialduration = 0
+/ branch = [
+	trial.b_trial4_responseInput;
+]
+/ recorddata = false
+</trial>
+
+<trial b_trial4>
+/ trialduration = 0
+/ ontrialbegin = [
+	if (monkey.monkeymode == true && replace(0,1) == 1) {
+		values.proposedSolution = values.correctSolution;
+	};
+]
+/ iscorrectresponse = [
+	values.proposedSolution == expressions.b_digitsequence4;
+]
+/ ontrialend = [
+	if (trial.b_trial4.error)
+		values.con_errorcount += 1;
+	if (values.con_errorcount == 2 && values.bTE_ML == -1) {
+		values.bTE_ML = 3;
+		values.bTE_TT = values.countTrials  - 2;
+	};
+	if (trial.b_trial4.correct && values.bML <  4)
+		values.bML = 4;
+	values.ML = values.bML;
+	values.TE_ML = values.bTE_ML;
+	values.TE_TT = values.bTE_TT;
+	values.correct = trial.b_trial4.correct;
+]																	
+/ branch = [
+	if (values.countTrials == 14) {
+		values.con_errorcount = 0;
+		trial.b_exit;
+	} else if (trial.b_trial4.correct) {
+		values.con_errorcount = 0;
+		trial.b_trial5_digits;
+	} else if (values.con_errorcount == 2) {
+		values.con_errorcount = 0;
+		trial.b_trial3_digits;
+	} else
+		trial.b_trial4_digits;
+]
+/ recorddata = true
+</trial>
+
+***************************************
+Backward Level 5
+***************************************
+
+<trial b_trial5_digits>  
+/ ontrialbegin = [
+	values.N = 5;
+	values.assesstype = 1;
+	values.proposedSolution = "";
+	values.countTrials += 1;
+	values.correct = 0;
+]
+/ stimulustimes = [0 = signal; 1000 = clearscreen, digit1; 2000 = clearscreen, digit2; 3000 = clearscreen, digit3; 
+						4000 = clearscreen, digit4; 5000 = clearscreen, digit5 ; 6000 = clearscreen, signal; 
+						7000 = clearscreen]
+
+/ timeout = 7000
+/ ontrialend = [
+	values.sequence = expressions.f_digitsequence5;
+	values.correctSolution = expressions.b_digitsequence5;
+]
+/ branch = [
+	trial.b_trial5_responseInput;
+]
+/ recorddata = false
+</trial>
+
+<trial b_trial5_responseInput>  
+/ inputdevice = mouse
+/ stimulustimes = [0 = b_instructions, response, 1, 2, 3, 4, 5, 6, 7, 8, 9, 00, submit, erase]
+/ validresponse = (1, 2, 3, 4, 5, 6, 7, 8, 9, 00, submit, erase)
+/ ontrialend = [
+	if (trial.b_trial5_responseInput.response != "submit" && trial.b_trial5_responseInput.response != "erase") {
+		if (trial.b_trial5_responseInput.response == "00") {
+			values.lastDigit = 0;
+		} else {
+			values.lastDigit = trial.b_trial5_responseInput.response;
+		};
+		values.proposedSolution = concat(values.proposedSolution, values.lastDigit);
+	};
+]
+/ branch = [
+	if (trial.b_trial5_responseInput.response == "erase") {
+		trial.b_trial5_eraseLast;
+	} else if (trial.b_trial5_responseInput.response == "submit") {
+		trial.b_trial5;
+	} else {
+		trial.b_trial5_responseInput;
+	};
+]
+/ responsemessage = (1, text.1_HL, 50)
+/ responsemessage = (2, text.2_HL, 50)
+/ responsemessage = (3, text.3_HL, 50)
+/ responsemessage = (4, text.4_HL, 50)
+/ responsemessage = (5, text.5_HL, 50)
+/ responsemessage = (6, text.6_HL, 50)
+/ responsemessage = (7, text.7_HL, 50)
+/ responsemessage = (8, text.8_HL, 50)
+/ responsemessage = (9, text.9_HL, 50)
+/ responsemessage = (00, text.00_HL, 50)
+/ recorddata = false
+</trial>
+
+Note; trial.eraseLast
+* erases the last entered digit from the proposed solution (as long as there are digits)
+<trial b_trial5_eraseLast>
+/ ontrialbegin = [
+	values.proposedSolution = trimright(values.proposedSolution, values.lastDigit);
+	values.lastDigit = substring(values.proposedSolution, length(values.proposedSolution) - 1, 1);
+]
+/ trialduration = 0
+/ branch = [
+	trial.b_trial5_responseInput;
+]
+/ recorddata = false
+</trial>
+
+<trial b_trial5>
+/ trialduration = 0
+/ ontrialbegin = [
+	if (monkey.monkeymode == true && replace(0,1) == 1) {
+		values.proposedSolution = values.correctSolution;
+	};
+]
+/ iscorrectresponse = [
+	values.proposedSolution == expressions.b_digitsequence5;
+]
+/ ontrialend = [
+	if (trial.b_trial5.error)
+		values.con_errorcount += 1;
+	if (values.con_errorcount == 2 && values.bTE_ML == -1) {
+		values.bTE_ML = 4;
+		values.bTE_TT = values.countTrials  - 2;
+	};
+	if (trial.b_trial5.correct && values.bML <  5)
+		values.bML = 5;
+	values.ML = values.bML;
+	values.TE_ML = values.bTE_ML;
+	values.TE_TT = values.bTE_TT;
+	values.correct = trial.b_trial5.correct;
+]
+/ branch = [
+	if (values.countTrials == 14) {
+		values.con_errorcount = 0;
+		trial.b_exit;
+	} else if (trial.b_trial5.correct) {
+		values.con_errorcount = 0;
+		trial.b_trial6_digits;
+	} else if (values.con_errorcount == 2) {
+		values.con_errorcount = 0;
+		trial.b_trial4_digits;
+	} else
+		trial.b_trial5_digits;
+]
+/ recorddata = true
+</trial>
+
+***************************************
+Backward Level 6
+***************************************
+
+<trial b_trial6_digits>  
+/ ontrialbegin = [
+	values.N = 6;
+	values.assesstype = 1;
+	values.proposedSolution = "";
+	values.countTrials += 1;
+	values.correct = 0;
+]
+/ stimulustimes = [0 = signal; 1000 = clearscreen, digit1; 2000 = clearscreen, digit2; 3000 = clearscreen, digit3; 
+						4000 = clearscreen, digit4; 5000 = clearscreen, digit5 ; 6000 = clearscreen, digit6;
+						7000 = clearscreen, signal; 8000 = clearscreen]
+/ timeout = 8000
+/ ontrialend = [
+	values.sequence = expressions.f_digitsequence6;
+	values.correctSolution = expressions.b_digitsequence6;
+]
+/ branch = [
+	trial.b_trial6_responseInput;
+]
+/ recorddata = false
+</trial>
+
+<trial b_trial6_responseInput>  
+/ inputdevice = mouse
+/ stimulustimes = [0 = b_instructions, response, 1, 2, 3, 4, 5, 6, 7, 8, 9, 00, submit, erase]
+/ validresponse = (1, 2, 3, 4, 5, 6, 7, 8, 9, 00, submit, erase)
+/ ontrialend = [
+	if (trial.b_trial6_responseInput.response != "submit" && trial.b_trial6_responseInput.response != "erase") {
+		if (trial.b_trial6_responseInput.response == "00") {
+			values.lastDigit = 0;
+		} else {
+			values.lastDigit = trial.b_trial6_responseInput.response;
+		};
+		values.proposedSolution = concat(values.proposedSolution, values.lastDigit);
+	};
+]
+/ branch = [
+	if (trial.b_trial6_responseInput.response == "erase") {
+		trial.b_trial6_eraseLast;
+	} else if (trial.b_trial6_responseInput.response == "submit") {
+		trial.b_trial6;
+	} else {
+		trial.b_trial6_responseInput;
+	};
+]
+/ responsemessage = (1, text.1_HL, 50)
+/ responsemessage = (2, text.2_HL, 50)
+/ responsemessage = (3, text.3_HL, 50)
+/ responsemessage = (4, text.4_HL, 50)
+/ responsemessage = (5, text.5_HL, 50)
+/ responsemessage = (6, text.6_HL, 50)
+/ responsemessage = (7, text.7_HL, 50)
+/ responsemessage = (8, text.8_HL, 50)
+/ responsemessage = (9, text.9_HL, 50)
+/ responsemessage = (00, text.00_HL, 50)
+/ recorddata = false
+</trial>
+
+Note; trial.eraseLast
+* erases the last entered digit from the proposed solution (as long as there are digits)
+<trial b_trial6_eraseLast>
+/ ontrialbegin = [
+	values.proposedSolution = trimright(values.proposedSolution, values.lastDigit);
+	values.lastDigit = substring(values.proposedSolution, length(values.proposedSolution) - 1, 1);
+]
+/ trialduration = 0
+/ branch = [
+	trial.b_trial6_responseInput;
+]
+/ recorddata = false
+</trial>
+
+<trial b_trial6>
+/ trialduration = 0
+/ ontrialbegin = [
+	if (monkey.monkeymode == true && replace(0,1) == 1) {
+		values.proposedSolution = values.correctSolution;
+	};
+]
+/ iscorrectresponse = [
+	values.proposedSolution == expressions.b_digitsequence6;
+]
+/ ontrialend = [
+	if (trial.b_trial6.error)
+		values.con_errorcount += 1;
+	if (values.con_errorcount == 2 && values.bTE_ML == -1) {
+		values.bTE_ML= 5;
+		values.bTE_TT = values.countTrials  - 2;
+	};
+	if (trial.b_trial6.correct && values.bML <  6)
+		values.bML = 6;
+	values.ML = values.bML;
+	values.TE_ML = values.bTE_ML;
+	values.TE_TT = values.bTE_TT;
+	values.correct = trial.b_trial6.correct;
+]
+/ branch = [
+	if (values.countTrials == 14) {
+		values.con_errorcount = 0;
+		trial.b_exit;
+	} else if (trial.b_trial6.correct) {
+		values.con_errorcount = 0;
+		trial.b_trial7_digits;
+	} else if (values.con_errorcount == 2) {
+		values.con_errorcount = 0;
+		trial.b_trial5_digits;
+	} else
+		trial.b_trial6_digits;
+]
+/ recorddata = true
+</trial>
+
+***************************************
+Backward Level 7
+***************************************
+
+<trial b_trial7_digits>  
+/ ontrialbegin = [
+	values.N = 7;
+	values.assesstype = 1;
+	values.proposedSolution = "";
+	values.countTrials += 1;
+	values.correct = 0;
+]
+/ stimulustimes = [0 = signal; 1000 = clearscreen, digit1; 2000 = clearscreen, digit2; 3000 = clearscreen, digit3; 
+						4000 = clearscreen, digit4; 5000 = clearscreen, digit5 ; 6000 = clearscreen, digit6;
+						7000 = clearscreen, digit7; 8000 = clearscreen, signal; 9000 = clearscreen]
+/ timeout = 9000
+/ ontrialend = [
+	values.sequence = expressions.f_digitsequence7;
+	values.correctSolution = expressions.b_digitsequence7;
+]
+/ branch = [
+	trial.b_trial7_responseInput;
+]
+/ recorddata = false
+</trial>
+
+<trial b_trial7_responseInput>  
+/ inputdevice = mouse
+/ stimulustimes = [0 = b_instructions, response, 1, 2, 3, 4, 5, 6, 7, 8, 9, 00, submit, erase]
+/ validresponse = (1, 2, 3, 4, 5, 6, 7, 8, 9, 00, submit, erase)
+/ ontrialend = [
+	if (trial.b_trial7_responseInput.response != "submit" && trial.b_trial7_responseInput.response != "erase") {
+		if (trial.b_trial7_responseInput.response == "00") {
+			values.lastDigit = 0;
+		} else {
+			values.lastDigit = trial.b_trial7_responseInput.response;
+		};
+		values.proposedSolution = concat(values.proposedSolution, values.lastDigit);
+	};
+]
+/ branch = [
+	if (trial.b_trial7_responseInput.response == "erase") {
+		trial.b_trial7_eraseLast;
+	} else if (trial.b_trial7_responseInput.response == "submit") {
+		trial.b_trial7;
+	} else {
+		trial.b_trial7_responseInput;
+	};
+]
+/ responsemessage = (1, text.1_HL, 50)
+/ responsemessage = (2, text.2_HL, 50)
+/ responsemessage = (3, text.3_HL, 50)
+/ responsemessage = (4, text.4_HL, 50)
+/ responsemessage = (5, text.5_HL, 50)
+/ responsemessage = (6, text.6_HL, 50)
+/ responsemessage = (7, text.7_HL, 50)
+/ responsemessage = (8, text.8_HL, 50)
+/ responsemessage = (9, text.9_HL, 50)
+/ responsemessage = (00, text.00_HL, 50)
+/ recorddata = false
+</trial>
+
+Note; trial.eraseLast
+* erases the last entered digit from the proposed solution (as long as there are digits)
+<trial b_trial7_eraseLast>
+/ ontrialbegin = [
+	values.proposedSolution = trimright(values.proposedSolution, values.lastDigit);
+	values.lastDigit = substring(values.proposedSolution, length(values.proposedSolution) - 1, 1);
+]
+/ trialduration = 0
+/ branch = [
+	trial.b_trial7_responseInput;
+]
+/ recorddata = false
+</trial>
+
+<trial b_trial7>
+/ trialduration = 0
+/ ontrialbegin = [
+	if (monkey.monkeymode == true && replace(0,1) == 1) {
+		values.proposedSolution = values.correctSolution;
+	};
+]
+/ iscorrectresponse = [
+	values.proposedSolution == expressions.b_digitsequence7;
+]
+/ ontrialend = [
+	if (trial.b_trial7.error)
+		values.con_errorcount += 1;
+	if (values.con_errorcount == 2 && values.bTE_ML == -1) {
+		values.bTE_ML= 6;
+		values.bTE_TT = values.countTrials - 2;
+	};
+	if (trial.b_trial7.correct && values.bML <  7)
+		values.bML = 7;
+	values.ML = values.bML;
+	values.TE_ML = values.bTE_ML;
+	values.TE_TT = values.bTE_TT;
+	values.correct = trial.b_trial7.correct;
+]
+/ branch = [
+	if (values.countTrials == 14) {
+		values.con_errorcount = 0;
+		trial.b_exit;
+	} else if (trial.b_trial7.correct) {
+		values.con_errorcount = 0;
+		trial.b_trial8_digits;
+	} else if (values.con_errorcount == 2) {
+		values.con_errorcount = 0;
+		trial.b_trial6_digits;
+	} else
+		trial.b_trial7_digits;
+]
+/ recorddata = true
+</trial>
+
+
+********************************************
+COMMENT: 
+it's theoretically possible (though unlikely) to reach level 8 or higher within 14 trials without making consecutive errors. 
+In this case the experimenter needs to decide on values for TE_ML and TE_TT, e.g.  this script defines TE_ML (in case of a last correct 8 level answer) = 8 
+and TE_TT = trialcount.
+*********************************************
+
+***************************************
+Backward Level 8
+***************************************
+
+<trial b_trial8_digits>  
+/ ontrialbegin = [
+	values.N = 8;
+	values.assesstype = 1;
+	values.proposedSolution = "";
+	values.countTrials += 1;
+	values.correct = 0;
+]
+/ stimulustimes = [0 = signal; 1000 = clearscreen, digit1; 2000 = clearscreen, digit2; 3000 = clearscreen, digit3; 
+						4000 = clearscreen, digit4; 5000 = clearscreen, digit5 ; 6000 = clearscreen, digit6;
+						7000 = clearscreen, digit7; 8000 = clearscreen, digit8;  
+						9000 = clearscreen, signal; 10000 = clearscreen]
+/ timeout = 10000
+/ ontrialend = [
+	values.sequence = expressions.f_digitsequence8;
+	values.correctSolution = expressions.b_digitsequence8;
+]
+/ branch = [
+	trial.b_trial8_responseInput;
+]
+/ recorddata = false
+</trial>
+
+<trial b_trial8_responseInput>  
+/ inputdevice = mouse
+/ stimulustimes = [0 = b_instructions, response, 1, 2, 3, 4, 5, 6, 7, 8, 9, 00, submit, erase]
+/ validresponse = (1, 2, 3, 4, 5, 6, 7, 8, 9, 00, submit, erase)
+/ ontrialend = [
+	if (trial.b_trial8_responseInput.response != "submit" && trial.b_trial8_responseInput.response != "erase") {
+		if (trial.b_trial8_responseInput.response == "00") {
+			values.lastDigit = 0;
+		} else {
+			values.lastDigit = trial.b_trial8_responseInput.response;
+		};
+		values.proposedSolution = concat(values.proposedSolution, values.lastDigit);
+	};
+]
+/ branch = [
+	if (trial.b_trial8_responseInput.response == "erase") {
+		trial.b_trial8_eraseLast;
+	} else if (trial.b_trial8_responseInput.response == "submit") {
+		trial.b_trial8;
+	} else {
+		trial.b_trial8_responseInput;
+	};
+]
+/ responsemessage = (1, text.1_HL, 50)
+/ responsemessage = (2, text.2_HL, 50)
+/ responsemessage = (3, text.3_HL, 50)
+/ responsemessage = (4, text.4_HL, 50)
+/ responsemessage = (5, text.5_HL, 50)
+/ responsemessage = (6, text.6_HL, 50)
+/ responsemessage = (7, text.7_HL, 50)
+/ responsemessage = (8, text.8_HL, 50)
+/ responsemessage = (9, text.9_HL, 50)
+/ responsemessage = (00, text.00_HL, 50)
+/ recorddata = false
+</trial>
+
+Note; trial.eraseLast
+* erases the last entered digit from the proposed solution (as long as there are digits)
+<trial b_trial8_eraseLast>
+/ ontrialbegin = [
+	values.proposedSolution = trimright(values.proposedSolution, values.lastDigit);
+	values.lastDigit = substring(values.proposedSolution, length(values.proposedSolution) - 1, 1);
+]
+/ trialduration = 0
+/ branch = [
+	trial.b_trial8_responseInput;
+]
+/ recorddata = false
+</trial>
+
+<trial b_trial8>
+/ trialduration = 0
+/ ontrialbegin = [
+	if (monkey.monkeymode == true && replace(0,1) == 1) {
+		values.proposedSolution = values.correctSolution;
+	};
+]
+/ iscorrectresponse = [
+	values.proposedSolution == expressions.b_digitsequence8;
+]
+/ ontrialend = [
+	if (trial.b_trial8.error)
+		values.con_errorcount += 1;
+	if (values.con_errorcount == 2 && values.bTE_ML == -1) {
+		values.bTE_ML = 7;
+		values.bTE_TT = values.countTrials - 2;
+	};
+	if (values.countTrials == 14 && trial.b_trial8.correct && values.bTE_ML == -1) {
+		values.bTE_ML = 8;
+		values.bTE_TT = values.countTrials;
+	};
+	if (trial.b_trial8.correct && values.bML <  8)
+		values.bML = 8;
+	values.ML = values.bML;
+	values.TE_ML = values.bTE_ML;
+	values.TE_TT = values.bTE_TT;
+	values.correct = trial.b_trial8.correct;
+]
+/ branch = [
+	if (values.countTrials == 14) {
+		values.con_errorcount = 0;
+		trial.b_exit;
+	} else if (trial.b_trial8.correct) {
+		values.con_errorcount = 0;
+		trial.b_trial9_digits;
+	} else if (values.con_errorcount == 2) {
+		values.con_errorcount = 0;
+		trial.b_trial7_digits;
+	} else
+		trial.b_trial8_digits;
+]
+/ recorddata = true
+</trial>
+</trial>
+
+
+***************************************
+Backward Level 9
+***************************************
+
+<trial b_trial9_digits>  
+/ ontrialbegin = [
+	values.N = 9;
+	values.assesstype = 1;
+	values.proposedSolution = "";
+	values.countTrials += 1;
+	values.correct = 0;
+]
+/ stimulustimes = [0 = signal; 1000 = clearscreen, digit1; 2000 = clearscreen, digit2; 3000 = clearscreen, digit3; 
+						4000 = clearscreen, digit4; 5000 = clearscreen, digit5 ; 6000 = clearscreen, digit6;
+						7000 = clearscreen, digit7; 8000 = clearscreen, digit8; 9000 = clearscreen, digit9; 
+						10000 = clearscreen, signal; 11000 = clearscreen]
+/ timeout = 11000
+/ ontrialend = [
+	values.sequence = expressions.f_digitsequence9;
+	values.correctSolution = expressions.b_digitsequence9;
+]
+/ branch = [
+	trial.b_trial9_responseInput;
+]
+/ recorddata = false
+</trial>
+
+<trial b_trial9_responseInput>  
+/ inputdevice = mouse
+/ stimulustimes = [0 = b_instructions, response, 1, 2, 3, 4, 5, 6, 7, 8, 9, 00, submit, erase]
+/ validresponse = (1, 2, 3, 4, 5, 6, 7, 8, 9, 00, submit, erase)
+/ ontrialend = [
+	if (trial.b_trial9_responseInput.response != "submit" && trial.b_trial9_responseInput.response != "erase") {
+		if (trial.b_trial9_responseInput.response == "00") {
+			values.lastDigit = 0;
+		} else {
+			values.lastDigit = trial.b_trial9_responseInput.response;
+		};
+		values.proposedSolution = concat(values.proposedSolution, values.lastDigit);
+	};
+]
+/ branch = [
+	if (trial.b_trial9_responseInput.response == "erase") {
+		trial.b_trial9_eraseLast;
+	} else if (trial.b_trial9_responseInput.response == "submit") {
+		trial.b_trial9;
+	} else {
+		trial.b_trial9_responseInput;
+	};
+]
+/ responsemessage = (1, text.1_HL, 50)
+/ responsemessage = (2, text.2_HL, 50)
+/ responsemessage = (3, text.3_HL, 50)
+/ responsemessage = (4, text.4_HL, 50)
+/ responsemessage = (5, text.5_HL, 50)
+/ responsemessage = (6, text.6_HL, 50)
+/ responsemessage = (7, text.7_HL, 50)
+/ responsemessage = (8, text.8_HL, 50)
+/ responsemessage = (9, text.9_HL, 50)
+/ responsemessage = (00, text.00_HL, 50)
+/ recorddata = false
+</trial>
+
+Note; trial.eraseLast
+* erases the last entered digit from the proposed solution (as long as there are digits)
+<trial b_trial9_eraseLast>
+/ ontrialbegin = [
+	values.proposedSolution = trimright(values.proposedSolution, values.lastDigit);
+	values.lastDigit = substring(values.proposedSolution, length(values.proposedSolution) - 1, 1);
+]
+/ trialduration = 0
+/ branch = [
+	trial.b_trial9_responseInput;
+]
+/ recorddata = false
+</trial>
+
+<trial b_trial9>
+/ trialduration = 0
+/ ontrialbegin = [
+	if (monkey.monkeymode == true && replace(0,1) == 1) {
+		values.proposedSolution = values.correctSolution;
+	};
+]
+/ iscorrectresponse = [
+	values.proposedSolution == expressions.b_digitsequence9;
+]
+/ ontrialend = [
+	if (trial.b_trial9.error)
+		values.con_errorcount += 1;
+	if (values.con_errorcount == 2 && values.bTE_ML == -1) {
+		values.bTE_ML= 8;
+		values.bTE_TT = values.countTrials - 2;
+	};
+	if (values.countTrials == 14 && trial.b_trial9.correct && values.bTE_ML == -1) {
+		values.bTE_ML = 9;
+		values.bTE_TT = values.countTrials;
+	};
+	if (values.countTrials == 14 && trial.b_trial9.error && values.bTE_ML == -1) {
+		values.bTE_ML = 8;
+		values.bTE_TT = values.countTrials - 1;
+	};
+	if (trial.b_trial9.correct && values.bML <  9)
+		values.bML = 9;
+	values.ML = values.bML;
+	values.TE_ML = values.bTE_ML;
+	values.TE_TT = values.bTE_TT;
+	values.correct = trial.b_trial9.correct;
+]
+/ branch = [
+	if (values.countTrials == 14) {
+		values.con_errorcount = 0;
+		trial.b_exit;
+	} else if (trial.b_trial9.correct) {
+		values.con_errorcount = 0;
+		trial.b_trial10_digits;
+	} else if (values.con_errorcount == 2) {
+		values.con_errorcount = 0;
+		trial.b_trial8_digits;
+	} else
+		trial.b_trial9_digits;
+]
+/ recorddata = true
+</trial>
+
+***************************************
+Backward Level 10
+***************************************
+
+<trial b_trial10_digits>  
+/ ontrialbegin = [
+	values.N = 10;
+	values.assesstype = 1;
+	values.proposedSolution = "";
+	values.countTrials += 1;
+	values.correct = 0;
+]
+/ stimulustimes = [0 = signal; 1000 = clearscreen, digit1; 2000 = clearscreen, digit2; 3000 = clearscreen, digit3; 
+						4000 = clearscreen, digit4; 5000 = clearscreen, digit5 ; 6000 = clearscreen, digit6;
+						7000 = clearscreen, digit7; 8000 = clearscreen, digit8; 9000 = clearscreen, digit9; 
+						10000 = clearscreen, digit10; 11000 = clearscreen, signal; 12000 = clearscreen]
+/ timeout = 12000
+/ ontrialend = [
+	values.sequence = expressions.f_digitsequence10;
+	values.correctSolution = expressions.b_digitsequence10;
+]
+/ branch = [
+	trial.b_trial10_responseInput;
+]
+/ recorddata = false
+</trial>
+
+<trial b_trial10_responseInput>  
+/ inputdevice = mouse
+/ stimulustimes = [0 = b_instructions, response, 1, 2, 3, 4, 5, 6, 7, 8, 9, 00, submit, erase]
+/ validresponse = (1, 2, 3, 4, 5, 6, 7, 8, 9, 00, submit, erase)
+/ ontrialend = [
+	if (trial.b_trial10_responseInput.response != "submit" && trial.b_trial10_responseInput.response != "erase") {
+		if (trial.b_trial10_responseInput.response == "00") {
+			values.lastDigit = 0;
+		} else {
+			values.lastDigit = trial.b_trial10_responseInput.response;
+		};
+		values.proposedSolution = concat(values.proposedSolution, values.lastDigit);
+	};
+]
+/ branch = [
+	if (trial.b_trial10_responseInput.response == "erase") {
+		trial.b_trial10_eraseLast;
+	} else if (trial.b_trial10_responseInput.response == "submit") {
+		trial.b_trial10;
+	} else {
+		trial.b_trial10_responseInput;
+	};
+]
+/ responsemessage = (1, text.1_HL, 50)
+/ responsemessage = (2, text.2_HL, 50)
+/ responsemessage = (3, text.3_HL, 50)
+/ responsemessage = (4, text.4_HL, 50)
+/ responsemessage = (5, text.5_HL, 50)
+/ responsemessage = (6, text.6_HL, 50)
+/ responsemessage = (7, text.7_HL, 50)
+/ responsemessage = (8, text.8_HL, 50)
+/ responsemessage = (9, text.9_HL, 50)
+/ responsemessage = (00, text.00_HL, 50)
+/ recorddata = false
+</trial>
+
+Note; trial.eraseLast
+* erases the last entered digit from the proposed solution (as long as there are digits)
+<trial b_trial10_eraseLast>
+/ ontrialbegin = [
+	values.proposedSolution = trimright(values.proposedSolution, values.lastDigit);
+	values.lastDigit = substring(values.proposedSolution, length(values.proposedSolution) - 1, 1);
+]
+/ trialduration = 0
+/ branch = [
+	trial.b_trial10_responseInput;
+]
+/ recorddata = false
+</trial>
+
+<trial b_trial10>
+/ trialduration = 0
+/ ontrialbegin = [
+	if (monkey.monkeymode == true && replace(0,1) == 1) {
+		values.proposedSolution = values.correctSolution;
+	};
+]
+/ iscorrectresponse = [
+	values.proposedSolution == expressions.b_digitsequence10;
+]
+/ ontrialend = [
+	if (trial.b_trial10.error)
+		values.con_errorcount += 1;
+	if (values.con_errorcount == 2 && values.bTE_ML == -1) {
+		values.bTE_ML= 9;
+		values.bTE_TT = values.countTrials - 2;
+	};
+	if (values.countTrials == 14 && trial.b_trial10.correct && values.bTE_ML == -1) {
+		values.bTE_ML = 10;
+		values.bTE_TT = values.countTrials;
+	};
+	if (values.countTrials == 14 && trial.b_trial10.error && values.bTE_ML == -1) {
+		values.bTE_ML = 9;
+		values.bTE_TT = values.countTrials - 1;
+	};
+	if (trial.b_trial10.correct && values.bML <  10)
+		values.bML = 10;
+	values.ML = values.bML;
+	values.TE_ML = values.bTE_ML;
+	values.TE_TT = values.bTE_TT;
+	values.correct = trial.b_trial10.correct;
+]
+/ branch = [
+	if (values.countTrials == 14) {
+		values.con_errorcount = 0;
+		trial.b_exit;
+	} else if (trial.b_trial10.correct) {
+		values.con_errorcount = 0;
+		trial.b_trial11_digits;
+	} else if (values.con_errorcount == 2) {
+		values.con_errorcount = 0;
+		trial.b_trial9_digits;
+	} else
+		trial.b_trial10_digits;
+]
+/ recorddata = true
+</trial>
+
+***************************************
+Backward Level 11
+***************************************
+
+<trial b_trial11_digits>  
+/ ontrialbegin = [
+	values.N = 11;
+	values.assesstype = 1;
+	values.proposedSolution = "";
+	values.countTrials += 1;
+	values.correct = 0;
+]
+/ stimulustimes = [0 = signal; 1000 = clearscreen, digit1; 2000 = clearscreen, digit2; 3000 = clearscreen, digit3; 
+						4000 = clearscreen, digit4; 5000 = clearscreen, digit5 ; 6000 = clearscreen, digit6;
+						7000 = clearscreen, digit7; 8000 = clearscreen, digit8; 9000 = clearscreen, digit9; 
+						10000 = clearscreen, digit10; 11000 = clearscreen, digit11; 12000 = clearscreen, signal; 
+						13000 = clearscreen]
+/ timeout = 13000
+/ ontrialend = [
+	values.sequence = expressions.f_digitsequence11;
+	values.correctSolution = expressions.b_digitsequence11;
+]
+/ branch = [
+	trial.b_trial11_responseInput;
+]
+/ recorddata = false
+</trial>
+
+<trial b_trial11_responseInput>  
+/ inputdevice = mouse
+/ stimulustimes = [0 = b_instructions, response, 1, 2, 3, 4, 5, 6, 7, 8, 9, 00, submit, erase]
+/ validresponse = (1, 2, 3, 4, 5, 6, 7, 8, 9, 00, submit, erase)
+/ ontrialend = [
+	if (trial.b_trial11_responseInput.response != "submit" && trial.b_trial11_responseInput.response != "erase") {
+		if (trial.b_trial11_responseInput.response == "00") {
+			values.lastDigit = 0;
+		} else {
+			values.lastDigit = trial.b_trial11_responseInput.response;
+		};
+		values.proposedSolution = concat(values.proposedSolution, values.lastDigit);
+	};
+]
+/ branch = [
+	if (trial.b_trial11_responseInput.response == "erase") {
+		trial.b_trial11_eraseLast;
+	} else if (trial.b_trial11_responseInput.response == "submit") {
+		trial.b_trial11;
+	} else {
+		trial.b_trial11_responseInput;
+	};
+]
+/ responsemessage = (1, text.1_HL, 50)
+/ responsemessage = (2, text.2_HL, 50)
+/ responsemessage = (3, text.3_HL, 50)
+/ responsemessage = (4, text.4_HL, 50)
+/ responsemessage = (5, text.5_HL, 50)
+/ responsemessage = (6, text.6_HL, 50)
+/ responsemessage = (7, text.7_HL, 50)
+/ responsemessage = (8, text.8_HL, 50)
+/ responsemessage = (9, text.9_HL, 50)
+/ responsemessage = (00, text.00_HL, 50)
+/ recorddata = false
+</trial>
+
+Note; trial.eraseLast
+* erases the last entered digit from the proposed solution (as long as there are digits)
+<trial b_trial11_eraseLast>
+/ ontrialbegin = [
+	values.proposedSolution = trimright(values.proposedSolution, values.lastDigit);
+	values.lastDigit = substring(values.proposedSolution, length(values.proposedSolution) - 1, 1);
+]
+/ trialduration = 0
+/ branch = [
+	trial.b_trial11_responseInput;
+]
+/ recorddata = false
+</trial>
+
+<trial b_trial11>
+/ trialduration = 0
+/ ontrialbegin = [
+	if (monkey.monkeymode == true && replace(0,1) == 1) {
+		values.proposedSolution = values.correctSolution;
+	};
+]
+/ iscorrectresponse = [
+	values.proposedSolution == expressions.b_digitsequence11;
+]
+/ ontrialend = [
+	if (trial.b_trial11.error)
+		values.con_errorcount += 1;
+	if (values.con_errorcount == 2 && values.bTE_ML == -1) {
+		values.bTE_ML= 10;
+		values.bTE_TT = values.countTrials - 2;
+	};
+	if (values.countTrials == 14 && trial.b_trial11.correct && values.bTE_ML == -1) {
+		values.bTE_ML = 11;
+		values.bTE_TT = values.countTrials;
+	};
+	if (values.countTrials == 14 && trial.b_trial11.error && values.bTE_ML == -1) {
+		values.bTE_ML = 10;
+		values.bTE_TT = values.countTrials - 1;
+	};
+	if (trial.b_trial11.correct && values.bML <  11)
+		values.bML = 11;
+	values.ML = values.bML;
+	values.TE_ML = values.bTE_ML;
+	values.TE_TT = values.bTE_TT;
+	values.correct = trial.b_trial11.correct;
+]
+/ branch = [
+	if (values.countTrials == 14) {
+		values.con_errorcount = 0;
+		trial.b_exit;
+	} else if (trial.b_trial11.correct) {
+		values.con_errorcount = 0;
+		trial.b_trial12_digits;
+	} else if (values.con_errorcount == 2) {
+		values.con_errorcount = 0;
+		trial.b_trial10_digits;
+	} else
+		trial.b_trial11_digits;
+]
+/ recorddata = true
+</trial>
+
+***************************************
+Backward Level 12
+***************************************
+
+<trial b_trial12_digits>  
+/ ontrialbegin = [
+	values.N = 12;
+	values.assesstype = 1;
+	values.proposedSolution = "";
+	values.countTrials += 1;
+	values.correct = 0;
+]
+/ stimulustimes = [0 = signal; 1000 = clearscreen, digit1; 2000 = clearscreen, digit2; 3000 = clearscreen, digit3; 
+						4000 = clearscreen, digit4; 5000 = clearscreen, digit5 ; 6000 = clearscreen, digit6;
+						7000 = clearscreen, digit7; 8000 = clearscreen, digit8; 9000 = clearscreen, digit9; 
+						10000 = clearscreen, digit10; 11000 = clearscreen, digit11; 12000 = clearscreen, digit12;
+						 13000 = clearscreen, signal; 14000 = clearscreen]
+/ timeout = 14000
+/ ontrialend = [
+	values.sequence = expressions.f_digitsequence12;
+	values.correctSolution = expressions.b_digitsequence12;
+]
+/ branch = [
+	trial.b_trial12_responseInput;
+]
+/ recorddata = false
+</trial>
+
+<trial b_trial12_responseInput>  
+/ inputdevice = mouse
+/ stimulustimes = [0 = b_instructions, response, 1, 2, 3, 4, 5, 6, 7, 8, 9, 00, submit, erase]
+/ validresponse = (1, 2, 3, 4, 5, 6, 7, 8, 9, 00, submit, erase)
+/ ontrialend = [
+	if (trial.b_trial12_responseInput.response != "submit" && trial.b_trial12_responseInput.response != "erase") {
+		if (trial.b_trial12_responseInput.response == "00") {
+			values.lastDigit = 0;
+		} else {
+			values.lastDigit = trial.b_trial12_responseInput.response;
+		};
+		values.proposedSolution = concat(values.proposedSolution, values.lastDigit);
+	};
+]
+/ branch = [
+	if (trial.b_trial12_responseInput.response == "erase") {
+		trial.b_trial12_eraseLast;
+	} else if (trial.b_trial12_responseInput.response == "submit") {
+		trial.b_trial12;
+	} else {
+		trial.b_trial12_responseInput;
+	};
+]
+/ responsemessage = (1, text.1_HL, 50)
+/ responsemessage = (2, text.2_HL, 50)
+/ responsemessage = (3, text.3_HL, 50)
+/ responsemessage = (4, text.4_HL, 50)
+/ responsemessage = (5, text.5_HL, 50)
+/ responsemessage = (6, text.6_HL, 50)
+/ responsemessage = (7, text.7_HL, 50)
+/ responsemessage = (8, text.8_HL, 50)
+/ responsemessage = (9, text.9_HL, 50)
+/ responsemessage = (00, text.00_HL, 50)
+/ recorddata = false
+</trial>
+
+Note; trial.eraseLast
+* erases the last entered digit from the proposed solution (as long as there are digits)
+<trial b_trial12_eraseLast>
+/ ontrialbegin = [
+	values.proposedSolution = trimright(values.proposedSolution, values.lastDigit);
+	values.lastDigit = substring(values.proposedSolution, length(values.proposedSolution) - 1, 1);
+]
+/ trialduration = 0
+/ branch = [
+	trial.b_trial12_responseInput;
+]
+/ recorddata = false
+</trial>
+
+<trial b_trial12>
+/ trialduration = 0
+/ ontrialbegin = [
+	if (monkey.monkeymode == true && replace(0,1) == 1) {
+		values.proposedSolution = values.correctSolution;
+	};
+]
+/ iscorrectresponse = [
+	values.proposedSolution == expressions.b_digitsequence12;
+]
+/ ontrialend = [
+	if (trial.b_trial12.error)
+		values.con_errorcount += 1;
+	if (values.con_errorcount == 2 && values.bTE_ML == -1) {
+		values.bTE_ML= 11;
+		values.bTE_TT = values.countTrials - 2;
+	};
+	if (values.countTrials == 14 && trial.b_trial12.correct && values.bTE_ML == -1) {
+		values.bTE_ML = 12;
+		values.bTE_TT = values.countTrials;
+	};
+	if (values.countTrials == 14 && trial.b_trial12.error && values.bTE_ML == -1) {
+		values.bTE_ML = 11;
+		values.bTE_TT = values.countTrials - 1;
+	};
+	if (trial.b_trial12.correct && values.bML <  12)
+		values.bML = 12 ;
+	values.ML = values.bML;
+	values.TE_ML = values.bTE_ML;
+	values.TE_TT = values.bTE_TT;
+	values.correct = trial.b_trial12.correct;
+]
+/ branch = [
+	if (values.countTrials == 14) {
+		values.con_errorcount = 0;
+		trial.b_exit;
+	} else if (trial.b_trial12.correct) {
+		values.con_errorcount = 0;
+		trial.b_trial13_digits;
+	} else if (values.con_errorcount == 2) {
+		values.con_errorcount = 0;
+		trial.b_trial11_digits;
+	} else
+		trial.b_trial12_digits;
+]
+/ recorddata = true
+</trial>
+
+***************************************
+Backward Level 13
+***************************************
+
+<trial b_trial13_digits>  
+/ ontrialbegin = [
+	values.N = 13;
+	values.assesstype = 1;
+	values.proposedSolution = "";
+	values.countTrials += 1;
+	values.correct = 0;
+]
+/ stimulustimes = [0 = signal; 1000 = clearscreen, digit1; 2000 = clearscreen, digit2; 3000 = clearscreen, digit3; 
+						4000 = clearscreen, digit4; 5000 = clearscreen, digit5 ; 6000 = clearscreen, digit6;
+						7000 = clearscreen, digit7; 8000 = clearscreen, digit8; 9000 = clearscreen, digit9; 
+						10000 = clearscreen, digit10; 11000 = clearscreen, digit11; 12000 = clearscreen, digit12;
+						 13000 = clearscreen, digit13; 14000 = clearscreen, signal; 15000 = clearscreen]
+/ timeout = 15000
+/ ontrialend = [
+	values.sequence = expressions.f_digitsequence13;
+	values.correctSolution = expressions.b_digitsequence13;
+]
+/ branch = [
+	trial.b_trial13_responseInput;
+]
+/ recorddata = false
+</trial>
+
+<trial b_trial13_responseInput>  
+/ inputdevice = mouse
+/ stimulustimes = [0 = b_instructions, response, 1, 2, 3, 4, 5, 6, 7, 8, 9, 00, submit, erase]
+/ validresponse = (1, 2, 3, 4, 5, 6, 7, 8, 9, 00, submit, erase)
+/ ontrialend = [
+	if (trial.b_trial13_responseInput.response != "submit" && trial.b_trial13_responseInput.response != "erase") {
+		if (trial.b_trial13_responseInput.response == "00") {
+			values.lastDigit = 0;
+		} else {
+			values.lastDigit = trial.b_trial13_responseInput.response;
+		};
+		values.proposedSolution = concat(values.proposedSolution, values.lastDigit);
+	};
+]
+/ branch = [
+	if (trial.b_trial13_responseInput.response == "erase") {
+		trial.b_trial13_eraseLast;
+	} else if (trial.b_trial13_responseInput.response == "submit") {
+		trial.b_trial13;
+	} else {
+		trial.b_trial13_responseInput;
+	};
+]
+/ responsemessage = (1, text.1_HL, 50)
+/ responsemessage = (2, text.2_HL, 50)
+/ responsemessage = (3, text.3_HL, 50)
+/ responsemessage = (4, text.4_HL, 50)
+/ responsemessage = (5, text.5_HL, 50)
+/ responsemessage = (6, text.6_HL, 50)
+/ responsemessage = (7, text.7_HL, 50)
+/ responsemessage = (8, text.8_HL, 50)
+/ responsemessage = (9, text.9_HL, 50)
+/ responsemessage = (00, text.00_HL, 50)
+/ recorddata = false
+</trial>
+
+Note; trial.eraseLast
+* erases the last entered digit from the proposed solution (as long as there are digits)
+<trial b_trial13_eraseLast>
+/ ontrialbegin = [
+	values.proposedSolution = trimright(values.proposedSolution, values.lastDigit);
+	values.lastDigit = substring(values.proposedSolution, length(values.proposedSolution) - 1, 1);
+]
+/ trialduration = 0
+/ branch = [
+	trial.b_trial13_responseInput;
+]
+/ recorddata = false
+</trial>
+
+<trial b_trial13>
+/ trialduration = 0
+/ ontrialbegin = [
+	if (monkey.monkeymode == true && replace(0,1) == 1) {
+		values.proposedSolution = values.correctSolution;
+	};
+]
+/ iscorrectresponse = [
+	values.proposedSolution == expressions.b_digitsequence13;
+]
+/ ontrialend = [
+	if (trial.b_trial13.error)
+		values.con_errorcount += 1;
+	if (values.con_errorcount == 2 && values.bTE_ML == -1) {
+		values.bTE_ML= 12;
+		values.bTE_TT = values.countTrials - 2;
+	};
+	if (values.countTrials == 14 && trial.b_trial13.correct && values.bTE_ML == -1) {
+		values.bTE_ML = 13;
+		values.bTE_TT = values.countTrials;
+	};
+	if (values.countTrials == 14 && trial.b_trial13.error && values.bTE_ML == -1) {
+		values.bTE_ML = 12;
+		values.bTE_TT = values.countTrials - 1;
+	};
+	if (trial.b_trial13.correct && values.bML <  13)
+		values.bML = 13;
+	values.ML = values.bML;
+	values.TE_ML = values.bTE_ML;
+	values.TE_TT = values.bTE_TT;
+	values.correct = trial.b_trial13.correct;
+]
+/ branch = [
+	if (values.countTrials == 14) {
+		values.con_errorcount = 0;
+		trial.b_exit;
+	} else if (trial.b_trial13.correct) {
+		values.con_errorcount = 0;
+		trial.b_trial14_digits;
+	} else if (values.con_errorcount == 2) {
+		values.con_errorcount = 0;
+		trial.b_trial12_digits;
+	} else
+		trial.b_trial13_digits;
+]
+/ recorddata = true
+</trial>
+
+***************************************
+Backward Level 14
+***************************************
+
+<trial b_trial14_digits>  
+/ ontrialbegin = [
+	values.N = 14;
+	values.assesstype = 1;
+	values.proposedSolution = "";
+	values.countTrials += 1;
+	values.correct = 0;
+]
+/ stimulustimes = [0 = signal; 1000 = clearscreen, digit1; 2000 = clearscreen, digit2; 3000 = clearscreen, digit3; 
+						4000 = clearscreen, digit4; 5000 = clearscreen, digit5 ; 6000 = clearscreen, digit6;
+						7000 = clearscreen, digit7; 8000 = clearscreen, digit8; 9000 = clearscreen, digit9; 
+						10000 = clearscreen, digit10; 11000 = clearscreen, digit11; 12000 = clearscreen, digit12;
+						 13000 = clearscreen, digit13; 14000 = clearscreen, digit14; 15000 = clearscreen, signal; 
+						 16000 = clearscreen]
+/ timeout = 16000
+/ ontrialend = [
+	values.sequence = expressions.f_digitsequence14;
+	values.correctSolution = expressions.b_digitsequence14;
+]
+/ branch = [
+	trial.b_trial14_responseInput;
+]
+/ recorddata = false
+</trial>
+
+<trial b_trial14_responseInput>  
+/ inputdevice = mouse
+/ stimulustimes = [0 = b_instructions, response, 1, 2, 3, 4, 5, 6, 7, 8, 9, 00, submit, erase]
+/ validresponse = (1, 2, 3, 4, 5, 6, 7, 8, 9, 00, submit, erase)
+/ ontrialend = [
+	if (trial.b_trial14_responseInput.response != "submit" && trial.b_trial14_responseInput.response != "erase") {
+		if (trial.b_trial14_responseInput.response == "00") {
+			values.lastDigit = 0;
+		} else {
+			values.lastDigit = trial.b_trial14_responseInput.response;
+		};
+		values.proposedSolution = concat(values.proposedSolution, values.lastDigit);
+	};
+]
+/ branch = [
+	if (trial.b_trial14_responseInput.response == "erase") {
+		trial.b_trial14_eraseLast;
+	} else if (trial.b_trial14_responseInput.response == "submit") {
+		trial.b_trial14;
+	} else {
+		trial.b_trial14_responseInput;
+	};
+]
+/ responsemessage = (1, text.1_HL, 50)
+/ responsemessage = (2, text.2_HL, 50)
+/ responsemessage = (3, text.3_HL, 50)
+/ responsemessage = (4, text.4_HL, 50)
+/ responsemessage = (5, text.5_HL, 50)
+/ responsemessage = (6, text.6_HL, 50)
+/ responsemessage = (7, text.7_HL, 50)
+/ responsemessage = (8, text.8_HL, 50)
+/ responsemessage = (9, text.9_HL, 50)
+/ responsemessage = (00, text.00_HL, 50)
+/ recorddata = false
+</trial>
+
+Note; trial.eraseLast
+* erases the last entered digit from the proposed solution (as long as there are digits)
+<trial b_trial14_eraseLast>
+/ ontrialbegin = [
+	values.proposedSolution = trimright(values.proposedSolution, values.lastDigit);
+	values.lastDigit = substring(values.proposedSolution, length(values.proposedSolution) - 1, 1);
+]
+/ trialduration = 0
+/ branch = [
+	trial.b_trial14_responseInput;
+]
+/ recorddata = false
+</trial>
+
+<trial b_trial14>
+/ trialduration = 0
+/ ontrialbegin = [
+	if (monkey.monkeymode == true && replace(0,1) == 1) {
+		values.proposedSolution = values.correctSolution;
+	};
+]
+/ iscorrectresponse = [
+	values.proposedSolution == expressions.b_digitsequence14;
+]
+/ ontrialend = [
+	if (trial.b_trial14.error)
+		values.con_errorcount += 1;
+	if (values.con_errorcount == 2 && values.bTE_ML == -1) {
+		values.bTE_ML= 13;
+		values.bTE_TT = values.countTrials - 2;
+	};
+	if (values.countTrials == 14 && trial.b_trial14.correct && values.bTE_ML == -1) {
+		values.bTE_ML = 14;
+		values.bTE_TT = values.countTrials;
+	};
+	if (values.countTrials == 14 && trial.b_trial14.error && values.bTE_ML == -1) {
+		values.bTE_ML = 13;
+		values.bTE_TT = values.countTrials - 1;
+	};
+	if (trial.b_trial14.correct && values.bML <  14)
+		values.bML = 14;
+	values.ML = values.bML;
+	values.TE_ML = values.bTE_ML;
+	values.TE_TT = values.bTE_TT;
+	values.correct = trial.b_trial14.correct;
+]
+/ branch = [
+	if (values.countTrials == 14) {
+		values.con_errorcount = 0;
+		trial.b_exit;
+	} else if (trial.b_trial14.correct) {
+		values.con_errorcount = 0;
+		trial.b_trial15_digits;
+	} else if (values.con_errorcount == 2) {
+		values.con_errorcount = 0;
+		trial.b_trial13_digits;
+	} else
+		trial.b_trial14_digits;
+]
+/ recorddata = true
+</trial>
+
+
+*last possible trial in Backward assessment
+***************************************
+Backward Level 15
+***************************************
+
+<trial b_trial15_digits>  
+/ ontrialbegin = [
+	values.N = 15;
+	values.assesstype = 1;
+	values.proposedSolution = "";
+	values.countTrials += 1;
+	values.correct = 0;
+]
+/ ontrialbegin = [values.N = 15]
+/ stimulustimes = [0 = signal; 1000 = clearscreen, digit1; 2000 = clearscreen, digit2; 3000 = clearscreen, digit3; 
+						4000 = clearscreen, digit4; 5000 = clearscreen, digit5 ; 6000 = clearscreen, digit6;
+						7000 = clearscreen, digit7; 8000 = clearscreen, digit8; 9000 = clearscreen, digit9; 
+						10000 = clearscreen, digit10; 11000 = clearscreen, digit11; 12000 = clearscreen, digit12;
+						 13000 = clearscreen, digit13; 14000 = clearscreen, digit14; 15000 = clearscreen, digit15; 
+						16000 = clearscreen, signal; 17000 = clearscreen]
+/ timeout = 17000
+/ ontrialend = [
+	values.sequence = expressions.f_digitsequence15;
+	values.correctSolution = expressions.b_digitsequence15;
+]
+/ branch = [
+	trial.b_trial15_responseInput;
+]
+/ recorddata = false
+</trial>
+
+<trial b_trial15_responseInput>  
+/ inputdevice = mouse
+/ stimulustimes = [0 = b_instructions, response, 1, 2, 3, 4, 5, 6, 7, 8, 9, 00, submit, erase]
+/ validresponse = (1, 2, 3, 4, 5, 6, 7, 8, 9, 00, submit, erase)
+/ ontrialend = [
+	if (trial.b_trial15_responseInput.response != "submit" && trial.b_trial15_responseInput.response != "erase") {
+		if (trial.b_trial15_responseInput.response == "00") {
+			values.lastDigit = 0;
+		} else {
+			values.lastDigit = trial.b_trial15_responseInput.response;
+		};
+		values.proposedSolution = concat(values.proposedSolution, values.lastDigit);
+	};
+]
+/ branch = [
+	if (trial.b_trial15_responseInput.response == "erase") {
+		trial.b_trial15_eraseLast;
+	} else if (trial.b_trial15_responseInput.response == "submit") {
+		trial.b_trial15;
+	} else {
+		trial.b_trial15_responseInput;
+	};
+]
+/ responsemessage = (1, text.1_HL, 50)
+/ responsemessage = (2, text.2_HL, 50)
+/ responsemessage = (3, text.3_HL, 50)
+/ responsemessage = (4, text.4_HL, 50)
+/ responsemessage = (5, text.5_HL, 50)
+/ responsemessage = (6, text.6_HL, 50)
+/ responsemessage = (7, text.7_HL, 50)
+/ responsemessage = (8, text.8_HL, 50)
+/ responsemessage = (9, text.9_HL, 50)
+/ responsemessage = (00, text.00_HL, 50)
+/ recorddata = false
+</trial>
+
+Note; trial.eraseLast
+* erases the last entered digit from the proposed solution (as long as there are digits)
+<trial b_trial15_eraseLast>
+/ ontrialbegin = [
+	values.proposedSolution = trimright(values.proposedSolution, values.lastDigit);
+	values.lastDigit = substring(values.proposedSolution, length(values.proposedSolution) - 1, 1);
+]
+/ trialduration = 0
+/ branch = [
+	trial.b_trial15_responseInput;
+]
+/ recorddata = false
+</trial>
+
+<trial b_trial15>
+/ trialduration = 0
+/ ontrialbegin = [
+	if (monkey.monkeymode == true && replace(0,1) == 1) {
+		values.proposedSolution = values.correctSolution;
+	};
+]
+/ iscorrectresponse = [
+	values.proposedSolution == expressions.b_digitsequence15;
+]
+/ ontrialend = [
+	if (trial.b_trial15.correct && values.bTE_ML == -1) {
+		values.bTE_ML = 15;
+		values.bTE_TT = values.countTrials;
+	};
+	if (trial.b_trial15.error && values.bTE_ML == -1) {
+		values.bTE_ML = 14;
+		values.bTE_TT = values.countTrials -1;
+	};
+	if (trial.b_trial15.correct && values.bML <  15)
+		values.bML = 15 ;
+	values.ML = values.bML;
+	values.TE_ML = values.bTE_ML;
+	values.TE_TT = values.bTE_TT ;
+	values.correct = trial.b_trial15.correct;
+]
+/ branch = [
+	if (values.countTrials == 14) {
+		values.con_errorcount = 0;
+		trial.b_exit
+	} else if (values.con_errorcount == 2) {
+		values.con_errorcount = 0;
+		trial.b_trial14_digits;
+	} else
+		trial.b_trial15_digits;
+]
+/ recorddata = true
+</trial>
+
+**************************************************************************************************************
+**************************************************************************************************************
+	EXIT TRIALS
+**************************************************************************************************************
+**************************************************************************************************************
+*  Values.MS  is calculated based on how many times a certain trial was run and how many times the participant correctly responded.
+	* f for forward trials
+	* b for backward trials
+
+
+
+<trial f_exit>
+/ validresponse = (anyresponse)
+/ trialduration = 0
+/ ontrialend = [
+	values.fMS = expressions.fMS3;
+	if (trial.f_trial4.count)
+		values.fMS = expressions.fMS4;
+	if (trial.f_trial5.count)
+		values.fMS = expressions.fMS5;
+	if (trial.f_trial6.count)
+		values.fMS = expressions.fMS6;
+	if (trial.f_trial7.count)
+		values.fMS = expressions.fMS7;
+	if (trial.f_trial8.count)
+		values.fMS = expressions.fMS8;
+	if (trial.f_trial9.count)
+		values.fMS = expressions.fMS9;
+	if (trial.f_trial10.count)
+		values.fMS = expressions.fMS10;
+	if (trial.f_trial11.count)
+		values.fMS = expressions.fMS11;
+	if (trial.f_trial12.count)
+		values.fMS = expressions.fMS12;
+	if (trial.f_trial13.count)
+		values.fMS = expressions.fMS13;
+	if (trial.f_trial14.count)
+		values.fMS = expressions.fMS14;
+	if (trial.f_trial15.count)
+		values.fMS = expressions.fMS15;
+	if (trial.f_trial16.count)
+		values.fMS = expressions.fMS16;
+	values.MS = values.fMS
+]
+</trial>
+
+<trial b_exit>
+/ stimulusframes = [1 = b_intermediatepage]
+/ validresponse = (anyresponse)
+/ ontrialend = [
+	values.bMS = expressions.bMS2;
+	if (trial.b_trial3.count)
+		values.bMS = expressions.bMS3;
+	if (trial.b_trial4.count)
+		values.bMS = expressions.bMS4;
+	if (trial.b_trial5.count)
+		values.bMS = expressions.bMS5;
+	if (trial.b_trial6.count)
+		values.bMS = expressions.bMS6;
+	if (trial.b_trial7.count)
+		values.bMS = expressions.bMS7;
+	if (trial.b_trial8.count)
+		values.bMS = expressions.bMS8;
+	if (trial.b_trial9.count)
+		values.bMS = expressions.bMS9;
+	if (trial.b_trial10.count)
+		values.bMS = expressions.bMS10;
+	if (trial.b_trial11.count)
+		values.bMS = expressions.bMS11;
+	if (trial.b_trial12.count)
+		values.bMS = expressions.bMS12;
+	if (trial.b_trial13.count)
+		values.bMS = expressions.bMS13;
+	if (trial.b_trial14.count)
+		values.bMS = expressions.bMS14;
+	if (trial.b_trial15.count)
+		values.bMS = expressions.bMS15;
+	values.MS = values.bMS
+]
+</trial>
+
+**************************************************************************************************************
+**************************************************************************************************************
+	PRACTICE TRIALS
+**************************************************************************************************************
+**************************************************************************************************************
+* 	practice trials present a level 3 example for Forward and a level 2 for Backward assessment
+*	no data are recorded
+* 	practice trials are optional and can be removed by experimenter
+* 	practice trials give feedback to participant
+*	in BACKWARD practice trial only: 	if response is FORWARD, feedback reminds participant to type in response in reversed order AND presents
+ 													another practice trial.
+
+
+
+<trial positivefeedback>
+/ stimulusframes = [1 = clearscreen, posfeedback]
+/ timeout = 3000
+/ recorddata = false
+</trial>
+
+<trial negativefeedback>
+/ stimulusframes = [1 = clearscreen, negfeedback]
+/ timeout = 3000
+/ recorddata = false
+</trial>
+
+<trial b_feedback>
+/ stimulusframes = [1 = clearscreen, backward_feedback1, backward_feedback2]
+/ timeout = 5000
+/ recorddata = false
+/ branch = [trial.b_practice_digits]
+</trial>
+
+***************************************
+Forward Practice
+***************************************
+
+<trial f_practice_digits>  
+/ ontrialbegin = [
+	values.N = 3;
+	values.assesstype = 0;
+	values.proposedSolution = "";
+]
+/ stimulustimes = [0 = clearscreen, signal; 1000 = clearscreen, digit1;  2000 = clearscreen, digit2; 3000 = clearscreen, digit3; 
+						4000 = clearscreen, signal; 5000 = clearscreen]
+/ timeout = 5000
+/ ontrialend = [
+	values.sequence = expressions.f_digitsequence3;
+	values.correctSolution = values.sequence;
+]
+/ branch = [
+	trial.f_practice_responseInput;
+]
+/ recorddata = false
+</trial>
+
+<trial f_practice_responseInput>  
+/ inputdevice = mouse
+/ stimulustimes = [0 = f_instructions, response, 1, 2, 3, 4, 5, 6, 7, 8, 9, 00, submit, erase]
+/ validresponse = (1, 2, 3, 4, 5, 6, 7, 8, 9, 00, submit, erase)
+/ ontrialend = [
+	if (trial.f_practice_responseInput.response != "submit" && trial.f_practice_responseInput.response != "erase") {
+		if (trial.f_practice_responseInput.response == "00") {
+			values.lastDigit = 0;
+		} else {
+			values.lastDigit = trial.f_practice_responseInput.response;
+		};
+		values.proposedSolution = concat(values.proposedSolution, values.lastDigit);
+	} ;
+]
+/ branch = [
+	if (trial.f_practice_responseInput.response == "erase") {
+		trial.f_practice_eraseLast;
+	} else if (trial.f_practice_responseInput.response == "submit") {
+		trial.f_practice;
+	} else {
+		trial.f_practice_responseInput;
+	}
+]
+/ responsemessage = (1, text.1_HL, 50)
+/ responsemessage = (2, text.2_HL, 50)
+/ responsemessage = (3, text.3_HL, 50)
+/ responsemessage = (4, text.4_HL, 50)
+/ responsemessage = (5, text.5_HL, 50)
+/ responsemessage = (6, text.6_HL, 50)
+/ responsemessage = (7, text.7_HL, 50)
+/ responsemessage = (8, text.8_HL, 50)
+/ responsemessage = (9, text.9_HL, 50)
+/ responsemessage = (00, text.00_HL, 50)
+/ recorddata = false
+</trial>
+
+Note; trial.eraseLast
+* erases the last entered digit from the proposed solution (as long as there are digits)
+<trial f_practice_eraseLast>
+/ ontrialbegin = [
+	values.proposedSolution = trimright(values.proposedSolution, values.lastDigit);
+	values.lastDigit = substring(values.proposedSolution, length(values.proposedSolution) - 1, 1);
+]
+/ trialduration = 0
+/ branch = [
+	trial.f_practice_responseInput;
+]
+/ recorddata = false
+</trial>
+
+<trial f_practice>
+/ trialduration = 0
+/ ontrialbegin = [
+	if (monkey.monkeymode == true && replace(0,1) == 1) {
+		values.proposedSolution = values.correctSolution;
+	};
+]
+/ iscorrectresponse = [
+	values.proposedSolution == values.sequence;
+]
+/ ontrialend = [
+	values.correct = trial.f_practice.correct;
+]
+/ branch = [
+	if (trial.f_practice.correct)
+		trial.positivefeedback;
+	else
+		trial.negativefeedback;
+]
+/ recorddata = true
+</trial>
+
+***************************************
+Backward Practice
+***************************************
+
+<trial b_practice_digits>  
+/ ontrialbegin = [
+	values.N = 2;
+	values.assesstype = 1;
+	values.proposedSolution = "";
+	values.countTrials += 1;
+	values.correct = 0;
+]
+/ stimulustimes = [0 = signal; 1000 = clearscreen, digit1;  2000 = clearscreen, digit2; 
+						3000 = clearscreen, signal; 4000 = clearscreen]
+/ timeout = 4000
+/ ontrialend = [
+	values.sequence = expressions.f_digitsequence2;
+	values.correctSolution = expressions.b_digitsequence2;
+]
+/ branch = [
+	trial.b_practice_responseInput;
+]
+/ recorddata = false
+</trial>
+
+<trial b_practice_responseInput>  
+/ inputdevice = mouse
+/ stimulustimes = [0 = b_instructions, response, 1, 2, 3, 4, 5, 6, 7, 8, 9, 00, submit, erase]
+/ validresponse = (1, 2, 3, 4, 5, 6, 7, 8, 9, 00, submit, erase)
+/ ontrialend = [
+	if (trial.b_practice_responseInput.response != "submit" && trial.b_practice_responseInput.response != "erase") {
+		if (trial.b_practice_responseInput.response == "00") {
+			values.lastDigit = 0;
+		} else {
+			values.lastDigit = trial.b_practice_responseInput.response;
+		};
+		values.proposedSolution = concat(values.proposedSolution, values.lastDigit);
+	};
+]
+/ branch = [
+	if (trial.b_practice_responseInput.response == "erase") {
+		trial.b_practice_eraseLast;
+	} else if (trial.b_practice_responseInput.response == "submit") {
+		trial.b_practice;
+	} else {
+		trial.b_practice_responseInput;
+	};
+]
+/ responsemessage = (1, text.1_HL, 50)
+/ responsemessage = (2, text.2_HL, 50)
+/ responsemessage = (3, text.3_HL, 50)
+/ responsemessage = (4, text.4_HL, 50)
+/ responsemessage = (5, text.5_HL, 50)
+/ responsemessage = (6, text.6_HL, 50)
+/ responsemessage = (7, text.7_HL, 50)
+/ responsemessage = (8, text.8_HL, 50)
+/ responsemessage = (9, text.9_HL, 50)
+/ responsemessage = (00, text.00_HL, 50)
+/ recorddata = false
+</trial>
+
+Note; trial.eraseLast
+* erases the last entered digit from the proposed solution (as long as there are digits)
+<trial b_practice_eraseLast>
+/ ontrialbegin = [
+	values.proposedSolution = trimright(values.proposedSolution, values.lastDigit);
+	values.lastDigit = substring(values.proposedSolution, length(values.proposedSolution) - 1, 1);
+]
+/ trialduration = 0
+/ branch = [
+	trial.b_practice_responseInput;
+]
+/ recorddata = false
+</trial>
+
+<trial b_practice>
+/ trialduration = 0
+/ ontrialbegin = [
+	if (monkey.monkeymode == true && replace(0,1) == 1) {
+		values.proposedSolution = values.correctSolution;
+	};
+]
+/ ontrialend = [
+	values.correct = trial.b_practice.correct;
+]
+/ iscorrectresponse = [
+	values.proposedSolution == expressions.b_digitsequence2;
+]
+/ branch = [
+	if (values.proposedSolution == expressions.f_digitsequence2)
+		trial.b_feedback;
+	else if (trial.b_practice.correct)
+		trial.positivefeedback;
+	else
+		trial.negativefeedback;
+]
+/ recorddata = true
+</trial>
+
+**************************************************************************************************************
+**************************************************************************************************************
+	BLOCKS
+**************************************************************************************************************
+**************************************************************************************************************
+* Participants are given one practice trial to demonstrate the experiment
+* For the actual assessment, each participant is started out on a level 3 sequence (3 digits)
+* subsequent trials are chosen based on individual performance of each participant
+* max trialnumber = 14
+
+<block f_show_stimuli>
+/ preinstructions = (instructions_1)
+
+/trials = [ 1= f_example_stimuli]
+
+</block>
+
+
+
+<block f_show_input>
+/ preinstructions = (instructions_2)
+
+/trials = [1=f_example_responseInput]
+</block>
+
+
+<block f_practiceblock>
+/ onblockbegin = [
+	values.countTrials = 0;
+]
+/ preinstructions = (instructions_3)
+/ trials = [1-2 = f_practice_digits]
+/ postinstructions = (post_practice)
+</block>
+
+<block forward_block>
+/ onblockbegin = [
+	values.countTrials = 0;
+]
+/ trials = [1 = f_trial3_digits]
+</block>
+
+<block b_practiceblock>
+/ onblockbegin = [
+	values.countTrials = 0;
+]
+/ preinstructions = (pre_bblock)
+/ trials = [1 = b_practice_digits]
+/ postinstructions = (post_bblock)
+</block>
+
+<block backward_block>
+/ onblockbegin = [
+	values.countTrials = 0;
+]
+/ preinstructions = (pre_bblock)
+/ trials = [1 = b_trial2_digits]
+/ postinstructions = (post_bblock)
+</block>
+
+
+
+
+
+**************************************************************************************************************
+**************************************************************************************************************
+	EXPERIMENT
+**************************************************************************************************************
+**************************************************************************************************************
+
+<expt digitspan>
+/ blocks = [1 = f_show_stimuli; 2=f_show_input; 3=f_practiceblock; 4 = forward_block]
+/ postinstructions = (post_exp)
+/ onexptend = [values.completed = 1]
+</expt>
+
+**************************************************************************************************************
+	End of File
+**************************************************************************************************************																			
+

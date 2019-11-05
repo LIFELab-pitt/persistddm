@@ -1,0 +1,995 @@
+﻿<usermanual>
+						
+									FLANKER TEST - Arrow Version
+SCRIPT INFO
+
+Script Author: Katja Borchert, Ph.D. (katjab@millisecond.com) for Millisecond Software, LLC
+Date: 03-01-2013
+last updated: 08-15-2016 by K.Borchert (katjab@millisecond.com) for Millisecond Software LLC
+
+Copyright © 08-15-2016 Millisecond Software
+
+
+BACKGROUND INFO
+
+											*Purpose*
+This script implements an arrow version of the Flanker Test (used with children) based on:
+
+Ridderinkhof, K. R., van der Molen, M. W., Band, P. H., & Bashore, T. R. (1997). Sources of interference 
+from irrelevant information: A developmental study. Journal of Experimental Child Psychology, 65, 315–341 (Experiment 2).
+
+NOTE: earlier versions of this script implemented the complete design of Ridderinkhof et al (1997);
+the current version simplifies the design by eliminating 3 within-variables:
+1. different sized targets (targets will be the same size as distractors)
+2. different key-arrow pointing mappings (only consistent key-arrow pointing mappings used in this script)
+3. variable vs. fixed cue-target SOAs (only fixed SOAs used in this script)
+
+
+
+											  *Task*
+Participants see 5 arrows in the middle of the screen inside a box. They have to decide whether the central arrow 
+points right or left. The central arrow in this experiment is either smaller or bigger than the surrounding arrows.
+The surrounding arrows (=flankers) either point to same direction or the opposite direction. 
+
+
+DATA FILE INFORMATION: 
+The default data stored in the data files are:
+
+(1) Raw data file: 'ArrowFlankerTest_raw*.iqdat' (a separate file for each participant)
+
+build:							Inquisit build
+computer.platform:				the platform the script was run on
+date, time, subject, group:		date and time script was run with the current subject/groupnumber 
+/practice:						0 = test block; 1 = practice block
+blockcode, blocknum:			the name and number of the current block
+/blockcount:					counts the blocks
+
+trialcode, trialnum: 			the name and number of the currently recorded trial
+									(Note: not all trials that are run might record data) 
+
+/trialcount:					counts all test trials
+/congruence:					determines the state of the flankers (1 = congruent (target and flanker point in the same direction), 2 = incongruent)
+/selecttarget:					itemnumber of the current target stimulus
+								1 = target points to right; 2 = target points to left
+/selectflanker:					itemnumber of the current flanker stimuli
+response:						the participant's response (scancode of response button)
+correct:						the correctness of the response (0 = error; 1 = correct)
+latency: 						the response latency (in ms); measured from onset of target to response (or trial timeout)
+
+(2) Summary data file: 'ArrowFlankerTest_summary*.iqdat' (a separate file for each participant)
+
+script.startdate:				date script was run
+script.starttime:				time script was started
+script.subjectid:				subject id number
+script.groupid:					group id number
+script.elapsedtime:				time it took to run script (in ms)
+computer.platform:				the platform the script was run on
+/completed:						0 = script was not completed; 1 = script was completed (all conditions run)
+/blockcount:					counts the blocks
+/propcorrect:					overall proportion correct (test trials only)				
+/meanRT:						overall mean latency (in ms) of correct responses (test trials only)
+/propcorrect_congruent:			proportion correct for all congruent trials
+/propcorrect_incongruent:		proportion correct for all incongruent trials
+/meanrt_congruent: 				mean latency (ms) of correct responses to congruent targets
+/meanrt_incongruent: 			mean latency (ms) of correct responses to incongruent targets
+
+
+EXPERIMENTAL SET-UP:
+2 flanker congruence (congruent vs. incongruent), tested within
+
+1 Practice Block: runs 24 congruent and 24 incongruent trials with errorfeedback
+1 Test Block: runs 48 congruent and 48 incongruent trials with optional errorfeedback (+ 4 prefatory trials)
+
+Trial Sequence:
+target cue (presents the empty box: 1000ms) -> distractors and targets (max.1750ms) -> variable intertrial interval (total duration of one trial: 2750ms)
+
+STIMULI
+Type
+* cue: an empty rectangle
+* stimuli: 5 arrows pointing right or left (flanker, flanker, target, flanker, flanker)
+Stimuli can be edited under section Editable Stimuli
+The default font used is Arial for all stimuli. Go to STIMULI to change the default font if needed.
+
+
+EDITABLE CODE:
+check below for (relatively) easily editable parameters, stimuli, instructions etc. 
+Keep in mind that you can use this script as a template and therefore always "mess" with the entire code to further customize your experiment.
+
+The parameters you can change are:
+
+Stimuli Dimension:	USE THESE DIMENSION TO FINE TUNE THE FLANKER/TARGET PRESENTATION ON YOUR MACHINE
+/flankerheight:							sets the height of the flanker/target stimuli (default: 7%).
+/spacingfactor:							this factor together with flankerheight determines the spacing of the
+										flankers (default: 2.75)
+/increaseboxfactor:						given the flankerheight/spacingfactor, this value sets how much the surrounding box
+										needs to increase (default: 3.25)
+
+Experimental Set-up:
+/responsekey1:							sets the response key 1 (on left side of keyboard)  (default: 16, q-key)
+/responsekey2:							sets the response key 2 (on right side of keyboard) (default: 25, p-key)
+/feedback_experiment:					1 = feedback for practice and experimental trials; 0 = feedback only during practice (default)
+											Note: feedback duration is not included into targetcueSOA
+
+Durations:
+/SOA_cuetarget:							sets the fixed SOA (in ms) between cue and target (default: 1000ms)
+/SOA_targetcue:							sets the fixed SOA (in ms) between target and cue (default: 1750ms) -> in this script: max. responsetime
+										Note: feedback duration NOT included
+/feedback_duration:						sets the duration of the feedback trial (default: 1000ms)
+
+</usermanual>
+
+**************************************************************************************************************
+**************************************************************************************************************
+	EDITABLE PARAMETERS: change editable parameters here
+**************************************************************************************************************
+**************************************************************************************************************
+
+<parameters>
+/ flankerheight = 7%
+/ spacingfactor = 2.75
+/ increaseboxfactor = 3.23
+
+/ responsekey1 = 203
+/ responsekey2 = 205
+/ feedback_experiment = 0
+
+/ SOA_cuetarget = 1000
+/ SOA_targetcue = 1750
+/ feedback_duration = 1000
+</parameters>
+
+**************************************************************************************************************
+**************************************************************************************************************
+	EDITABLE STIMULI: change editable stimuli here
+**************************************************************************************************************
+**************************************************************************************************************
+
+<item arrows>
+/ 1 = "→"
+/ 2 = "←"
+</item>
+Alternatives:
+/1 = ">"
+/2 = "<"
+
+<item feedback>
+/ 1 = "Correct"
+/ 2 = "Error"
+</item>
+
+**************************************************************************************************************
+**************************************************************************************************************
+	EDITABLE INSTRUCTIONS: change instructions here
+**************************************************************************************************************
+**************************************************************************************************************
+Note: if any of the default values have changed, check whether the instructions
+need editing as well.
+
+<instruct>
+/ fontstyle = ("Arial", 2.8%, false, false, false, false, 5, 1)
+/ txcolor = black
+/ nextlabel = " "
+/ lastlabel = " "
+/ prevlabel = " "
+</instruct>
+
+
+<htmlpage intro>
+/ file = "arrow_flank_intro.html"
+</htmlpage>
+
+<htmlpage instructions_1>
+/ file = "arrow_flank_instructions_1.html"
+</htmlpage>
+
+<htmlpage instructions_2>
+/ file="arrow_flank_instructions_2.html"
+</htmlpage>
+
+<htmlpage instructions_3>
+/ file = "arrow_flank_instructions_3.html"
+</htmlpage>
+
+<page instructions_4>
+^^
+Now we will do a practice round.
+^^
+In the practice round the game will let you know if you made a mistake but in the real round it will not
+^^
+Get ready to start, please place your fingers on the left and right arrow keys
+</page>
+
+<htmlpage practiceend>
+/ file = "arrow_flank_practice_end.html"
+</htmlpage>
+
+
+<page end>
+Congratulations, you have finished the game!
+^^
+Please press the green button to have the experimenter come back to the room and start you on the next activity.
+</page>
+
+*******************************
+General Helper Instructions
+******************************
+
+<text getReady>
+/ items = ("Get Ready:
+~n<%expressions.buttoninstruct2%>")
+/ fontstyle = ("Arial", 3.00%, false, false, false, false, 5, 1)
+/ size = (80%, 40%)
+</text>
+
+***********************************************************
+these instructions will be run if the script is
+run on a touchscreen
+***********************************************************
+
+<text touchscreenInstruct1>
+/ items = ("General Note on Touchscreen Usage
+ for this Task:")
+/ fontstyle = ("Arial", 5%, true, false, false, false, 5, 1)
+/ position = (50%, 20%)
+/ size = (80%, 20%)
+/ vjustify = center
+</text>
+
+<text touchscreenInstruct2>
+/ items = ("Response buttons/keys are at the bottom of the screen")
+
+ 
+
+/ fontstyle = ("Arial", 3%, true, false, false, false, 5, 1)
+/ position = (50%, 50%)
+/ size = (70%, 30%)
+/ vjustify = center
+</text>
+
+****************************************************************************************************
+general instruction expressions: adjust the instruction text depending on device used to run script
+****************************************************************************************************
+<expressions>
+/ buttoninstruct1 = if (computer.touch && !computer.haskeyboard) {"button";} else {"key";}
+/ buttoninstruct2 = if (computer.touch && !computer.haskeyboard) {"Place your index fingers over the left and right response buttons";} else {"Place your index fingers on the '←' and '→' keys";}
+</expressions>
+
+**************************************************************************************************************
+								!!!REMAINING CODE: Customize after careful consideration only!!!
+**************************************************************************************************************
+
+
+**************************************************************************************************************
+**************************************************************************************************************
+	DEFAULTS
+**************************************************************************************************************
+**************************************************************************************************************
+script requires Inquisit 5.0.0.0 or higher
+
+<defaults>
+/ canvasaspectratio = (4,3)
+/ minimumversion = "5.0.0.0"
+/ fontstyle = ("Arial", 4%, false, false, false, false, 5, 1)
+/ txbgcolor = white
+/ txcolor = black
+</defaults>
+
+*******************************************************************************************************************
+*******************************************************************************************************************
+	DATA
+*******************************************************************************************************************
+*******************************************************************************************************************
+
+********************
+raw data
+********************
+
+<data>
+/ separatefiles = true
+/ columns = (build, computer.platform, date, time, subject, group, values.practice, blockcode, blocknum, values.blockcount, trialcode, trialnum, 
+values.trialcount, values.congruence, values.selecttarget, values.selectflanker, response, correct, latency)
+</data>
+
+********************
+summary data
+********************
+
+<summarydata>
+/ columns = (script.startdate, script.starttime, script.subjectid, script.groupid, script.elapsedtime, computer.platform, values.completed, values.blockcount, 
+expressions.propcorrect, expressions.meanrt,
+expressions.propcorrect_congruent, expressions.propcorrect_incongruent,
+expressions.meanrt_congruent, expressions.meanrt_incongruent)
+/ separatefiles = true
+</summarydata>
+
+*******************************************************************************************************************
+*******************************************************************************************************************
+	VALUES: automatically updated
+*******************************************************************************************************************
+*******************************************************************************************************************
+
+/completed:								0 = script was not completed; 1 = script was completed (all conditions run)
+/blockcount:							counts the blocks
+
+helper variables to determine current size of target and size of the rectangle needed
+/currenttargetheight:					
+/box_height:
+/box_width:
+
+helper variables to select the appropriate stimuli
+/selecttarget = 0
+/selectflanker = 0
+/selectfeedback = 0
+
+various helper variables
+/responsekey_left:					sets the current response key used for left-pointing arrows
+/responsekey_right:					sets the current response key used for right-pointing arrows
+/targetsize:						determines the current target size (1 = small, 2 = big)
+/congruence:						determines the state of the flankers (1 = congruent, 2 = incongruent)
+/keycongruence:						congruence of keys and target direction (1 = left key pressed for left pointing target; 2 = right key for left pointing target)
+/fixed:								sets whether to use fixed (1) or variable (0) SOAs
+/cleanuptime:						determined by response time and parameters.SOA_targetcue (0 <= cleanuptime < parameters.SOA_targetcue)
+/restperiod:						sets the current rest duration
+/practice:							1 = practice block; 0 = experimental block
+/trialcount:						counts all test trials
+/correct:							1 = correct; 0 = incorrect
+
+<values>
+/ completed = 0
+/ blockcount = 0
+
+/ currenttargetheight = 0
+/ box_height = parameters.flankerheight + parameters.increaseboxfactor
+/ box_width = values.box_height * parameters.spacingfactor
+
+/ selecttarget = 0
+/ selectflanker = 0
+/ selectfeedback = 0
+/ responsekey_left = 0
+/ responsekey_right = 0
+/ targetsize = 0
+/ congruence = 0
+/ keycongruence = 0
+/ fixed = 0
+/ cleanuptime = 0
+/ restperiod = 0
+/ practice = 0
+
+/ trialcount = 0
+/ correct = 0
+</values>
+
+*******************************************************************************************************************
+*******************************************************************************************************************
+	EXPRESSIONS
+*******************************************************************************************************************
+*******************************************************************************************************************
+/propcorrect:					overall proportion correct (test trials only)				
+/meanRT:						overall mean latency (ms) of correct responses (test trials only)
+
+/propcorrect_congruent:			proportion correct for all congruent trials
+/meanrt_congruent: 				mean latency (ms) of correct responses to congruent targets
+
+/propcorrect_incongruent:		proportion correct for all incongruent trials
+/meanrt_incongruent: 			mean latency (ms) of correct responses to incongruent targets
+
+<expressions>
+/ propcorrect = list.accuracy.mean
+/ meanRT = list.latency.mean
+
+/ propcorrect_congruent = list.accuracy_congruent.mean
+/ meanrt_congruent = list.latency_congruent.mean
+
+/ propcorrect_incongruent = list.accuracy_incongruent.mean
+/ meanrt_incongruent = list.latency_incongruent.mean
+</expressions>
+
+**************************************************************************************************************
+**************************************************************************************************************
+	INSTRUCTIONS
+**************************************************************************************************************
+**************************************************************************************************************
+
+*************************************
+General Helper Instruction Trials/Blocks
+*************************************
+
+This trial is used when participants are asked to place their fingers on specific response
+buttons. On the touchscreen, this trial presents the (inactive) response buttons to the participants.
+<trial getReady>
+/ stimulusframes = [1 = getReady]
+/ trialduration = 5000
+/ validresponse = (parameters.responsekey1, parameters.responsekey2)
+/ beginresponsetime = 5000
+/ errormessage = false
+/ recorddata = false
+</trial>
+
+Note: this trial is only run if the script is run on a Touchscreen
+<trial touchscreenInstruct>
+/ skip = [
+	!computer.touch || computer.haskeyboard;
+]
+/ stimulusframes = [1 = touchscreenInstruct1, touchscreenInstruct2]
+/ validresponse = (57)
+/ recorddata = false
+</trial>
+
+Note: this block is only run if the script is run on a Touchscreen
+<block touchscreenInfo>
+/ trials = [1 = touchscreenInstruct]
+</block>
+
+*******************************************************************************************************************
+*******************************************************************************************************************
+	STIMULI
+*******************************************************************************************************************
+*******************************************************************************************************************
+
+**********************************
+Rectangle
+**********************************
+
+<shape outerbox>
+/ shape = rectangle
+/ height = values.box_height + 2%
+/ width = values.box_width + 2%
+/ position = (50%, 50%)
+/ color = black
+/ erase = false
+</shape>
+
+<shape innerbox>
+/ shape = rectangle
+/ height = values.box_height
+/ width = values.box_width
+/ position = (50%, 50%)
+/ color = white
+/ erase = false
+</shape>
+
+**********************************
+Target and Flanker
+**********************************
+
+<text target>
+/ items = arrows
+/ select = values.selecttarget
+/ fontstyle = ("Arial", parameters.flankerheight, false, false, false, false, 5, 1)
+/ txcolor = black
+/ position = (50%, 50%)
+/ txbgcolor = white
+/ hjustify = center
+/ vjustify = center
+/ valign = center
+/ halign = center
+</text>
+
+<text flanker1>
+/ items = arrows
+/ select = values.selectflanker
+/ fontstyle = ("Arial", parameters.flankerheight, false, false, false, false, 5, 1)
+/ txcolor = black
+/ vposition = 50%
+/ hposition = text.flanker2.hposition - values.box_width/5
+/ txbgcolor = white
+/ hjustify = center
+/ vjustify = center
+</text>
+
+<text flanker2>
+/ items = arrows
+/ select = values.selectflanker
+/ fontstyle = ("Arial", parameters.flankerheight, false, false, false, false, 5, 1)
+/ txcolor = black
+/ vposition = 50%
+/ hposition = text.target.hposition - values.box_width/5
+/ txbgcolor = white
+</text>
+
+<text flanker3>
+/ items = arrows
+/ select = values.selectflanker
+/ fontstyle = ("Arial", parameters.flankerheight, false, false, false, false, 5, 1)
+/ txcolor = black
+/ vposition = 50%
+/ hposition = text.target.hposition + values.box_width/5
+/ txbgcolor = white
+/ hjustify = center
+/ vjustify = center
+</text>
+
+<text flanker4>
+/ items = arrows
+/ select = values.selectflanker
+/ fontstyle = ("Arial", parameters.flankerheight, false, false, false, false, 5, 1)
+/ txcolor = black
+/ vposition = 50%
+/ hposition = text.flanker3.hposition + values.box_width/5
+/ txbgcolor = white
+/ hjustify = center
+/ vjustify = center
+</text>
+
+********************************
+Miscelleneous Stimuli
+********************************
+<text feedback>
+/ items = feedback
+/ select = values.selectfeedback
+/ position = (50%, 50%)
+/ fontstyle = ("Arial", 4%, false, false, false, false, 5, 1)
+/ txcolor = black
+</text>
+
+*******************************************************************************************************************
+*******************************************************************************************************************
+	LISTS
+*******************************************************************************************************************
+*******************************************************************************************************************
+
+<list randomselection>
+/ items = (1, 2)
+/ replace = true
+/ selectionrate = always
+</list>
+
+*******************************
+data lists:
+fill during runtime
+*******************************
+
+Note: list stores 1 = correct response; 0 = incorrect response for each relevant trial
+<list accuracy>
+
+</list>
+Note: list stores the latency of correct responses for each relevant trial
+<list latency>
+</list>
+
+Note: list stores 1 = correct response; 0 = incorrect response for each relevant trial
+<list accuracy_congruent>
+</list>
+
+Note: list stores 1 = correct response; 0 = incorrect response for each relevant trial
+<list accuracy_incongruent>
+</list>
+
+Note: list stores the latency of correct responses for each relevant trial
+<list latency_congruent>
+</list>
+
+Note: list stores the latency of correct responses for each relevant trial
+<list latency_incongruent>
+</list>
+
+*******************************************************************************************************************
+*******************************************************************************************************************
+	TRIALS
+*******************************************************************************************************************
+*******************************************************************************************************************
+
+Separate trial sequences for left (=target points to the left), right (=target points to the right)
+and prefatory trials.
+
+All trial sequences follow the same logic. Explanations are only given for the first.
+
+********************************
+Target points to the left
+********************************
+
+Note: trial.targetleft_congruent
+* presents the cue = empty rectangular box for either a fixed or variable duration
+* determines the size of the target
+* presents the left pointing flankers and the left pointing target inside the rectangular box at parameters.SOA_cuetarget
+* calls feedback if parameters.feedback_experiment = 1 (=> ON)
+* max stimulus presentation = parameters.SOA_targetcue ; 
+to give participant indefinite time to respond remove / response = timeout(parameters.SOA_targetcue)
+
+<trial targetleft_congruent>
+/ ontrialbegin = [
+	values.trialcount += 1;
+	values.selecttarget = 2;
+	values.congruence = 1;
+	values.selectflanker = values.selecttarget;
+	trial.targetleft_congruent.insertstimulustime(text.flanker1, parameters.SOA_cuetarget);
+	trial.targetleft_congruent.insertstimulustime(text.flanker2, parameters.SOA_cuetarget);
+	trial.targetleft_congruent.insertstimulustime(text.target, parameters.SOA_cuetarget);
+	trial.targetleft_congruent.insertstimulustime(text.flanker3, parameters.SOA_cuetarget);
+	trial.targetleft_congruent.insertstimulustime(text.flanker4, parameters.SOA_cuetarget);
+]	
+/ stimulusframes = [1 = outerbox, innerbox]
+/ beginresponsetime = parameters.SOA_cuetarget
+/ validresponse = (parameters.responsekey1, parameters.responsekey2)
+/ correctresponse = (parameters.responsekey1)
+
+/ responseinterrupt = immediate
+/ response = timeout(parameters.SOA_targetcue)
+/ ontrialend = [
+	trial.targetleft_congruent.resetstimulusframes();
+	if (trial.targetleft_congruent.correct) {
+		values.correct = 1;
+	} else {
+		values.correct = 0;
+	};
+	values.cleanuptime = parameters.SOA_targetcue - trial.targetleft_congruent.latency;
+	list.accuracy.insertitem(values.correct, 1);
+	list.accuracy_congruent.insertitem(values.correct, 1);
+	if (values.correct == 1) {
+		list.latency.insertitem(trial.targetleft_congruent.latency, 1);
+		list.latency_congruent.insertitem(trial.targetleft_congruent.latency, 1);
+	} ;
+]	
+
+/ branch = [
+	if (values.practice == 1) {
+		if (values.correct == 1) {
+			trial.cleanup;
+		} else {
+			trial.feedback;
+		};
+	} else {
+		if (parameters.feedback_experiment == 1) {
+			if (values.correct == 1) {
+				trial.cleanup;
+			} else {
+				trial.feedback;
+			};
+		} else {
+			trial.cleanup;
+		};
+	};
+]
+/ recorddata = true
+</trial>
+
+Note: trial.targetleft_incongruent
+* presents the cue = empty rectangular box for either a fixed or variable duration
+* determines the size of the target
+* presents the right pointing flankers and the left pointing target inside the rectangular box at parameters.SOA_cuetarget
+* calls feedback if parameters.feedback_experiment = 1 (=> ON)
+* max stimulus presentation = parameters.SOA_targetcue ; 
+to give participant indefinite time to respond remove / response = timeout(parameters.SOA_targetcue) 
+<trial targetleft_incongruent>
+/ ontrialbegin = [
+	values.trialcount += 1;
+	values.selecttarget = 2;
+	values.congruence = 2;
+	values.selectflanker = 1;
+	trial.targetleft_incongruent.insertstimulustime(text.flanker1, parameters.SOA_cuetarget);
+	trial.targetleft_incongruent.insertstimulustime(text.flanker2, parameters.SOA_cuetarget);
+	trial.targetleft_incongruent.insertstimulustime(text.target, parameters.SOA_cuetarget);
+	trial.targetleft_incongruent.insertstimulustime(text.flanker3, parameters.SOA_cuetarget);
+	trial.targetleft_incongruent.insertstimulustime(text.flanker4, parameters.SOA_cuetarget);
+]	
+/ stimulusframes = [1 = outerbox, innerbox]
+/ beginresponsetime = parameters.SOA_cuetarget
+/ validresponse = (parameters.responsekey1, parameters.responsekey2)
+/ correctresponse = (parameters.responsekey1)
+
+/ responseinterrupt = immediate
+/ response = timeout(parameters.SOA_targetcue)
+/ ontrialend = [
+	trial.targetleft_incongruent.resetstimulusframes();
+	if (trial.targetleft_incongruent.correct) {
+		values.correct = 1;
+	} else {
+		values.correct = 0;
+	};
+	values.cleanuptime = parameters.SOA_targetcue - trial.targetleft_incongruent.latency;
+	list.accuracy.insertitem(values.correct, 1);
+	list.accuracy_incongruent.insertitem(values.correct, 1);
+	if (values.correct == 1) {
+		list.latency.insertitem(trial.targetleft_incongruent.latency, 1);
+		list.latency_incongruent.insertitem(trial.targetleft_incongruent.latency, 1);
+	} ;
+]	
+
+/ branch = [
+	if (values.practice == 1) {
+		if (values.correct == 1) {
+			trial.cleanup;
+		} else {
+			trial.feedback;
+		};
+	} else {
+		if (parameters.feedback_experiment == 1) {
+			if (values.correct == 1) {
+				trial.cleanup;
+			} else {
+				trial.feedback;
+			};
+		} else {
+			trial.cleanup;
+		};
+	};
+]
+/ recorddata = true
+</trial>
+
+********************************
+Target points to the right
+********************************
+
+Note: trial.targetright_congruent
+* presents the cue = empty rectangular box for either a fixed or variable duration
+* determines the size of the target
+* presents the right pointing flankers and the right pointing target inside the rectangular box at parameters.SOA_cuetarget
+* calls feedback if parameters.feedback_experiment = 1 (=> ON)
+* max stimulus presentation = parameters.SOA_targetcue ; 
+to give participant indefinite time to respond remove / response = timeout(parameters.SOA_targetcue)
+
+<trial targetright_congruent>
+/ ontrialbegin = [
+	values.trialcount += 1;
+	values.selecttarget = 1;
+	values.congruence = 1;
+	values.selectflanker = values.selecttarget;
+	trial.targetright_congruent.insertstimulustime(text.flanker1, parameters.SOA_cuetarget);
+	trial.targetright_congruent.insertstimulustime(text.flanker2, parameters.SOA_cuetarget);
+	trial.targetright_congruent.insertstimulustime(text.target, parameters.SOA_cuetarget);
+	trial.targetright_congruent.insertstimulustime(text.flanker3, parameters.SOA_cuetarget);
+	trial.targetright_congruent.insertstimulustime(text.flanker4, parameters.SOA_cuetarget);
+]	
+/ stimulusframes = [1 = outerbox, innerbox]
+/ beginresponsetime = parameters.SOA_cuetarget
+/ validresponse = (parameters.responsekey1, parameters.responsekey2)
+/ correctresponse = (parameters.responsekey2)
+
+/ responseinterrupt = immediate
+/ response = timeout(parameters.SOA_targetcue)
+/ ontrialend = [
+	trial.targetright_congruent.resetstimulusframes();
+	if (trial.targetright_congruent.correct) {
+		values.correct = 1;
+	} else {
+		values.correct = 0;
+	};
+	values.cleanuptime = parameters.SOA_targetcue - trial.targetright_congruent.latency;
+	list.accuracy.insertitem(values.correct, 1);
+	list.accuracy_congruent.insertitem(values.correct, 1);
+	if (values.correct == 1) {
+		list.latency.insertitem(trial.targetright_congruent.latency, 1);
+		list.latency_congruent.insertitem(trial.targetright_congruent.latency, 1);
+	} ;
+]	
+
+/ branch = [
+	if (values.practice == 1) {
+		if (values.correct == 1) {
+			trial.cleanup;
+		} else {
+			trial.feedback;
+		};
+	} else {
+		if (parameters.feedback_experiment == 1) {
+			if (values.correct == 1) {
+				trial.cleanup;
+			} else {
+				trial.feedback;
+			};
+		} else {
+			trial.cleanup;
+		};
+	};
+]
+/ recorddata = true
+</trial>
+
+Note: trial.targetright_incongruent
+* presents the cue = empty rectangular box for either a fixed or variable duration
+* determines the size of the target
+* presents the left pointing flankers and the right pointing target inside the rectangular box at parameters.SOA_cuetarget
+* calls feedback if parameters.feedback_experiment = 1 (=> ON)
+* max stimulus presentation = parameters.SOA_targetcue ; 
+to give participant indefinite time to respond remove / response = timeout(parameters.SOA_targetcue)
+<trial targetright_incongruent>
+/ ontrialbegin = [
+	values.trialcount += 1;
+	values.selecttarget = 1;
+	values.congruence = 2;
+	values.selectflanker = 2;
+	trial.targetright_incongruent.insertstimulustime(text.flanker1, parameters.SOA_cuetarget);
+	trial.targetright_incongruent.insertstimulustime(text.flanker2, parameters.SOA_cuetarget);
+	trial.targetright_incongruent.insertstimulustime(text.target, parameters.SOA_cuetarget);
+	trial.targetright_incongruent.insertstimulustime(text.flanker3, parameters.SOA_cuetarget);
+	trial.targetright_incongruent.insertstimulustime(text.flanker4, parameters.SOA_cuetarget);
+]	
+/ stimulusframes = [1 = outerbox, innerbox]
+/ beginresponsetime = parameters.SOA_cuetarget
+/ validresponse = (parameters.responsekey1, parameters.responsekey2)
+/ correctresponse = (parameters.responsekey2)
+
+/ responseinterrupt = immediate
+/ response = timeout(parameters.SOA_targetcue)
+/ ontrialend = [
+	trial.targetright_incongruent.resetstimulusframes();
+	if (trial.targetright_incongruent.correct) {
+		values.correct = 1;
+	} else {
+		values.correct = 0;
+	};
+	values.cleanuptime = parameters.SOA_targetcue - trial.targetright_incongruent.latency;
+	list.accuracy.insertitem(values.correct, 1);
+	list.accuracy_incongruent.insertitem(values.correct, 1);
+	if (values.correct == 1) {
+		list.latency.insertitem(trial.targetright_incongruent.latency, 1);
+		list.latency_incongruent.insertitem(trial.targetright_incongruent.latency, 1);
+	} ;
+]	
+
+/ branch = [
+	if (values.practice == 1) {
+		if (values.correct == 1) {
+			trial.cleanup;
+		} else {
+			trial.feedback;
+		};
+	} else {
+		if (parameters.feedback_experiment == 1) {
+			if (values.correct == 1) {
+				trial.cleanup;
+			} else {
+				trial.feedback;
+			};
+		} else {
+			trial.cleanup;
+		};
+	};
+]
+/ recorddata = true
+</trial>
+
+*******************************
+Prefatory trials: 
+*******************************
+Note: the prefatory trials are the first 4 trials called by each block.
+=> They should be excluded from data analyses.
+
+<trial prefatory>
+/ ontrialbegin = [
+	values.selecttarget = list.randomselection.nextvalue;
+	values.congruence = list.randomselection.nextvalue;
+	if (values.congruence == 1 && values.selecttarget == 1) {
+		values.selectflanker = 1;
+	} else if (values.congruence == 1 && values.selecttarget == 2) {
+		values.selectflanker = 2;
+	} else if (values.congruence != 1 && values.selecttarget == 1) {
+		values.selectflanker = 2;
+	} else {
+		values.selectflanker = 1
+	};
+	trial.prefatory.insertstimulustime(text.flanker1, parameters.SOA_cuetarget);
+	trial.prefatory.insertstimulustime(text.flanker2, parameters.SOA_cuetarget);
+	trial.prefatory.insertstimulustime(text.target, parameters.SOA_cuetarget);
+	trial.prefatory.insertstimulustime(text.flanker3, parameters.SOA_cuetarget);
+	trial.prefatory.insertstimulustime(text.flanker4, parameters.SOA_cuetarget);
+]
+/ stimulusframes = [1 = outerbox, innerbox]
+/ beginresponsetime = parameters.SOA_cuetarget
+/ validresponse = (parameters.responsekey1, parameters.responsekey2)
+/ iscorrectresponse = [(values.selecttarget == 2 && trial.prefatory.response == parameters.responsekey1) ||
+					(values.selecttarget == 1 && trial.prefatory.response == parameters.responsekey2) ]
+/ monkeyresponse = (values.responsekey_left, values.responsekey_right)
+/ responseinterrupt = immediate
+/ response = timeout(parameters.SOA_targetcue)
+
+/ ontrialend = [
+	trial.prefatory.resetstimulusframes();
+	values.cleanuptime = parameters.SOA_targetcue - trial.prefatory.latency;
+	if (trial.prefatory.correct)
+		values.correct = 1 
+	else
+		values.correct = 0;
+]
+/ branch = [
+	if (values.practice == 1) {
+		if (values.correct == 1) {
+			trial.cleanup;
+		} else {
+			trial.feedback;
+		};
+	} else {
+		if (parameters.feedback_experiment == 1) {
+			if (values.correct == 1) {
+				trial.cleanup;
+			} else {
+				trial.feedback;
+			};
+		} else {
+			trial.cleanup;
+		};
+	};
+]
+/ recorddata = true
+</trial>
+
+***********************************
+all trial sequences
+***********************************
+<trial cleanup>
+/ stimulusframes = [1 =clearscreen]
+/ trialduration = values.cleanuptime
+/ recorddata = false
+</trial>
+
+<trial feedback>
+/ ontrialbegin = [
+	if (values.correct == 1) {
+		text.feedback.textcolor = green;
+		values.selectfeedback = 1
+	} else {
+		text.feedback.textcolor = red;
+		values.selectfeedback = 2
+	}
+]
+/ stimulusframes = [1 = clearscreen, feedback]
+/ branch = [trial.cleanup]
+/ recorddata = false
+/ trialduration = parameters.feedback_duration
+</trial>
+
+*******************************************************************************************************************
+*******************************************************************************************************************
+	BLOCKS
+*******************************************************************************************************************
+*******************************************************************************************************************
+
+Note: block.arrowFlanker
+* uses left response key for left pointing target & right response key for right pointing targets
+* fixes the SOA between cue and target
+* presents 4 prefatory trials that are excluded from further analyses followed by 96 experimental trials
+(see below for alternative code if prefatory trials should not be run)
+<block arrowFlanker>
+/ onblockbegin = [
+	values.practice = 0;
+	values.blockcount += 1
+]
+
+/ trials = [1 = getReady; 2-5 = prefatory; 6-70 = noreplace(targetleft_congruent, targetleft_incongruent, targetright_congruent, targetright_incongruent)]
+</block>
+
+Alternative code if no prefatory trials are to be run:
+/trials = [1 = getReady; 2-97 = noreplace(targetleft_congruent, targetleft_incongruent, targetright_congruent, targetright_incongruent)]
+
+***************************
+Practice Blocks
+***************************
+
+* presents 4 prefatory trials that are excluded from further analyses followed by 48 practice trials
+<block practice>
+/ preinstructions = (intro, instructions_1, instructions_2, instructions_3, instructions_4)
+/ onblockbegin = [
+	values.practice = 1;
+]	
+/ trials = [1 = getReady; 2-10 = noreplace(targetleft_congruent, targetleft_incongruent, targetright_congruent, targetright_incongruent)]
+/ onblockend = [
+	list.accuracy.reset();
+	list.latency.reset();
+	list.accuracy_congruent.reset();
+	list.accuracy_incongruent.reset();
+	list.latency_congruent.reset();
+	list.latency_incongruent.reset();
+]
+/ postinstructions = (practiceend)
+</block>
+
+*******************************************************************************************************************
+*******************************************************************************************************************
+EXPERIMENT
+*******************************************************************************************************************
+*******************************************************************************************************************
+
+<expt> 
+/ postinstructions = (end)
+/ blocks = [
+	1 = touchscreenInfo;
+	2 = practice;
+	3 = arrowFlanker;
+]
+/ onexptend = [values.completed = 1]
+</expt>
+
+*******************************************************************************************************************
+												End of File
+*******************************************************************************************************************
