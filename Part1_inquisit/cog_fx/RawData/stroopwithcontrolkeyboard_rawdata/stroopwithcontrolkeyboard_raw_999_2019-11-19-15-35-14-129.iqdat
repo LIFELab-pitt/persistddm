@@ -1,0 +1,3 @@
+build	computer.platform	date	time	subject	blockcode	blocknum	trialcode	trialnum	values.congruency	stimulusitem1	response	correct	latency
+5.0.11.0	win	111919	10:35:14	999	stroop	3	blackincongruent	2	2	green	3	0	882
+5.0.11.0	win	111919	10:35:14	999	stroop	3	blackincongruent	3	2	blue	Ctrl+'Q'	1	2008

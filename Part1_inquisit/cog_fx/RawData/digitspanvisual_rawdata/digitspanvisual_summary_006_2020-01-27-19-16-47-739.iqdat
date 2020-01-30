@@ -1,0 +1,2 @@
+script.startdate	script.starttime	script.subjectid	script.groupid	script.elapsedtime	computer.platform	values.completed	values.fTE_ML	values.fTE_TT	values.fML	values.fMS	values.bTE_ML	values.bTE_TT	values.bML	values.bMS
+012720	14:16:47	006	2	276902	win	1	7	7	7	6.4000000000000003553	-1	-1	0	0

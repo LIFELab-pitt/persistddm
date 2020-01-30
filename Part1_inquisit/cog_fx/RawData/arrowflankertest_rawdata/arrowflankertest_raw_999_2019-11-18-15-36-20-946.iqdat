@@ -1,0 +1,17 @@
+build	computer.platform	date	time	subject	group	values.practice	blockcode	blocknum	values.blockcount	trialcode	trialnum	values.trialcount	values.congruence	values.selecttarget	values.selectflanker	response	correct	latency
+5.0.11.0	win	111819	10:36:20	999	2	1	practice	2	0	targetright_congruent	2	1	1	1	1	205	1	350
+5.0.11.0	win	111819	10:36:20	999	2	1	practice	2	0	targetleft_congruent	4	2	1	2	2	203	1	318
+5.0.11.0	win	111819	10:36:20	999	2	1	practice	2	0	targetright_congruent	6	3	1	1	1	205	1	334
+5.0.11.0	win	111819	10:36:20	999	2	1	practice	2	0	targetleft_congruent	8	4	1	2	2	203	1	333
+5.0.11.0	win	111819	10:36:20	999	2	1	practice	2	0	targetleft_incongruent	10	5	2	2	1	203	1	398
+5.0.11.0	win	111819	10:36:20	999	2	1	practice	2	0	targetleft_incongruent	12	6	2	2	1	203	1	398
+5.0.11.0	win	111819	10:36:20	999	2	1	practice	2	0	targetright_incongruent	14	7	2	1	2	205	1	382
+5.0.11.0	win	111819	10:36:20	999	2	1	practice	2	0	targetright_incongruent	16	8	2	1	2	205	1	365
+5.0.11.0	win	111819	10:36:20	999	2	1	practice	2	0	targetleft_congruent	18	9	1	2	2	203	1	382
+5.0.11.0	win	111819	10:36:20	999	2	0	arrowFlanker	3	1	prefatory	2	9	1	1	1	0	0	1750
+5.0.11.0	win	111819	10:36:20	999	2	0	arrowFlanker	3	1	prefatory	4	9	2	2	1	0	0	1750
+5.0.11.0	win	111819	10:36:20	999	2	0	arrowFlanker	3	1	prefatory	6	9	2	1	2	0	0	1750
+5.0.11.0	win	111819	10:36:20	999	2	0	arrowFlanker	3	1	prefatory	8	9	2	1	2	0	0	1750
+5.0.11.0	win	111819	10:36:20	999	2	0	arrowFlanker	3	1	targetleft_congruent	10	10	1	2	2	0	0	1750
+5.0.11.0	win	111819	10:36:20	999	2	0	arrowFlanker	3	1	targetleft_incongruent	12	11	2	2	1	0	0	1750
+5.0.11.0	win	111819	10:36:20	999	2	0	arrowFlanker	3	1	targetright_incongruent	14	12	2	1	2	Ctrl+'Q'	1	369

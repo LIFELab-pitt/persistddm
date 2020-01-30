@@ -148,7 +148,7 @@ for t = 1:20
         Coin_Count = Coin_Count + data.outcome(t);
     elseif win == false
         data.outcome(t) = - prep.feedback(t, data.choice(t));
-        Coins_Lost = Coin_Count - data.outcome(t);
+        Coins_Lost = Coins_Lost - data.outcome(t);
     else 
         data.outcome(t)= nan;
     end

@@ -1,0 +1,2 @@
+script.startdate	script.starttime	script.subjectid	script.groupid	script.elapsedtime	computer.platform	values.completed	values.blockcount	expressions.propcorrect	expressions.meanrt	expressions.propcorrect_congruent	expressions.propcorrect_incongruent	expressions.meanrt_congruent	expressions.meanrt_incongruent
+120519	17:23:13	3687	2	332206	win	1	1	0.98461538461538467	482.25	1	0.96875	449.9090909090909349288	516.6774193548386620023
