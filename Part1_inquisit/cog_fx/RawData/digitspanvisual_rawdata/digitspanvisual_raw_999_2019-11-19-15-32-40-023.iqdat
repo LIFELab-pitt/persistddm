@@ -1,0 +1,4 @@
+build	computer.platform	date	time	subject	group	blockcode	blocknum	trialnum	trialcode	values.assesstype	list.digitsequences.currentvalue	list.digitsequences.currentindex	values.N	values.countTrials	values.sequence	values.correctSolution	values.proposedSolution	values.correct	values.con_errorcount	values.TE_ML	values.TE_TT	values.ML	values.MS
+5.0.11.0	win	111919	10:32:40	999	2	f_practiceblock	3	6	f_practice	0	2538967145324871	48	3	0	253	253	253	1	0	-1	-1	0	0
+5.0.11.0	win	111919	10:32:40	999	2	f_practiceblock	3	13	f_practice	0	5398274618562371	32	3	0	539	539	539	1	0	-1	-1	0	0
+5.0.11.0	win	111919	10:32:40	999	2	forward_block	4	6	f_trial3	0	8164592375326847	158	3	1	816	816	555	0	1	-1	-1	0	0

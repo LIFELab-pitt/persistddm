@@ -1,0 +1,2 @@
+script.startdate	script.starttime	script.subjectid	script.groupid	script.elapsedtime	computer.platform	values.completed	trial.SRTT.totalmeanlatency	trial.SRTT.totalmedianlatency	trial.SRTT.totalminlatency	trial.SRTT.totalmaxlatency	trial.SRTT.totalsdlatency	trial.SRTT.totalvarlatency
+012220	18:10:09	0004	2	206370	win	1	386.3478260869565019675	354	281	831	109.7822674436053489444	12052.1462450592898676405

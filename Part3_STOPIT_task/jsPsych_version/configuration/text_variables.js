@@ -8,7 +8,7 @@ var page1 = [
   '</p>'
 ];
 var page2 = [
-  '<p>The green arrow will either will either be pointing to the LEFT or pointing to the RIGHT</p>'+
+  '<p>The green arrow will either be pointing to the LEFT or pointing to the RIGHT</p>'+
   '<p>When you see an arrow pointing to the LEFT, press the left arrow key'+ '<img src = ' + go_stim1 + ' align="middle" style="width:200px;height:200px;" </img></p>' +
   '<p>When you see an arrow pointing to the RIGHT, press the right arrow key' + '<img src = ' + go_stim2 + ' align="middle" style="width:200px;height:200px;" </img></p>' +
   '<p>Except when the the green arrow is quickly replaced by two XXs '+' <img src = ' + stop_stim1 + ' align="middle" style="width:200px;height:200px;" </img></p>' + 
@@ -63,4 +63,4 @@ var text_at_start_block = "<p>Place your fingers on the arrow keys to get ready<
 var get_ready_message = '<p>Get ready...</p>'
 var fixation_text = '<div style="font-size:60px;">TEST</div>'
 var end_message = "<p>Thank you for your participation.</p>" +
-  "<p>Press space to finalize the experiment (redirect to XXX).</p>"
+  "<p>Press space to finalize the experiment.</p>"

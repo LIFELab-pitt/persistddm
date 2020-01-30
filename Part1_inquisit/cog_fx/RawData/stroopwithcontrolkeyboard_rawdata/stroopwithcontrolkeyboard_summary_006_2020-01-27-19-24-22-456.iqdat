@@ -1,0 +1,2 @@
+script.startdate	script.starttime	script.subjectid	script.groupid	script.elapsedtime	computer.platform	values.completed	expressions.propcorrect	expressions.meanRT	expressions.meanRTcorr_congruent	expressions.meanRTcorr_incongruent	expressions.meanRTcorr_control	expressions.propcorrect_congruent	expressions.propcorrect_incongruent	expressions.propcorrect_control
+012720	14:24:22	006	2	215737	win	1	0.9880952380952381375	1055.8192771084336527565	988.1785714285714448124	1261.1071428571428896248	913.074074074074019336	1	1	0.9642857142857143016
